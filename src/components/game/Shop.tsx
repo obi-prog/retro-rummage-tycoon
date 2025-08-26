@@ -159,6 +159,10 @@ export const Shop = () => {
     }
   };
 
+  const handleRejectOffer = () => {
+    resetNegotiation();
+  };
+
   const handleCounterOffer = (adjustment: number) => {
     const newPrice = Math.max(1, currentOffer + adjustment);
     setCurrentOffer(newPrice);
@@ -399,6 +403,27 @@ export const Shop = () => {
             
             {/* Price Controls */}
             <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3 mb-3">
+                <Button 
+                  variant="destructive"
+                  onClick={handleRejectOffer}
+                  className="font-bold"
+                >
+                  {t('reject', language)}
+                </Button>
+                <Button 
+                  variant="default"
+                  onClick={handleAcceptOffer}
+                  className={`text-white font-bold ${
+                    currentCustomer.intent === 'buy'
+                      ? 'bg-green-600 hover:bg-green-700'
+                      : 'bg-blue-600 hover:bg-blue-700'
+                  }`}
+                  disabled={currentCustomer.intent === 'sell' && currentOffer > cash}
+                >
+                  {t('accept', language)}
+                </Button>
+              </div>
               <div className="grid grid-cols-5 gap-2">
                 <Button 
                   variant="outline" 
@@ -415,19 +440,6 @@ export const Shop = () => {
                   className="text-red-600 border-red-200 hover:bg-red-50"
                 >
                   -10₳
-                </Button>
-                <Button 
-                  variant="default"
-                  size="sm"
-                  onClick={handleAcceptOffer}
-                  className={`text-white font-bold ${
-                    currentCustomer.intent === 'buy'
-                      ? 'bg-green-600 hover:bg-green-700'
-                      : 'bg-blue-600 hover:bg-blue-700'
-                  }`}
-                  disabled={currentCustomer.intent === 'sell' && currentOffer > cash}
-                >
-                  {t('accept', language)}
                 </Button>
                 <Button 
                   variant="outline" 

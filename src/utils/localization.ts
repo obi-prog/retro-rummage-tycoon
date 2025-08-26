@@ -85,6 +85,7 @@ export const translations = {
     theirPrice: 'Their Price',
     buyFromThem: 'Buy From Them',
     sellToThem: 'Sell To Them',
+    reject: 'Reject',
   },
   
   de: {
@@ -171,6 +172,7 @@ export const translations = {
     theirPrice: 'Ihr Preis',
     buyFromThem: 'Von ihnen kaufen',
     sellToThem: 'An sie verkaufen',
+    reject: 'Ablehnen',
   },
   
   tr: {
@@ -257,6 +259,7 @@ export const translations = {
     theirPrice: 'Onların Fiyatı',
     buyFromThem: 'Onlardan Satın Al',
     sellToThem: 'Onlara Sat',
+    reject: 'Reddet',
   }
 };
 
