@@ -52,6 +52,19 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+				retro: {
+					orange: 'hsl(var(--retro-orange))',
+					purple: 'hsl(var(--retro-purple))',
+					pink: 'hsl(var(--retro-pink))',
+					cyan: 'hsl(var(--retro-cyan))',
+					yellow: 'hsl(var(--retro-yellow))'
+				},
+				vintage: {
+					brown: 'hsl(var(--vintage-brown))'
+				},
+				cash: {
+					green: 'hsl(var(--cash-green))'
+				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
