@@ -129,9 +129,8 @@ export const GameUI = () => {
 
       {/* Game Tabs */}
       <Tabs defaultValue="inventory" className="w-full">
-        <TabsList className="grid w-full grid-cols-7">
+        <TabsList className="w-full">
           <TabsTrigger value="inventory">📦 Envanter</TabsTrigger>
-          <TabsTrigger value="shop">🛒 Dükkan</TabsTrigger>
           <TabsTrigger value="missions">🎯 Görevler</TabsTrigger>
           <TabsTrigger value="skills">⚡ Yetenekler</TabsTrigger>
           <TabsTrigger value="events">📰 Olaylar</TabsTrigger>
@@ -141,10 +140,6 @@ export const GameUI = () => {
 
         <TabsContent value="inventory">
           <Inventory />
-        </TabsContent>
-
-        <TabsContent value="shop">
-          <Shop />
         </TabsContent>
 
         <TabsContent value="missions">

@@ -1,15 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useGameStore } from '@/store/gameStore';
-import { GameUI } from '@/components/game/GameUI';
-import { Inventory } from '@/components/game/Inventory';
 import { Shop } from '@/components/game/Shop';
-import { MissionsPanel } from '@/components/game/MissionsPanel';
-import { EventsPanel } from '@/components/game/EventsPanel';
-import { SkillsPanel } from '@/components/game/SkillsPanel';
+import { NavigationMenu } from '@/components/game/NavigationMenu';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { t } from '@/utils/localization';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const Index = () => {
   const { 
@@ -97,52 +92,44 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-secondary/10 to-accent/10">
       <div className="container mx-auto px-4 py-2">
-        {/* Game Header */}
-        <GameUI />
-        
-        {/* Game Content */}
-        <Tabs defaultValue="shop" className="w-full max-w-sm mx-auto">
-          <TabsList className="grid w-full grid-cols-5 mb-4 text-xs">
-            <TabsTrigger value="shop" className="text-xs">
-              🏪
-            </TabsTrigger>
-            <TabsTrigger value="inventory" className="text-xs">
-              📦
-            </TabsTrigger>
-            <TabsTrigger value="missions" className="text-xs relative">
-              🎯
-              {missions.filter(m => m.completed && !useGameStore.getState().completedMissions.includes(m.id)).length > 0 && (
-                <div className="absolute -top-1 -right-1 w-2 h-2 bg-retro-orange rounded-full"></div>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="events" className="text-xs">
-              ⚡
-            </TabsTrigger>
-            <TabsTrigger value="skills" className="text-xs">
-              🎓
-            </TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="shop" className="space-y-4">
-            <Shop />
-          </TabsContent>
-          
-          <TabsContent value="inventory" className="space-y-4">
-            <Inventory />
-          </TabsContent>
-          
-          <TabsContent value="missions" className="space-y-4">
-            <MissionsPanel />
-          </TabsContent>
-          
-          <TabsContent value="events" className="space-y-4">
-            <EventsPanel />
-          </TabsContent>
-          
-          <TabsContent value="skills" className="space-y-4">
-            <SkillsPanel />
-          </TabsContent>
-        </Tabs>
+        {/* Game Stats */}
+        <div className="grid grid-cols-2 gap-2 mb-4">
+          <Card className="bg-gradient-to-r from-retro-orange to-retro-pink shadow-lg">
+            <CardContent className="p-3">
+              <div className="flex justify-between items-center text-white text-sm">
+                <div className="flex items-center gap-1">
+                  <span>💰</span>
+                  <span className="font-bold">${cash}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span>⭐</span>
+                  <span className="font-bold">Lv.{level}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-card/90 backdrop-blur-sm">
+            <CardContent className="p-3">
+              <div className="flex justify-between items-center text-sm">
+                <div className="flex items-center gap-1">
+                  <span>🕒</span>
+                  <span className="font-bold">{Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span>📅</span>
+                  <span className="font-bold">Gün {day}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Main Shop Interface */}
+        <Shop />
+
+        {/* Navigation Menu */}
+        <NavigationMenu />
 
         {/* Day End Summary */}
         {timeLeft === 0 && (
