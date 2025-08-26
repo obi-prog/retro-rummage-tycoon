@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { GameState, Item, Customer, ItemCategory, Language, DailyStats } from '@/types/game';
 import { Mission } from '@/types/missions';
 import { detectLanguage } from '@/utils/localization';
-import { generateDailyMissions, generateWeeklyMissions, calculateLevelProgress, updateMissionProgress } from '@/utils/missionSystem';
+import { generateDailyMissions, generateWeeklyMissions, generateAchievementMissions, calculateLevelProgress, updateMissionProgress } from '@/utils/missionSystem';
 import { generateRandomEvent, generateTrendBurst, processEventEffects } from '@/utils/eventSystem';
 
 interface GameStore extends GameState {
@@ -90,7 +90,11 @@ export const useGameStore = create<GameStore>()((set, get) => ({
 
   // Actions
   initGame: () => {
-    const initialMissions = generateDailyMissions(1);
+    const initialMissions = [
+      ...generateDailyMissions(1),
+      ...generateWeeklyMissions(1),
+      ...generateAchievementMissions(1)
+    ];
     set({
       level: 1,
       cash: 500,
@@ -201,6 +205,16 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       // Reset daily missions and generate new ones
       const newDailyMissions = generateDailyMissions(state.level);
       const keepWeeklyMissions = state.missions.filter(m => m.type === 'weekly' && !state.completedMissions.includes(m.id));
+      const keepAchievementMissions = state.missions.filter(m => m.type === 'achievement' && !m.completed);
+      const newAchievementMissions = generateAchievementMissions(state.level);
+      
+      // Merge achievement missions (keep existing + add new ones not already present)
+      const allAchievements = [
+        ...keepAchievementMissions,
+        ...newAchievementMissions.filter(newMission => 
+          !keepAchievementMissions.some(existing => existing.id === newMission.id)
+        )
+      ];
       
       // Reduce trend durations
       const updatedTrends = state.trends.map(t => ({ ...t, duration: t.duration - 1 })).filter(t => t.duration > 0);
@@ -212,7 +226,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
         day: state.day + 1,
         timeLeft: 120 + (state.level * 10),
         cash: state.cash - state.dailyExpenses,
-        missions: [...newDailyMissions, ...keepWeeklyMissions],
+        missions: [...newDailyMissions, ...keepWeeklyMissions, ...allAchievements],
         trends: updatedTrends,
         events: updatedEvents,
         dailyStats: {
@@ -245,6 +259,16 @@ export const useGameStore = create<GameStore>()((set, get) => ({
         // Day ended - same logic as advanceDay
         const newDailyMissions = generateDailyMissions(state.level);
         const keepWeeklyMissions = state.missions.filter(m => m.type === 'weekly' && !state.completedMissions.includes(m.id));
+        const keepAchievementMissions = state.missions.filter(m => m.type === 'achievement' && !m.completed);
+        const newAchievementMissions = generateAchievementMissions(state.level);
+        
+        const allAchievements = [
+          ...keepAchievementMissions,
+          ...newAchievementMissions.filter(newMission => 
+            !keepAchievementMissions.some(existing => existing.id === newMission.id)
+          )
+        ];
+        
         const updatedTrends = state.trends.map(t => ({ ...t, duration: t.duration - 1 })).filter(t => t.duration > 0);
         const updatedEvents = state.events.map(e => ({ ...e, duration: e.duration ? e.duration - 1 : 0 })).filter(e => e.duration && e.duration > 0);
         
@@ -252,7 +276,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
           timeLeft: 120 + (state.level * 10),
           day: state.day + 1,
           cash: state.cash - state.dailyExpenses,
-          missions: [...newDailyMissions, ...keepWeeklyMissions],
+          missions: [...newDailyMissions, ...keepWeeklyMissions, ...allAchievements],
           trends: updatedTrends,
           events: updatedEvents,
           dailyStats: {

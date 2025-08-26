@@ -3,7 +3,7 @@ import { Mission, MissionRequirement } from '@/types/missions';
 export const generateDailyMissions = (level: number): Mission[] => {
   const dailyMissions: Mission[] = [];
   
-  // Level 1-3: Basic missions
+  // Level 1-3: Basic missions (3 daily missions)
   if (level <= 3) {
     dailyMissions.push(
       {
@@ -29,11 +29,23 @@ export const generateDailyMissions = (level: number): Mission[] => {
         maxProgress: 100 * level,
         completed: false,
         level: 1
+      },
+      {
+        id: 'daily_buy_basic',
+        title: 'Alışveriş',
+        description: `${level + 1} ürün satın al`,
+        type: 'daily' as const,
+        requirements: [{ type: 'buy_items' as const, target: level + 1, current: 0 }],
+        rewards: [{ type: 'experience', amount: 20 }, { type: 'cash', amount: 30 }],
+        progress: 0,
+        maxProgress: level + 1,
+        completed: false,
+        level: 1
       }
     );
   }
   
-  // Level 4-6: Intermediate missions
+  // Level 4-6: Intermediate missions (4 daily missions)
   if (level >= 4 && level <= 6) {
     dailyMissions.push(
       {
@@ -71,11 +83,23 @@ export const generateDailyMissions = (level: number): Mission[] => {
         maxProgress: 2,
         completed: false,
         level: 4
+      },
+      {
+        id: 'daily_reputation_gain',
+        title: 'İtibar Kazanımı',
+        description: '2 itibar puan kazan',
+        type: 'daily' as const,
+        requirements: [{ type: 'reputation' as const, target: 2, current: 0 }],
+        rewards: [{ type: 'experience', amount: 45 }, { type: 'cash', amount: 150 }],
+        progress: 0,
+        maxProgress: 2,
+        completed: false,
+        level: 4
       }
     );
   }
   
-  // Level 7+: Advanced missions
+  // Level 7+: Advanced missions (5 daily missions)
   if (level >= 7) {
     dailyMissions.push(
       {
@@ -113,13 +137,36 @@ export const generateDailyMissions = (level: number): Mission[] => {
         maxProgress: 5,
         completed: false,
         level: 7
+      },
+      {
+        id: 'daily_master_negotiator',
+        title: 'Usta Pazarlıkçı',
+        description: '6 başarılı pazarlık yap',
+        type: 'daily' as const,
+        requirements: [{ type: 'negotiate_success' as const, target: 6, current: 0 }],
+        rewards: [{ type: 'experience', amount: 90 }, { type: 'reputation', amount: 4 }],
+        progress: 0,
+        maxProgress: 6,
+        completed: false,
+        level: 7
+      },
+      {
+        id: 'daily_smart_buyer',
+        title: 'Akıllı Alıcı',
+        description: `${3 + Math.floor(level/3)} ürün satın al`,
+        type: 'daily' as const,
+        requirements: [{ type: 'buy_items' as const, target: 3 + Math.floor(level/3), current: 0 }],
+        rewards: [{ type: 'experience', amount: 70 }, { type: 'cash', amount: 250 }],
+        progress: 0,
+        maxProgress: 3 + Math.floor(level/3),
+        completed: false,
+        level: 7
       }
     );
   }
   
-  // Return random 2-3 missions for the day
-  const shuffled = dailyMissions.sort(() => 0.5 - Math.random());
-  return shuffled.slice(0, level <= 3 ? 2 : 3);
+  // Return all available daily missions for the level
+  return dailyMissions;
 };
 
 export const generateWeeklyMissions = (level: number): Mission[] => {
@@ -251,9 +298,160 @@ export const generateWeeklyMissions = (level: number): Mission[] => {
     );
   }
   
-  // Return 1-2 weekly missions based on level
-  const shuffled = weeklyMissions.sort(() => 0.5 - Math.random());
-  return shuffled.slice(0, level <= 3 ? 1 : 2);
+  // Return all weekly missions for the level
+  return weeklyMissions;
+};
+
+export const generateAchievementMissions = (level: number): Mission[] => {
+  const achievements: Mission[] = [];
+  
+  // Level-based achievement missions that stay available until completed
+  if (level >= 1) {
+    achievements.push(
+      {
+        id: 'achievement_first_sale',
+        title: 'İlk Satış',
+        description: 'İlk ürününü sat',
+        type: 'achievement' as const,
+        requirements: [{ type: 'sell_items' as const, target: 1, current: 0 }],
+        rewards: [{ type: 'experience', amount: 50 }, { type: 'cash', amount: 100 }],
+        progress: 0,
+        maxProgress: 1,
+        completed: false,
+        level: 1
+      },
+      {
+        id: 'achievement_money_maker',
+        title: 'Para Babası',
+        description: 'Toplam 1000₺ kazan',
+        type: 'achievement' as const,
+        requirements: [{ type: 'earn_cash' as const, target: 1000, current: 0 }],
+        rewards: [{ type: 'experience', amount: 100 }, { type: 'reputation', amount: 5 }],
+        progress: 0,
+        maxProgress: 1000,
+        completed: false,
+        level: 1
+      }
+    );
+  }
+  
+  if (level >= 2) {
+    achievements.push(
+      {
+        id: 'achievement_sales_specialist',
+        title: 'Satış Uzmanı',
+        description: 'Toplam 25 ürün sat',
+        type: 'achievement' as const,
+        requirements: [{ type: 'sell_items' as const, target: 25, current: 0 }],
+        rewards: [{ type: 'experience', amount: 150 }, { type: 'cash', amount: 300 }],
+        progress: 0,
+        maxProgress: 25,
+        completed: false,
+        level: 2
+      },
+      {
+        id: 'achievement_negotiation_pro',
+        title: 'Pazarlık Profesyoneli',
+        description: 'Toplam 15 başarılı pazarlık yap',
+        type: 'achievement' as const,
+        requirements: [{ type: 'negotiate_success' as const, target: 15, current: 0 }],
+        rewards: [{ type: 'experience', amount: 200 }, { type: 'reputation', amount: 8 }],
+        progress: 0,
+        maxProgress: 15,
+        completed: false,
+        level: 2
+      }
+    );
+  }
+  
+  if (level >= 3) {
+    achievements.push(
+      {
+        id: 'achievement_fake_detector',
+        title: 'Sahte Dedektifi',
+        description: 'Toplam 10 sahte ürün tespit et',
+        type: 'achievement' as const,
+        requirements: [{ type: 'identify_fake' as const, target: 10, current: 0 }],
+        rewards: [{ type: 'experience', amount: 250 }, { type: 'cash', amount: 500 }],
+        progress: 0,
+        maxProgress: 10,
+        completed: false,
+        level: 3
+      },
+      {
+        id: 'achievement_reputation_builder',
+        title: 'İtibar İnşacısı',
+        description: 'Toplam 50 itibar puan kazan',
+        type: 'achievement' as const,
+        requirements: [{ type: 'reputation' as const, target: 50, current: 0 }],
+        rewards: [{ type: 'experience', amount: 300 }, { type: 'cash', amount: 750 }],
+        progress: 0,
+        maxProgress: 50,
+        completed: false,
+        level: 3
+      }
+    );
+  }
+  
+  if (level >= 4) {
+    achievements.push(
+      {
+        id: 'achievement_big_spender',
+        title: 'Büyük Alıcı',
+        description: 'Toplam 50 ürün satın al',
+        type: 'achievement' as const,
+        requirements: [{ type: 'buy_items' as const, target: 50, current: 0 }],
+        rewards: [{ type: 'experience', amount: 350 }, { type: 'reputation', amount: 10 }],
+        progress: 0,
+        maxProgress: 50,
+        completed: false,
+        level: 4
+      },
+      {
+        id: 'achievement_millionaire',
+        title: 'Milyoner',
+        description: 'Toplam 10000₺ kazan',
+        type: 'achievement' as const,
+        requirements: [{ type: 'earn_cash' as const, target: 10000, current: 0 }],
+        rewards: [{ type: 'experience', amount: 500 }, { type: 'cash', amount: 2000 }],
+        progress: 0,
+        maxProgress: 10000,
+        completed: false,
+        level: 4
+      }
+    );
+  }
+  
+  if (level >= 5) {
+    achievements.push(
+      {
+        id: 'achievement_sales_master',
+        title: 'Satış Ustası',
+        description: 'Toplam 100 ürün sat',
+        type: 'achievement' as const,
+        requirements: [{ type: 'sell_items' as const, target: 100, current: 0 }],
+        rewards: [{ type: 'experience', amount: 600 }, { type: 'reputation', amount: 15 }],
+        progress: 0,
+        maxProgress: 100,
+        completed: false,
+        level: 5
+      },
+      {
+        id: 'achievement_negotiation_legend',
+        title: 'Pazarlık Efsanesi',
+        description: 'Toplam 50 başarılı pazarlık yap',
+        type: 'achievement' as const,
+        requirements: [{ type: 'negotiate_success' as const, target: 50, current: 0 }],
+        rewards: [{ type: 'experience', amount: 700 }, { type: 'cash', amount: 1500 }],
+        progress: 0,
+        maxProgress: 50,
+        completed: false,
+        level: 5
+      }
+    );
+  }
+  
+  return achievements.filter(achievement => !achievement.completed);
 };
 
 export const calculateLevelProgress = (experience: number) => {

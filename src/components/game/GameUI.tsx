@@ -3,7 +3,7 @@ import { t } from '@/utils/localization';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Clock, Coins, Heart, Trophy, Star } from 'lucide-react';
+import { Clock, Coins, Heart, Trophy, Star, Zap } from 'lucide-react';
 
 export const GameUI = () => {
   const { 
@@ -13,7 +13,8 @@ export const GameUI = () => {
     trust, 
     day, 
     timeLeft, 
-    language 
+    language,
+    experience 
   } = useGameStore();
 
   const formatTime = (seconds: number) => {
@@ -22,11 +23,21 @@ export const GameUI = () => {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  const getExperienceToNext = () => {
+    return (level * 100) - experience;
+  };
+
+  const getLevelProgress = () => {
+    const currentLevelXP = (level - 1) * 100;
+    const nextLevelXP = level * 100;
+    return ((experience - currentLevelXP) / (nextLevelXP - currentLevelXP)) * 100;
+  };
+
   return (
     <div className="w-full max-w-sm mx-auto p-4 space-y-4">
-      {/* Top Bar - Level and Day */}
+      {/* Top Bar - Level, XP and Day */}
       <Card className="bg-gradient-to-r from-retro-orange to-retro-pink shadow-lg">
-        <CardContent className="p-3">
+        <CardContent className="p-3 space-y-2">
           <div className="flex justify-between items-center text-white">
             <div className="flex items-center gap-2">
               <Trophy className="w-4 h-4" />
@@ -36,6 +47,18 @@ export const GameUI = () => {
               <Star className="w-4 h-4" />
               <span className="font-bold">{t('day', language)} {day}</span>
             </div>
+          </div>
+          
+          {/* Experience Progress */}
+          <div className="space-y-1">
+            <div className="flex justify-between items-center text-white text-xs">
+              <div className="flex items-center gap-1">
+                <Zap className="w-3 h-3" />
+                <span>XP</span>
+              </div>
+              <span>{experience} / {level * 100} ({getExperienceToNext()} kaldı)</span>
+            </div>
+            <Progress value={getLevelProgress()} className="h-1.5 bg-white/20" />
           </div>
         </CardContent>
       </Card>
