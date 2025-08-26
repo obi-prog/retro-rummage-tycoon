@@ -3,6 +3,9 @@ import { useGameStore } from '@/store/gameStore';
 import { GameUI } from '@/components/game/GameUI';
 import { Inventory } from '@/components/game/Inventory';
 import { Shop } from '@/components/game/Shop';
+import { MissionsPanel } from '@/components/game/MissionsPanel';
+import { EventsPanel } from '@/components/game/EventsPanel';
+import { SkillsPanel } from '@/components/game/SkillsPanel';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { t } from '@/utils/localization';
@@ -16,7 +19,11 @@ const Index = () => {
     language, 
     level,
     cash,
-    reputation 
+    reputation,
+    triggerRandomEvent,
+    day,
+    experience,
+    missions
   } = useGameStore();
   
   const [gameStarted, setGameStarted] = useState(false);
@@ -26,10 +33,14 @@ const Index = () => {
     if (gameStarted && timeLeft > 0) {
       interval = setInterval(() => {
         tickTime();
+        // Random chance to trigger events
+        if (Math.random() < 0.1) { // 10% chance per tick
+          triggerRandomEvent();
+        }
       }, 1000);
     }
     return () => clearInterval(interval);
-  }, [gameStarted, timeLeft, tickTime]);
+  }, [gameStarted, timeLeft, tickTime, triggerRandomEvent]);
 
   const handleStartGame = () => {
     initGame();
@@ -91,12 +102,24 @@ const Index = () => {
         
         {/* Game Content */}
         <Tabs defaultValue="shop" className="w-full max-w-sm mx-auto">
-          <TabsList className="grid w-full grid-cols-2 mb-4">
-            <TabsTrigger value="shop" className="text-sm">
-              🏪 Shop
+          <TabsList className="grid w-full grid-cols-5 mb-4 text-xs">
+            <TabsTrigger value="shop" className="text-xs">
+              🏪
             </TabsTrigger>
-            <TabsTrigger value="inventory" className="text-sm">
-              📦 {t('inventory', language)}
+            <TabsTrigger value="inventory" className="text-xs">
+              📦
+            </TabsTrigger>
+            <TabsTrigger value="missions" className="text-xs relative">
+              🎯
+              {missions.filter(m => m.completed && !useGameStore.getState().completedMissions.includes(m.id)).length > 0 && (
+                <div className="absolute -top-1 -right-1 w-2 h-2 bg-retro-orange rounded-full"></div>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="events" className="text-xs">
+              ⚡
+            </TabsTrigger>
+            <TabsTrigger value="skills" className="text-xs">
+              🎓
             </TabsTrigger>
           </TabsList>
           
@@ -107,23 +130,46 @@ const Index = () => {
           <TabsContent value="inventory" className="space-y-4">
             <Inventory />
           </TabsContent>
+          
+          <TabsContent value="missions" className="space-y-4">
+            <MissionsPanel />
+          </TabsContent>
+          
+          <TabsContent value="events" className="space-y-4">
+            <EventsPanel />
+          </TabsContent>
+          
+          <TabsContent value="skills" className="space-y-4">
+            <SkillsPanel />
+          </TabsContent>
         </Tabs>
 
         {/* Day End Summary */}
         {timeLeft === 0 && (
-          <Card className="w-full max-w-sm mx-auto mt-4 bg-primary/5 border-primary">
+          <Card className="w-full max-w-sm mx-auto mt-4 bg-gradient-to-r from-retro-orange/10 to-retro-pink/10 border-retro-orange/30">
             <CardHeader>
-              <CardTitle className="text-center">🌅 Day {useGameStore.getState().day} Complete!</CardTitle>
+              <CardTitle className="text-center">🌅 Gün {day} Tamamlandı!</CardTitle>
             </CardHeader>
-            <CardContent className="text-center space-y-2">
-              <div>💰 Cash: {cash}₳</div>
-              <div>⭐ Reputation: {reputation}/100</div>
-              <div>🏆 Level: {level}</div>
+            <CardContent className="space-y-3">
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div>💰 Para: {cash}₳</div>
+                <div>⭐ İtibar: {reputation}/100</div>
+                <div>🏆 Seviye: {level}</div>
+                <div>🔥 XP: {experience}</div>
+              </div>
+              
+              <div className="text-xs text-muted-foreground space-y-1">
+                <div>📊 Günün Özeti:</div>
+                <div>• Satılan: {useGameStore.getState().dailyStats.itemsSold} ürün</div>
+                <div>• Kazanılan: {useGameStore.getState().dailyStats.cashEarned}₳</div>
+                <div>• Başarılı pazarlık: {useGameStore.getState().dailyStats.negotiationsWon}</div>
+              </div>
+              
               <Button 
                 onClick={() => useGameStore.getState().advanceDay()}
-                className="w-full mt-4"
+                className="w-full bg-gradient-to-r from-retro-orange to-retro-pink hover:from-retro-orange/90 hover:to-retro-pink/90"
               >
-                ➡️ Next Day
+                ➡️ Sonraki Gün
               </Button>
             </CardContent>
           </Card>

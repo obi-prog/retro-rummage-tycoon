@@ -59,6 +59,24 @@ export interface GameState {
   trends: TrendData[];
   dailyExpenses: number;
   language: Language;
+  // New enhanced features
+  experience: number;
+  skillPoints: number;
+  missions: any[];
+  completedMissions: string[];
+  playerSkills: Record<string, number>;
+  lastEventDay: number;
+  negotiationCount: number;
+  dailyStats: DailyStats;
+}
+
+
+export interface DailyStats {
+  itemsSold: number;
+  itemsBought: number;
+  cashEarned: number;
+  negotiationsWon: number;
+  fakeItemsDetected: number;
 }
 
 export interface GameEvent {
