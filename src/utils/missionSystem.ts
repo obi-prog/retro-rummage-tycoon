@@ -21,7 +21,7 @@ export const generateDailyMissions = (level: number): Mission[] => {
       {
         id: 'daily_cash_basic',
         title: 'Para Kazanma',
-        description: `${100 * level}₺ kazan`,
+        description: `${100 * level}$ kazan`,
         type: 'daily' as const,
         requirements: [{ type: 'earn_cash' as const, target: 100 * level, current: 0 }],
         rewards: [{ type: 'experience', amount: 30 }, { type: 'reputation', amount: 1 }],
@@ -117,7 +117,7 @@ export const generateDailyMissions = (level: number): Mission[] => {
       {
         id: 'daily_big_earner',
         title: 'Büyük Kazanç',
-        description: `${500 * level}₺ kazan`,
+        description: `${500 * level}$ kazan`,
         type: 'daily' as const,
         requirements: [{ type: 'earn_cash' as const, target: 500 * level, current: 0 }],
         rewards: [{ type: 'experience', amount: 80 }, { type: 'reputation', amount: 3 }],
@@ -190,7 +190,7 @@ export const generateWeeklyMissions = (level: number): Mission[] => {
       {
         id: 'weekly_cash_beginner',
         title: 'Haftalık Gelir',
-        description: '1000₺ kazan',
+        description: '1000$ kazan',
         type: 'weekly' as const,
         requirements: [{ type: 'earn_cash' as const, target: 1000, current: 0 }],
         rewards: [{ type: 'experience', amount: 250 }, { type: 'reputation', amount: 5 }],
@@ -262,7 +262,7 @@ export const generateWeeklyMissions = (level: number): Mission[] => {
       {
         id: 'weekly_big_money',
         title: 'Büyük Para',
-        description: `${3000 * level}₺ kazan`,
+        description: `${3000 * level}$ kazan`,
         type: 'weekly' as const,
         requirements: [{ type: 'earn_cash' as const, target: 3000 * level, current: 0 }],
         rewards: [{ type: 'experience', amount: 600 }, { type: 'reputation', amount: 12 }],
@@ -323,7 +323,7 @@ export const generateAchievementMissions = (level: number): Mission[] => {
       {
         id: 'achievement_money_maker',
         title: 'Para Babası',
-        description: 'Toplam 1000₺ kazan',
+        description: 'Toplam 1000$ kazan',
         type: 'achievement' as const,
         requirements: [{ type: 'earn_cash' as const, target: 1000, current: 0 }],
         rewards: [{ type: 'experience', amount: 100 }, { type: 'reputation', amount: 5 }],
@@ -410,7 +410,7 @@ export const generateAchievementMissions = (level: number): Mission[] => {
       {
         id: 'achievement_millionaire',
         title: 'Milyoner',
-        description: 'Toplam 10000₺ kazan',
+        description: 'Toplam 10000$ kazan',
         type: 'achievement' as const,
         requirements: [{ type: 'earn_cash' as const, target: 10000, current: 0 }],
         rewards: [{ type: 'experience', amount: 500 }, { type: 'cash', amount: 2000 }],
@@ -469,11 +469,74 @@ export const getAvailableSkills = () => {
     {
       id: 'negotiation_master',
       name: 'Pazarlık Ustası',
-      description: 'Daha iyi pazarlık',
+      description: 'Pazarlık başarı oranını artırır',
+      level: 0,
+      maxLevel: 5,
+      cost: 1,
+      effects: ['Pazarlık başarı oranı +15% (seviye başına)']
+    },
+    {
+      id: 'fake_detector',
+      name: 'Sahte Dedektifi',
+      description: 'Sahte ürünleri tespit etme yeteneği',
+      level: 0,
+      maxLevel: 5,
+      cost: 2,
+      effects: ['Sahte ürün tespit oranı +20% (seviye başına)']
+    },
+    {
+      id: 'value_assessor',
+      name: 'Değer Uzmanı',
+      description: 'Ürün değerlerini daha iyi tahmin etme',
       level: 0,
       maxLevel: 3,
+      cost: 2,
+      effects: ['Ürün değer tahmini +10% doğruluk (seviye başına)']
+    },
+    {
+      id: 'customer_psychology',
+      name: 'Müşteri Psikolojisi',
+      description: 'Müşteri davranışlarını anlama',
+      level: 0,
+      maxLevel: 4,
+      cost: 3,
+      effects: ['Müşteri sabır süresi +20 saniye (seviye başına)', 'Müşteri bütçesi %5 görünür']
+    },
+    {
+      id: 'trend_spotter',
+      name: 'Trend Avcısı',
+      description: 'Trend ürünlerini erken fark etme',
+      level: 0,
+      maxLevel: 3,
+      cost: 2,
+      effects: ['Trend başlangıcında %25 bonus fiyat (seviye başına)']
+    },
+    {
+      id: 'reputation_builder',
+      name: 'İtibar İnşacısı',
+      description: 'İtibar kazanımını artırır',
+      level: 0,
+      maxLevel: 4,
       cost: 1,
-      effects: ['Pazarlık başarı oranı +20%']
+      effects: ['Her işlemde +1 bonus itibar (seviye başına)']
+    },
+    {
+      id: 'cash_flow_master',
+      name: 'Nakit Akış Ustası',
+      description: 'Günlük giderleri azaltır',
+      level: 0,
+      maxLevel: 3,
+      cost: 3,
+      effects: ['Günlük giderler %15 azalır (seviye başına)']
+    },
+    {
+      id: 'inventory_manager',
+      name: 'Envanter Yöneticisi',
+      description: 'Daha fazla ürün taşıma kapasitesi',
+      level: 0,
+      maxLevel: 5,
+      cost: 2,
+      effects: ['Envanter kapasitesi +3 slot (seviye başına)']
     }
   ];
 };

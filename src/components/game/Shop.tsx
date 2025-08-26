@@ -56,7 +56,7 @@ export const Shop = () => {
           const itemValue = calculateItemValue(currentCustomer.carriedItem);
           const customerAskingPrice = Math.floor(itemValue * (0.8 + Math.random() * 0.3)); // 80-110% of value
           setCurrentOffer(customerAskingPrice);
-          setCustomerResponse(`I have this ${currentCustomer.carriedItem.name}. I'm asking ${customerAskingPrice}₳ for it.`);
+          setCustomerResponse(`I have this ${currentCustomer.carriedItem.name}. I'm asking $${customerAskingPrice} for it.`);
         }
       }, 1500);
     }
@@ -148,7 +148,7 @@ export const Shop = () => {
       const counter = Math.floor(itemValue * 0.8);
       response = {
         accepted: false,
-        message: `Too low! How about ${counter}₳?`,
+        message: `Too low! How about $${counter}?`,
         reputationChange: 0,
         trustChange: 0,
         counter
@@ -209,7 +209,7 @@ export const Shop = () => {
           }, 1500);
         } else {
           const counterOffer = Math.floor(tempOffer * 0.9);
-          response = `How about ${counterOffer}₳ instead?`;
+          response = `How about $${counterOffer} instead?`;
           setCurrentOffer(counterOffer);
         }
       } else {
@@ -230,7 +230,7 @@ export const Shop = () => {
           }, 1500);
         } else {
           const counterOffer = Math.floor(tempOffer * 1.1);
-          response = `Could you make it ${counterOffer}₳?`;
+          response = `Could you make it $${counterOffer}?`;
           setCurrentOffer(counterOffer);
         }
       } else {
@@ -313,7 +313,7 @@ export const Shop = () => {
               <div className="grid grid-cols-2 gap-4 w-full text-white text-sm">
                 <div className="bg-white/20 rounded-lg p-3 text-center backdrop-blur-sm">
                   <div className="text-yellow-200">💰</div>
-                  <div className="font-semibold">{currentCustomer.budget}₳</div>
+                  <div className="font-semibold">${currentCustomer.budget}</div>
                   <div className="text-xs opacity-80">{t('budget', language)}</div>
                 </div>
                 <div className="bg-white/20 rounded-lg p-3 text-center backdrop-blur-sm">
@@ -386,7 +386,7 @@ export const Shop = () => {
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="text-lg font-bold text-green-600 dark:text-green-400">
-                          {calculateItemValue(item)}₳
+                          ${calculateItemValue(item)}
                         </div>
                         {selectedItem?.id === item.id && (
                           <Badge className="bg-green-500 text-white">Seçili</Badge>
@@ -428,7 +428,7 @@ export const Shop = () => {
                       {t(currentCustomer.carriedItem.category as any, language)}
                     </div>
                     <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
-                      ~{calculateItemValue(currentCustomer.carriedItem)}₳
+                      ~${calculateItemValue(currentCustomer.carriedItem)}
                     </div>
                   </div>
                 </div>
@@ -492,7 +492,7 @@ export const Shop = () => {
                     ? 'text-green-600 dark:text-green-400'
                     : 'text-blue-600 dark:text-blue-400'
                 }`}>
-                  {currentOffer}₳
+                  ${currentOffer}
                 </div>
               </div>
               
@@ -504,7 +504,7 @@ export const Shop = () => {
                       📊 Market Value (Your Reference)
                     </div>
                     <div className="text-xl font-bold text-yellow-800 dark:text-yellow-200">
-                      {calculateItemValue(selectedItem || currentCustomer.carriedItem!)}₳
+                      ${calculateItemValue(selectedItem || currentCustomer.carriedItem!)}
                     </div>
                     <div className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
                       Based on condition, rarity & trends
@@ -515,7 +515,7 @@ export const Shop = () => {
               
               {currentCustomer.intent === 'sell' && (
                 <div className="text-center text-sm text-muted-foreground">
-                  Your Cash: {cash}₳
+                  Your Cash: ${cash}
                 </div>
               )}
             </div>
@@ -542,7 +542,7 @@ export const Shop = () => {
                       min="1"
                       max={currentCustomer.intent === 'sell' ? cash : 9999}
                     />
-                    <span className="flex items-center text-lg font-bold">₳</span>
+                    <span className="flex items-center text-lg font-bold">$</span>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <Button 
@@ -602,7 +602,7 @@ export const Shop = () => {
                       onClick={() => handleCounterOffer(-25)}
                       className="text-red-600 border-red-200 hover:bg-red-50"
                     >
-                      -25₳
+                      -$25
                     </Button>
                     <Button 
                       variant="outline" 
@@ -610,7 +610,7 @@ export const Shop = () => {
                       onClick={() => handleCounterOffer(-10)}
                       className="text-red-600 border-red-200 hover:bg-red-50"
                     >
-                      -10₳
+                      -$10
                     </Button>
                     <Button 
                       variant="outline" 
@@ -618,7 +618,7 @@ export const Shop = () => {
                       onClick={() => handleCounterOffer(10)}
                       className="text-green-600 border-green-200 hover:bg-green-50"
                     >
-                      +10₳
+                      +$10
                     </Button>
                     <Button 
                       variant="outline" 
@@ -626,7 +626,7 @@ export const Shop = () => {
                       onClick={() => handleCounterOffer(25)}
                       className="text-green-600 border-green-200 hover:bg-green-50"
                     >
-                      +25₳
+                      +$25
                     </Button>
                   </div>
                 </>

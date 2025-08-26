@@ -89,7 +89,7 @@ export const Inventory = ({ onItemSelect }: InventoryProps) => {
                             {t(item.category as any, language)}
                           </span>
                           <span className="font-bold text-cash-green text-sm">
-                            {calculateSellPrice(item)}₳
+                            ${calculateSellPrice(item)}
                           </span>
                         </div>
                         

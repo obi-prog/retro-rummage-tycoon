@@ -83,7 +83,7 @@ const Index = () => {
             <div className="text-center">
               <div className="text-xs text-muted-foreground mb-2">Starting Resources</div>
               <div className="flex justify-center gap-4 text-sm">
-                <span>💰 500₳</span>
+                <span>💰 $500</span>
                 <span>📦 2 Items</span>
                 <span>⭐ Level 1</span>
               </div>
@@ -152,7 +152,7 @@ const Index = () => {
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="grid grid-cols-2 gap-2 text-sm">
-                <div>💰 Para: {cash}₳</div>
+                <div>💰 Para: ${cash}</div>
                 <div>⭐ İtibar: {reputation}/100</div>
                 <div>🏆 Seviye: {level}</div>
                 <div>🔥 XP: {experience}</div>
@@ -161,7 +161,7 @@ const Index = () => {
               <div className="text-xs text-muted-foreground space-y-1">
                 <div>📊 Günün Özeti:</div>
                 <div>• Satılan: {useGameStore.getState().dailyStats.itemsSold} ürün</div>
-                <div>• Kazanılan: {useGameStore.getState().dailyStats.cashEarned}₳</div>
+                <div>• Kazanılan: ${useGameStore.getState().dailyStats.cashEarned}</div>
                 <div>• Başarılı pazarlık: {useGameStore.getState().dailyStats.negotiationsWon}</div>
               </div>
               
@@ -169,7 +169,7 @@ const Index = () => {
                 onClick={() => useGameStore.getState().advanceDay()}
                 className="w-full bg-gradient-to-r from-retro-orange to-retro-pink hover:from-retro-orange/90 hover:to-retro-pink/90"
               >
-                ➡️ Sonraki Gün
+                🏪 Dükkanı Aç - Yeni Gün Başlat
               </Button>
             </CardContent>
           </Card>

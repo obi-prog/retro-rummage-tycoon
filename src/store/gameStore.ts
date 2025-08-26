@@ -64,7 +64,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
   reputation: 10,
   trust: 50,
   day: 1,
-  timeLeft: 120,
+  timeLeft: 180, // 3 minutes
   inventory: generateStartingItems(),
   shopItems: [],
   currentCustomer: null,
@@ -101,7 +101,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       reputation: 10,
       trust: 50,
       day: 1,
-      timeLeft: 120,
+      timeLeft: 180, // 3 minutes
       inventory: generateStartingItems(),
       shopItems: [],
       currentCustomer: null,
@@ -224,7 +224,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       
       return {
         day: state.day + 1,
-        timeLeft: 120 + (state.level * 10),
+        timeLeft: 180 + (state.level * 15), // 3 minutes + bonus time per level
         cash: state.cash - state.dailyExpenses,
         missions: [...newDailyMissions, ...keepWeeklyMissions, ...allAchievements],
         trends: updatedTrends,
@@ -273,7 +273,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
         const updatedEvents = state.events.map(e => ({ ...e, duration: e.duration ? e.duration - 1 : 0 })).filter(e => e.duration && e.duration > 0);
         
         return {
-          timeLeft: 120 + (state.level * 10),
+          timeLeft: 180 + (state.level * 15), // 3 minutes + bonus time per level
           day: state.day + 1,
           cash: state.cash - state.dailyExpenses,
           missions: [...newDailyMissions, ...keepWeeklyMissions, ...allAchievements],

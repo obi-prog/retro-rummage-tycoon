@@ -129,7 +129,7 @@ export const AppraisalTool = ({ item, onComplete }: AppraisalToolProps) => {
         <div className="flex justify-between items-center text-xs">
           <span>Analiz Ücreti:</span>
           <Badge className="bg-retro-orange text-white">
-            {appraisalCost}₳
+             ${appraisalCost}
           </Badge>
         </div>
         
@@ -143,7 +143,7 @@ export const AppraisalTool = ({ item, onComplete }: AppraisalToolProps) => {
           onClick={handleAppraise}
           className="w-full bg-retro-purple hover:bg-retro-purple/90"
         >
-          Analiz Et ({appraisalCost}₳)
+          Analiz Et (${appraisalCost})
         </Button>
       </CardContent>
     </Card>

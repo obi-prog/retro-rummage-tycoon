@@ -249,7 +249,7 @@ export const generateHaggleResponse = (
   const counterOffer = Math.floor(itemValue * (acceptanceThreshold - 0.1));
   return {
     accepted: false,
-    message: `How about ${counterOffer}₳?`,
+    message: `How about $${counterOffer}?`,
     reputationChange: 0,
     trustChange: 0,
     counter: counterOffer
@@ -287,39 +287,39 @@ export const generateCustomerInitialOffer = (customer: Customer, itemValue: numb
 export const generateInitialMessage = (customer: Customer, item: Item, offer: number): string => {
   const messages = {
     collector: [
-      `I like this ${item.name}. Would you take ${offer}₳ for it?`,
-      `This ${item.name} would complete my collection. I can offer ${offer}₳.`,
-      `I've been searching for this ${item.name}. My offer is ${offer}₳.`
+      `I like this ${item.name}. Would you take $${offer} for it?`,
+      `This ${item.name} would complete my collection. I can offer $${offer}.`,
+      `I've been searching for this ${item.name}. My offer is $${offer}.`
     ],
     student: [
-      `Hey, I'm interested in the ${item.name}. How about ${offer}₳?`,
-      `I don't have much money, but I can offer ${offer}₳ for the ${item.name}.`,
-      `Would you accept ${offer}₳ for the ${item.name}? I'm a student.`
+      `Hey, I'm interested in the ${item.name}. How about $${offer}?`,
+      `I don't have much money, but I can offer $${offer} for the ${item.name}.`,
+      `Would you accept $${offer} for the ${item.name}? I'm a student.`
     ],
     trader: [
-      `I can resell this ${item.name}. My best offer is ${offer}₳.`,
-      `For business purposes, I'll give you ${offer}₳ for the ${item.name}.`,
-      `Straight business - ${offer}₳ for the ${item.name}.`
+      `I can resell this ${item.name}. My best offer is $${offer}.`,
+      `For business purposes, I'll give you $${offer} for the ${item.name}.`,
+      `Straight business - $${offer} for the ${item.name}.`
     ],
     nostalgic: [
-      `This ${item.name} brings back memories. ${offer}₳ is what I can offer.`,
-      `I used to have one of these ${item.name}s. Would you take ${offer}₳?`,
-      `Nostalgic value here - ${offer}₳ for the ${item.name}.`
+      `This ${item.name} brings back memories. $${offer} is what I can offer.`,
+      `I used to have one of these ${item.name}s. Would you take $${offer}?`,
+      `Nostalgic value here - $${offer} for the ${item.name}.`
     ],
     hunter: [
-      `Found it! I'll give you ${offer}₳ for this ${item.name}.`,
-      `I've been hunting for this ${item.name}. ${offer}₳ is my offer.`,
-      `Perfect find! ${offer}₳ for the ${item.name}.`
+      `Found it! I'll give you $${offer} for this ${item.name}.`,
+      `I've been hunting for this ${item.name}. $${offer} is my offer.`,
+      `Perfect find! $${offer} for the ${item.name}.`
     ],
     tourist: [
-      `This ${item.name} would be a great souvenir. ${offer}₳?`,
-      `I'm visiting and love this ${item.name}. How about ${offer}₳?`,
-      `Tourist here - would you take ${offer}₳ for the ${item.name}?`
+      `This ${item.name} would be a great souvenir. $${offer}?`,
+      `I'm visiting and love this ${item.name}. How about $${offer}?`,
+      `Tourist here - would you take $${offer} for the ${item.name}?`
     ],
     expert: [
-      `I know the value of this ${item.name}. ${offer}₳ is a fair price.`,
-      `Based on market analysis, ${offer}₳ is reasonable for this ${item.name}.`,
-      `My expert assessment puts this ${item.name} at ${offer}₳.`
+      `I know the value of this ${item.name}. $${offer} is a fair price.`,
+      `Based on market analysis, $${offer} is reasonable for this ${item.name}.`,
+      `My expert assessment puts this ${item.name} at $${offer}.`
     ]
   };
 

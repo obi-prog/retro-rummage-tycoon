@@ -69,7 +69,7 @@ export const MissionsPanel = () => {
                     <div className="flex gap-1 mt-2">
                       {mission.rewards.map((reward, idx) => (
                         <Badge key={idx} variant="outline" className="text-xs">
-                          {reward.type === 'cash' && `💰${reward.amount}₳`}
+                          {reward.type === 'cash' && `💰$${reward.amount}`}
                           {reward.type === 'reputation' && `⭐${reward.amount}`}
                           {reward.type === 'experience' && `🔥${reward.amount}XP`}
                         </Badge>

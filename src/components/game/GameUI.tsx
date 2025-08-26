@@ -83,7 +83,7 @@ export const GameUI = () => {
               <Coins className="w-4 h-4 text-cash-green" />
               <div>
                 <div className="text-xs text-muted-foreground">{t('cash', language)}</div>
-                <div className="font-bold text-lg text-cash-green">{cash}₳</div>
+                <div className="font-bold text-lg text-cash-green">${cash}</div>
               </div>
             </div>
           </CardContent>
