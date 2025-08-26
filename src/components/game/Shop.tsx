@@ -15,7 +15,8 @@ export const Shop = () => {
     sellItem, 
     updateReputation, 
     updateTrust,
-    language 
+    language,
+    timeLeft 
   } = useGameStore();
   
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
@@ -24,13 +25,60 @@ export const Shop = () => {
   const [customerResponse, setCustomerResponse] = useState<string>('');
 
   useEffect(() => {
-    if (!currentCustomer && Math.random() < 0.3) {
-      // 30% chance of customer entering
-      const newCustomer = generateCustomer();
-      setCurrentCustomer(newCustomer);
-      setHaggleCount(0);
+    let interval: NodeJS.Timeout;
+    
+    const generateCustomer = () => {
+      if (!currentCustomer && timeLeft > 0) {
+        if (Math.random() < 0.4) { // 40% chance
+          const customers: Customer[] = [
+            {
+              id: '1',
+              name: 'Ahmet Koleksiyoncu',
+              type: 'collector',
+              patience: 80,
+              budget: 1000,
+              knowledge: 90,
+              preferences: ['cassette_record', 'walkman_electronics'],
+              avatar: '👨‍💼'
+            },
+            {
+              id: '2',
+              name: 'Elif Öğrenci',
+              type: 'student',
+              patience: 60,
+              budget: 200,
+              knowledge: 40,
+              preferences: ['comic', 'poster'],
+              avatar: '👩‍🎓'
+            },
+            {
+              id: '3',
+              name: 'Mehmet Nostaljik',
+              type: 'nostalgic',
+              patience: 70,
+              budget: 500,
+              knowledge: 60,
+              preferences: ['toy', 'watch'],
+              avatar: '👴'
+            }
+          ];
+          
+          const randomCustomer = customers[Math.floor(Math.random() * customers.length)];
+          setCurrentCustomer(randomCustomer);
+        }
+      }
+    };
+
+    // Only start interval if no customer and time left
+    if (!currentCustomer && timeLeft > 0) {
+      generateCustomer(); // Try immediately
+      interval = setInterval(generateCustomer, 2000);
     }
-  }, [currentCustomer, setCurrentCustomer]);
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [currentCustomer, timeLeft, setCurrentCustomer]);
 
   const calculateSellPrice = (item: Item) => {
     const conditionMultiplier = 1 + (item.condition / 100);
@@ -106,8 +154,8 @@ export const Shop = () => {
           </CardHeader>
           <CardContent className="text-white text-center">
             <div className="space-y-2">
-              <div>💰 Budget: {currentCustomer.budget}₳</div>
-              <div>⏰ Patience: {currentCustomer.patience}/100</div>
+              <div>💰 {t('budget', language)}: {currentCustomer.budget}₳</div>
+              <div>⏰ {t('patience', language)}: {currentCustomer.patience}/100</div>
               {customerResponse && (
                 <div className="bg-white/20 p-2 rounded text-sm">
                   💬 "{customerResponse}"
@@ -119,7 +167,7 @@ export const Shop = () => {
       ) : (
         <Card className="bg-muted/50">
           <CardContent className="p-6 text-center text-muted-foreground">
-            🚶 Waiting for customers...
+            🚶 {t('waitingCustomers', language)}
           </CardContent>
         </Card>
       )}
@@ -128,7 +176,7 @@ export const Shop = () => {
       {currentCustomer && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">🏪 Your Shop</CardTitle>
+            <CardTitle className="text-lg">🏪 {t('yourShop', language)}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {inventory.map((item) => (
@@ -169,7 +217,7 @@ export const Shop = () => {
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="text-center">
-              <div className="text-sm text-muted-foreground">Current Offer</div>
+              <div className="text-sm text-muted-foreground">{t('currentOffer', language)}</div>
               <div className="text-2xl font-bold text-cash-green">{currentOffer}₳</div>
             </div>
             
@@ -186,7 +234,7 @@ export const Shop = () => {
                 size="sm"
                 onClick={handleAcceptOffer}
               >
-                Accept
+                {t('accept', language)}
               </Button>
               <Button 
                 variant="outline" 
