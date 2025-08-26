@@ -198,13 +198,10 @@ export const translations = {
 };
 
 export const detectLanguage = (): Language => {
-  const browserLang = navigator.language.split('-')[0] as Language;
-  if (['en', 'de', 'tr'].includes(browserLang)) {
-    return browserLang;
-  }
-  return 'en';
+  // Default to Turkish for this user
+  return 'tr';
 };
 
-export const t = (key: keyof typeof translations.en, lang: Language = 'en'): string => {
+export const t = (key: keyof typeof translations.en, lang: Language = 'tr'): string => {
   return translations[lang][key] || translations.en[key] || key;
 };

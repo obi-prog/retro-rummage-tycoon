@@ -33,7 +33,7 @@ const generateStartingItems = (): Item[] => {
     },
     {
       id: '2',
-      name: 'Classic Rock Album',
+      name: 'Klasik Rock Albümü',
       category: 'cassette_record',
       baseValue: 80,
       condition: 60,
@@ -59,7 +59,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
   events: [],
   trends: [],
   dailyExpenses: 50,
-  language: detectLanguage(),
+  language: 'tr', // Set to Turkish by default
 
   // Actions
   initGame: () => {
@@ -76,7 +76,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       events: [],
       trends: [],
       dailyExpenses: 50,
-      language: detectLanguage(),
+      language: 'tr',
     });
   },
 
