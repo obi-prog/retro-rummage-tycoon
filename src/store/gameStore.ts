@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { GameState, Item, Customer, ItemCategory, Language, DailyStats } from '@/types/game';
+import { GameState, Item, Customer, ItemCategory, Language, DailyStats, FinancialRecord, DailyFinancials } from '@/types/game';
 import { Mission } from '@/types/missions';
 import { detectLanguage } from '@/utils/localization';
 import { generateDailyMissions, generateWeeklyMissions, generateAchievementMissions, calculateLevelProgress, updateMissionProgress } from '@/utils/missionSystem';
@@ -28,6 +28,9 @@ interface GameStore extends GameState {
   detectFakeItem: () => void;
   dismissEvent: (eventId: string) => void;
   triggerRandomEvent: () => void;
+  // Financial actions
+  addFinancialRecord: (type: 'income' | 'expense', category: 'sales' | 'purchases' | 'rent' | 'tax' | 'fine' | 'utilities' | 'other', amount: number, description: string) => void;
+  calculateDailyExpenses: () => number;
 }
 
 const generateStartingItems = (): Item[] => {
@@ -87,6 +90,13 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     negotiationsWon: 0,
     fakeItemsDetected: 0
   },
+  financialRecords: [],
+  dailyFinancials: [],
+  weeklyExpenses: {
+    rent: 100,
+    tax: 25,
+    utilities: 30
+  },
 
   // Actions
   initGame: () => {
@@ -122,6 +132,13 @@ export const useGameStore = create<GameStore>()((set, get) => ({
         cashEarned: 0,
         negotiationsWon: 0,
         fakeItemsDetected: 0
+      },
+      financialRecords: [],
+      dailyFinancials: [],
+      weeklyExpenses: {
+        rent: 100,
+        tax: 25,
+        utilities: 30
       },
     });
   },
@@ -160,11 +177,22 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       const updatedMissions = updateMissionProgress(state.missions, 'sell_items', 1);
       const earnedMissions = updateMissionProgress(updatedMissions, 'earn_cash', price);
       
+      // Add financial record
+      const newRecord: FinancialRecord = {
+        id: `sale_${Date.now()}_${Math.random()}`,
+        date: state.day,
+        type: 'income',
+        category: 'sales',
+        amount: price,
+        description: `Satış: ${item.name}`
+      };
+      
       return {
         inventory: state.inventory.filter(i => i.id !== item.id),
         cash: state.cash + price,
         reputation: state.reputation + 1,
         missions: earnedMissions,
+        financialRecords: [...state.financialRecords, newRecord],
         dailyStats: {
           ...state.dailyStats,
           itemsSold: state.dailyStats.itemsSold + 1,
@@ -180,11 +208,22 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       set(state => {
         const updatedMissions = updateMissionProgress(state.missions, 'buy_items', 1);
         
+        // Add financial record
+        const newRecord: FinancialRecord = {
+          id: `purchase_${Date.now()}_${Math.random()}`,
+          date: state.day,
+          type: 'expense',
+          category: 'purchases',
+          amount: price,
+          description: `Satın alma: ${item.name}`
+        };
+        
         return {
           inventory: [...state.inventory, item],
           cash: state.cash - price,
           reputation: state.reputation + 1,
           missions: updatedMissions,
+          financialRecords: [...state.financialRecords, newRecord],
           dailyStats: {
             ...state.dailyStats,
             itemsBought: state.dailyStats.itemsBought + 1
@@ -202,6 +241,62 @@ export const useGameStore = create<GameStore>()((set, get) => ({
 
   advanceDay: () => {
     set(state => {
+      // Calculate daily expenses with level scaling
+      const baseRent = 100 + (state.level - 1) * 25; // Rent increases with level
+      const tax = Math.floor(state.cash * 0.05); // 5% tax on current cash
+      const utilities = 30 + (state.level - 1) * 10;
+      const totalDailyExpenses = baseRent + tax + utilities;
+      
+      // Add automatic expense records
+      const expenseRecords: FinancialRecord[] = [
+        {
+          id: `rent_${state.day}`,
+          date: state.day,
+          type: 'expense',
+          category: 'rent',
+          amount: baseRent,
+          description: `Dükkan kirası (${state.level}. seviye)`
+        },
+        {
+          id: `tax_${state.day}`,
+          date: state.day,
+          type: 'expense',
+          category: 'tax',
+          amount: tax,
+          description: 'Günlük vergi'
+        },
+        {
+          id: `utilities_${state.day}`,
+          date: state.day,
+          type: 'expense',
+          category: 'utilities',
+          amount: utilities,
+          description: 'Elektrik ve su'
+        }
+      ];
+
+      // Calculate current day's financial summary
+      const currentDayRecords = [
+        ...state.financialRecords.filter(r => r.date === state.day),
+        ...expenseRecords
+      ];
+      
+      const dayIncome = currentDayRecords
+        .filter(r => r.type === 'income')
+        .reduce((sum, r) => sum + r.amount, 0);
+      
+      const dayExpenses = currentDayRecords
+        .filter(r => r.type === 'expense')
+        .reduce((sum, r) => sum + r.amount, 0);
+
+      const dailyFinancial: DailyFinancials = {
+        day: state.day,
+        totalIncome: dayIncome,
+        totalExpenses: dayExpenses,
+        netProfit: dayIncome - dayExpenses,
+        records: currentDayRecords
+      };
+
       // Reset daily missions and generate new ones
       const newDailyMissions = generateDailyMissions(state.level);
       const keepWeeklyMissions = state.missions.filter(m => m.type === 'weekly' && !state.completedMissions.includes(m.id));
@@ -225,10 +320,17 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       return {
         day: state.day + 1,
         timeLeft: 180 + (state.level * 15), // 3 minutes + bonus time per level
-        cash: state.cash - state.dailyExpenses,
+        cash: state.cash - totalDailyExpenses,
         missions: [...newDailyMissions, ...keepWeeklyMissions, ...allAchievements],
         trends: updatedTrends,
         events: updatedEvents,
+        financialRecords: [...state.financialRecords, ...expenseRecords],
+        dailyFinancials: [...state.dailyFinancials, dailyFinancial],
+        weeklyExpenses: {
+          rent: baseRent,
+          tax: tax,
+          utilities: utilities
+        },
         dailyStats: {
           itemsSold: 0,
           itemsBought: 0,
@@ -272,13 +374,76 @@ export const useGameStore = create<GameStore>()((set, get) => ({
         const updatedTrends = state.trends.map(t => ({ ...t, duration: t.duration - 1 })).filter(t => t.duration > 0);
         const updatedEvents = state.events.map(e => ({ ...e, duration: e.duration ? e.duration - 1 : 0 })).filter(e => e.duration && e.duration > 0);
         
+        // Calculate daily expenses for time-based day advance
+        const baseRent = 100 + (state.level - 1) * 25;
+        const tax = Math.floor(state.cash * 0.05);
+        const utilities = 30 + (state.level - 1) * 10;
+        const totalDailyExpenses = baseRent + tax + utilities;
+        
+        // Add automatic expense records
+        const expenseRecords: FinancialRecord[] = [
+          {
+            id: `rent_${state.day}`,
+            date: state.day,
+            type: 'expense',
+            category: 'rent',
+            amount: baseRent,
+            description: `Dükkan kirası (${state.level}. seviye)`
+          },
+          {
+            id: `tax_${state.day}`,
+            date: state.day,
+            type: 'expense',
+            category: 'tax',
+            amount: tax,
+            description: 'Günlük vergi'
+          },
+          {
+            id: `utilities_${state.day}`,
+            date: state.day,
+            type: 'expense',
+            category: 'utilities',
+            amount: utilities,
+            description: 'Elektrik ve su'
+          }
+        ];
+
+        // Calculate current day's financial summary
+        const currentDayRecords = [
+          ...state.financialRecords.filter(r => r.date === state.day),
+          ...expenseRecords
+        ];
+        
+        const dayIncome = currentDayRecords
+          .filter(r => r.type === 'income')
+          .reduce((sum, r) => sum + r.amount, 0);
+        
+        const dayExpenses = currentDayRecords
+          .filter(r => r.type === 'expense')
+          .reduce((sum, r) => sum + r.amount, 0);
+
+        const dailyFinancial: DailyFinancials = {
+          day: state.day,
+          totalIncome: dayIncome,
+          totalExpenses: dayExpenses,
+          netProfit: dayIncome - dayExpenses,
+          records: currentDayRecords
+        };
+
         return {
           timeLeft: 180 + (state.level * 15), // 3 minutes + bonus time per level
           day: state.day + 1,
-          cash: state.cash - state.dailyExpenses,
+          cash: state.cash - totalDailyExpenses,
           missions: [...newDailyMissions, ...keepWeeklyMissions, ...allAchievements],
           trends: updatedTrends,
           events: updatedEvents,
+          financialRecords: [...state.financialRecords, ...expenseRecords],
+          dailyFinancials: [...state.dailyFinancials, dailyFinancial],
+          weeklyExpenses: {
+            rent: baseRent,
+            tax: tax,
+            utilities: utilities
+          },
           dailyStats: {
             itemsSold: 0,
             itemsBought: 0,
@@ -413,5 +578,31 @@ export const useGameStore = create<GameStore>()((set, get) => ({
         lastEventDay: state.day
       };
     });
+  },
+
+  // Financial actions
+  addFinancialRecord: (type: 'income' | 'expense', category: 'sales' | 'purchases' | 'rent' | 'tax' | 'fine' | 'utilities' | 'other', amount: number, description: string) => {
+    set(state => {
+      const newRecord: FinancialRecord = {
+        id: `${category}_${Date.now()}_${Math.random()}`,
+        date: state.day,
+        type,
+        category,
+        amount,
+        description
+      };
+      
+      return {
+        financialRecords: [...state.financialRecords, newRecord]
+      };
+    });
+  },
+
+  calculateDailyExpenses: () => {
+    const { level, cash } = get();
+    const baseRent = 100 + (level - 1) * 25;
+    const tax = Math.floor(cash * 0.05);
+    const utilities = 30 + (level - 1) * 10;
+    return baseRent + tax + utilities;
   }
 }));

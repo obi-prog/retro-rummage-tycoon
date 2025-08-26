@@ -68,8 +68,33 @@ export interface GameState {
   lastEventDay: number;
   negotiationCount: number;
   dailyStats: DailyStats;
+  // Financial tracking
+  financialRecords: FinancialRecord[];
+  dailyFinancials: DailyFinancials[];
+  weeklyExpenses: {
+    rent: number;
+    tax: number;
+    utilities: number;
+  };
 }
 
+
+export interface FinancialRecord {
+  id: string;
+  date: number; // day number
+  type: 'income' | 'expense';
+  category: 'sales' | 'purchases' | 'rent' | 'tax' | 'fine' | 'utilities' | 'other';
+  amount: number;
+  description: string;
+}
+
+export interface DailyFinancials {
+  day: number;
+  totalIncome: number;
+  totalExpenses: number;
+  netProfit: number;
+  records: FinancialRecord[];
+}
 
 export interface DailyStats {
   itemsSold: number;
