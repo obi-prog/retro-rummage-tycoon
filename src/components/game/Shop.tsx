@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Item, Customer } from '@/types/game';
-import { generateCustomer, generateHaggleResponse } from '@/utils/gameLogic';
+import { generateCustomer, generateHaggleResponse, calculateItemValue, generateCustomerInitialOffer, generateInitialMessage } from '@/utils/gameLogic';
 
 export const Shop = () => {
   const { 
@@ -25,8 +25,39 @@ export const Shop = () => {
   
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
   const [currentOffer, setCurrentOffer] = useState<number>(0);
+  const [shopOwnerOffer, setShopOwnerOffer] = useState<number>(0);
   const [haggleCount, setHaggleCount] = useState(0);
   const [customerResponse, setCustomerResponse] = useState<string>('');
+  const [negotiationPhase, setNegotiationPhase] = useState<'initial' | 'customer_offered' | 'shop_offered'>('initial');
+
+  // Auto-start negotiation when customer arrives
+  useEffect(() => {
+    if (currentCustomer && !selectedItem && negotiationPhase === 'initial') {
+      setTimeout(() => {
+        if (currentCustomer.intent === 'buy' && inventory.length > 0) {
+          // Customer automatically selects an item they're interested in
+          const interestedItem = inventory[Math.floor(Math.random() * inventory.length)];
+          setSelectedItem(interestedItem);
+          
+          // Customer makes initial offer based on their type and budget
+          const itemValue = calculateItemValue(interestedItem);
+          const customerOffer = generateCustomerInitialOffer(currentCustomer, itemValue);
+          setCurrentOffer(customerOffer);
+          setNegotiationPhase('customer_offered');
+          setCustomerResponse(generateInitialMessage(currentCustomer, interestedItem, customerOffer));
+        } else if (currentCustomer.intent === 'sell' && currentCustomer.carriedItem) {
+          // Auto-select their item
+          setSelectedItem(currentCustomer.carriedItem);
+          setNegotiationPhase('customer_offered');
+          
+          const itemValue = calculateItemValue(currentCustomer.carriedItem);
+          const customerAskingPrice = Math.floor(itemValue * (0.8 + Math.random() * 0.3)); // 80-110% of value
+          setCurrentOffer(customerAskingPrice);
+          setCustomerResponse(`I have this ${currentCustomer.carriedItem.name}. I'm asking ${customerAskingPrice}₳ for it.`);
+        }
+      }, 1500);
+    }
+  }, [currentCustomer, selectedItem, negotiationPhase, inventory]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -51,17 +82,6 @@ export const Shop = () => {
     };
   }, [currentCustomer, timeLeft, setCurrentCustomer]);
 
-  const calculateItemValue = (item: Item) => {
-    const conditionMultiplier = 1 + (item.condition / 100);
-    const rarityMultiplier = {
-      common: 1,
-      rare: 1.5,
-      very_rare: 2.5,
-      legendary: 4
-    }[item.rarity];
-    
-    return Math.floor(item.baseValue * conditionMultiplier * rarityMultiplier * (1 + item.trendBonus / 100));
-  };
 
   const handleItemSelect = (item: Item) => {
     if (!currentCustomer) return;
@@ -145,8 +165,10 @@ export const Shop = () => {
     setCurrentCustomer(null);
     setSelectedItem(null);
     setCurrentOffer(0);
+    setShopOwnerOffer(0);
     setHaggleCount(0);
     setCustomerResponse('');
+    setNegotiationPhase('initial');
   };
 
   const handleAcceptOffer = () => {
@@ -383,20 +405,40 @@ export const Shop = () => {
             )}
             
             {/* Price Display */}
-            <div className="text-center bg-white dark:bg-gray-800 rounded-lg p-4">
-              <div className="text-sm text-muted-foreground mb-1">
-                {currentCustomer.intent === 'buy' ? t('yourPrice', language) : t('yourOffer', language)}
+            <div className="space-y-3">
+              <div className="text-center bg-white dark:bg-gray-800 rounded-lg p-4">
+                <div className="text-sm text-muted-foreground mb-1">
+                  {currentCustomer.intent === 'buy' ? 'Customer Offer' : 'Customer Asking Price'}
+                </div>
+                <div className={`text-3xl font-bold ${
+                  currentCustomer.intent === 'buy' 
+                    ? 'text-green-600 dark:text-green-400'
+                    : 'text-blue-600 dark:text-blue-400'
+                }`}>
+                  {currentOffer}₳
+                </div>
               </div>
-              <div className={`text-3xl font-bold ${
-                currentCustomer.intent === 'buy' 
-                  ? 'text-green-600 dark:text-green-400'
-                  : 'text-blue-600 dark:text-blue-400'
-              }`}>
-                {currentOffer}₳
-              </div>
+              
+              {/* Item Value Information for Shop Owner */}
+              {(selectedItem || currentCustomer.carriedItem) && (
+                <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-3 border border-yellow-200 dark:border-yellow-800">
+                  <div className="text-center">
+                    <div className="text-sm text-yellow-700 dark:text-yellow-300 mb-1">
+                      📊 Market Value (Your Reference)
+                    </div>
+                    <div className="text-xl font-bold text-yellow-800 dark:text-yellow-200">
+                      {calculateItemValue(selectedItem || currentCustomer.carriedItem!)}₳
+                    </div>
+                    <div className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
+                      Based on condition, rarity & trends
+                    </div>
+                  </div>
+                </div>
+              )}
+              
               {currentCustomer.intent === 'sell' && (
-                <div className="text-xs text-muted-foreground mt-1">
-                  Kasanızda: {cash}₳
+                <div className="text-center text-sm text-muted-foreground">
+                  Your Cash: {cash}₳
                 </div>
               )}
             </div>
@@ -424,7 +466,7 @@ export const Shop = () => {
                   {t('accept', language)}
                 </Button>
               </div>
-              <div className="grid grid-cols-5 gap-2">
+              <div className="grid grid-cols-4 gap-2">
                 <Button 
                   variant="outline" 
                   size="sm"

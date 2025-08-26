@@ -256,7 +256,7 @@ export const generateHaggleResponse = (
   };
 };
 
-const calculateItemValue = (item: Item): number => {
+export const calculateItemValue = (item: Item): number => {
   const conditionMultiplier = 1 + (item.condition / 100);
   const rarityMultiplier = {
     common: 1,
@@ -266,4 +266,63 @@ const calculateItemValue = (item: Item): number => {
   }[item.rarity];
   
   return Math.floor(item.baseValue * conditionMultiplier * rarityMultiplier * (1 + item.trendBonus / 100));
+};
+
+export const generateCustomerInitialOffer = (customer: Customer, itemValue: number): number => {
+  // Customer offer based on their type and budget
+  const offerMultiplier = {
+    collector: 0.7 + Math.random() * 0.2, // 70-90% of value
+    student: 0.5 + Math.random() * 0.2, // 50-70% of value  
+    trader: 0.6 + Math.random() * 0.2, // 60-80% of value
+    nostalgic: 0.8 + Math.random() * 0.15, // 80-95% of value
+    hunter: 0.4 + Math.random() * 0.2, // 40-60% of value
+    tourist: 0.7 + Math.random() * 0.2, // 70-90% of value
+    expert: 0.8 + Math.random() * 0.15 // 80-95% of value
+  }[customer.type];
+
+  const budgetConstrainedOffer = Math.min(customer.budget * 0.8, itemValue * offerMultiplier);
+  return Math.floor(budgetConstrainedOffer);
+};
+
+export const generateInitialMessage = (customer: Customer, item: Item, offer: number): string => {
+  const messages = {
+    collector: [
+      `I like this ${item.name}. Would you take ${offer}₳ for it?`,
+      `This ${item.name} would complete my collection. I can offer ${offer}₳.`,
+      `I've been searching for this ${item.name}. My offer is ${offer}₳.`
+    ],
+    student: [
+      `Hey, I'm interested in the ${item.name}. How about ${offer}₳?`,
+      `I don't have much money, but I can offer ${offer}₳ for the ${item.name}.`,
+      `Would you accept ${offer}₳ for the ${item.name}? I'm a student.`
+    ],
+    trader: [
+      `I can resell this ${item.name}. My best offer is ${offer}₳.`,
+      `For business purposes, I'll give you ${offer}₳ for the ${item.name}.`,
+      `Straight business - ${offer}₳ for the ${item.name}.`
+    ],
+    nostalgic: [
+      `This ${item.name} brings back memories. ${offer}₳ is what I can offer.`,
+      `I used to have one of these ${item.name}s. Would you take ${offer}₳?`,
+      `Nostalgic value here - ${offer}₳ for the ${item.name}.`
+    ],
+    hunter: [
+      `Found it! I'll give you ${offer}₳ for this ${item.name}.`,
+      `I've been hunting for this ${item.name}. ${offer}₳ is my offer.`,
+      `Perfect find! ${offer}₳ for the ${item.name}.`
+    ],
+    tourist: [
+      `This ${item.name} would be a great souvenir. ${offer}₳?`,
+      `I'm visiting and love this ${item.name}. How about ${offer}₳?`,
+      `Tourist here - would you take ${offer}₳ for the ${item.name}?`
+    ],
+    expert: [
+      `I know the value of this ${item.name}. ${offer}₳ is a fair price.`,
+      `Based on market analysis, ${offer}₳ is reasonable for this ${item.name}.`,
+      `My expert assessment puts this ${item.name} at ${offer}₳.`
+    ]
+  };
+
+  const customerMessages = messages[customer.type];
+  return customerMessages[Math.floor(Math.random() * customerMessages.length)];
 };
