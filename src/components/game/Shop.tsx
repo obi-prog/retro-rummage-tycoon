@@ -4,6 +4,7 @@ import { t } from '@/utils/localization';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import { Item, Customer } from '@/types/game';
 import { generateCustomer, generateHaggleResponse, calculateItemValue, generateCustomerInitialOffer, generateInitialMessage } from '@/utils/gameLogic';
 
@@ -29,6 +30,8 @@ export const Shop = () => {
   const [haggleCount, setHaggleCount] = useState(0);
   const [customerResponse, setCustomerResponse] = useState<string>('');
   const [negotiationPhase, setNegotiationPhase] = useState<'initial' | 'customer_offered' | 'shop_offered'>('initial');
+  const [showOfferInput, setShowOfferInput] = useState(false);
+  const [tempOffer, setTempOffer] = useState<number>(0);
 
   // Auto-start negotiation when customer arrives
   useEffect(() => {
@@ -169,6 +172,80 @@ export const Shop = () => {
     setHaggleCount(0);
     setCustomerResponse('');
     setNegotiationPhase('initial');
+    setShowOfferInput(false);
+    setTempOffer(0);
+  };
+
+  const handleMakeOffer = () => {
+    if (!currentCustomer || !selectedItem && !currentCustomer.carriedItem) return;
+    
+    const itemValue = calculateItemValue(selectedItem || currentCustomer.carriedItem!);
+    setTempOffer(Math.floor(itemValue * 0.8)); // Start with 80% of market value
+    setShowOfferInput(true);
+  };
+
+  const handleSubmitOffer = () => {
+    if (!currentCustomer || tempOffer <= 0) return;
+    
+    setShopOwnerOffer(tempOffer);
+    setNegotiationPhase('shop_offered');
+    
+    // Generate customer response to shop owner's offer
+    const item = selectedItem || currentCustomer.carriedItem!;
+    const itemValue = calculateItemValue(item);
+    const offerRatio = tempOffer / itemValue;
+    
+    let response;
+    if (currentCustomer.intent === 'buy') {
+      // Customer wants to buy, shop owner is offering a selling price
+      if (tempOffer <= currentCustomer.budget && offerRatio <= 1.2) {
+        if (Math.random() < 0.7) {
+          response = "That sounds fair, I'll take it!";
+          setTimeout(() => {
+            sellItem(item, tempOffer);
+            updateReputation(2);
+            updateTrust(1);
+            resetNegotiation();
+          }, 1500);
+        } else {
+          const counterOffer = Math.floor(tempOffer * 0.9);
+          response = `How about ${counterOffer}₳ instead?`;
+          setCurrentOffer(counterOffer);
+        }
+      } else {
+        response = "That's too expensive for me. Can you do better?";
+      }
+    } else {
+      // Customer wants to sell, shop owner is offering a buying price  
+      if (tempOffer <= cash && offerRatio >= 0.6) {
+        if (Math.random() < 0.7) {
+          response = "Deal! I'll sell it for that price.";
+          setTimeout(() => {
+            if (spendCash(tempOffer)) {
+              addToInventory(item);
+              updateReputation(2);
+              updateTrust(1);
+              resetNegotiation();
+            }
+          }, 1500);
+        } else {
+          const counterOffer = Math.floor(tempOffer * 1.1);
+          response = `Could you make it ${counterOffer}₳?`;
+          setCurrentOffer(counterOffer);
+        }
+      } else {
+        response = "That's too low for me. I need a better offer.";
+      }
+    }
+    
+    setCustomerResponse(response);
+    setShowOfferInput(false);
+    setHaggleCount(prev => prev + 1);
+  };
+
+  const handleCancelOffer = () => {
+    setShowOfferInput(false);
+    setTempOffer(0);
   };
 
   const handleAcceptOffer = () => {
@@ -445,61 +522,115 @@ export const Shop = () => {
             
             {/* Price Controls */}
             <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-3 mb-3">
-                <Button 
-                  variant="destructive"
-                  onClick={handleRejectOffer}
-                  className="font-bold"
-                >
-                  {t('reject', language)}
-                </Button>
-                <Button 
-                  variant="default"
-                  onClick={handleAcceptOffer}
-                  className={`text-white font-bold ${
-                    currentCustomer.intent === 'buy'
-                      ? 'bg-green-600 hover:bg-green-700'
-                      : 'bg-blue-600 hover:bg-blue-700'
-                  }`}
-                  disabled={currentCustomer.intent === 'sell' && currentOffer > cash}
-                >
-                  {t('accept', language)}
-                </Button>
-              </div>
-              <div className="grid grid-cols-4 gap-2">
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => handleCounterOffer(-25)}
-                  className="text-red-600 border-red-200 hover:bg-red-50"
-                >
-                  -25₳
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => handleCounterOffer(-10)}
-                  className="text-red-600 border-red-200 hover:bg-red-50"
-                >
-                  -10₳
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => handleCounterOffer(10)}
-                  className="text-green-600 border-green-200 hover:bg-green-50"
-                >
-                  +10₳
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => handleCounterOffer(25)}
-                  className="text-green-600 border-green-200 hover:bg-green-50"
-                >
-                  +25₳
-                </Button>
-              </div>
+              {/* Make Offer Input */}
+              {showOfferInput && (
+                <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border-2 border-yellow-500">
+                  <div className="text-center mb-3">
+                    <h4 className="font-semibold text-yellow-700 dark:text-yellow-300">
+                      💡 Make Your Offer
+                    </h4>
+                    <p className="text-sm text-muted-foreground">
+                      {currentCustomer.intent === 'buy' ? 'Set your selling price' : 'Set your buying price'}
+                    </p>
+                  </div>
+                  <div className="flex gap-2 mb-3">
+                    <Input
+                      type="number"
+                      value={tempOffer}
+                      onChange={(e) => setTempOffer(Number(e.target.value))}
+                      className="text-center text-lg font-bold"
+                      min="1"
+                      max={currentCustomer.intent === 'sell' ? cash : 9999}
+                    />
+                    <span className="flex items-center text-lg font-bold">₳</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button 
+                      variant="outline"
+                      onClick={handleCancelOffer}
+                      size="sm"
+                    >
+                      Cancel
+                    </Button>
+                    <Button 
+                      onClick={handleSubmitOffer}
+                      size="sm"
+                      className="bg-yellow-600 hover:bg-yellow-700 text-white"
+                      disabled={tempOffer <= 0 || (currentCustomer.intent === 'sell' && tempOffer > cash)}
+                    >
+                      Submit Offer
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Main Action Buttons */}
+              {!showOfferInput && (
+                <>
+                  <div className="grid grid-cols-3 gap-2 mb-3">
+                    <Button 
+                      variant="destructive"
+                      onClick={handleRejectOffer}
+                      className="font-bold"
+                    >
+                      {t('reject', language)}
+                    </Button>
+                    <Button 
+                      variant="secondary"
+                      onClick={handleMakeOffer}
+                      className="font-bold bg-yellow-600 hover:bg-yellow-700 text-white"
+                    >
+                      Make Offer
+                    </Button>
+                    <Button 
+                      variant="default"
+                      onClick={handleAcceptOffer}
+                      className={`text-white font-bold ${
+                        currentCustomer.intent === 'buy'
+                          ? 'bg-green-600 hover:bg-green-700'
+                          : 'bg-blue-600 hover:bg-blue-700'
+                      }`}
+                      disabled={currentCustomer.intent === 'sell' && currentOffer > cash}
+                    >
+                      {t('accept', language)}
+                    </Button>
+                  </div>
+                  <div className="grid grid-cols-4 gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleCounterOffer(-25)}
+                      className="text-red-600 border-red-200 hover:bg-red-50"
+                    >
+                      -25₳
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleCounterOffer(-10)}
+                      className="text-red-600 border-red-200 hover:bg-red-50"
+                    >
+                      -10₳
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleCounterOffer(10)}
+                      className="text-green-600 border-green-200 hover:bg-green-50"
+                    >
+                      +10₳
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleCounterOffer(25)}
+                      className="text-green-600 border-green-200 hover:bg-green-50"
+                    >
+                      +25₳
+                    </Button>
+                  </div>
+                </>
+              )}
             </div>
           </CardContent>
         </Card>
