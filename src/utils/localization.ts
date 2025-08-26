@@ -27,6 +27,10 @@ export const translations = {
     repair: 'Repair',
     clean: 'Clean',
     verify: 'Verify',
+    customerWants: 'Customer wants to buy:',
+    yourPrice: 'Your selling price:',
+    negotiating: 'Negotiating...',
+    customerSays: 'Customer says:',
     
     // Events
     trendAlert: 'Trend Alert!',
@@ -98,6 +102,10 @@ export const translations = {
     repair: 'Reparieren',
     clean: 'Reinigen',
     verify: 'Prüfen',
+    customerWants: 'Kunde möchte kaufen:',
+    yourPrice: 'Ihr Verkaufspreis:',
+    negotiating: 'Verhandlung...',
+    customerSays: 'Kunde sagt:',
     
     // Events
     trendAlert: 'Trendalarm!',
@@ -169,6 +177,10 @@ export const translations = {
     repair: 'Tamir',
     clean: 'Temizle',
     verify: 'Doğrula',
+    customerWants: 'Müşteri satın almak istiyor:',
+    yourPrice: 'Satış fiyatınız:',
+    negotiating: 'Pazarlık ediliyor...',
+    customerSays: 'Müşteri diyor ki:',
     
     // Events
     trendAlert: 'Trend Uyarısı!',

@@ -27,7 +27,7 @@ export const Shop = () => {
   useEffect(() => {
     let interval: NodeJS.Timeout;
     
-    const generateCustomer = () => {
+    const tryGenerateCustomer = () => {
       if (!currentCustomer && timeLeft > 0) {
         if (Math.random() < 0.4) { // 40% chance
           const customers: Customer[] = [
@@ -71,8 +71,8 @@ export const Shop = () => {
 
     // Only start interval if no customer and time left
     if (!currentCustomer && timeLeft > 0) {
-      generateCustomer(); // Try immediately
-      interval = setInterval(generateCustomer, 2000);
+      tryGenerateCustomer(); // Try immediately
+      interval = setInterval(tryGenerateCustomer, 2000);
     }
 
     return () => {
@@ -141,64 +141,94 @@ export const Shop = () => {
     <div className="w-full max-w-sm mx-auto p-4 space-y-4">
       {/* Customer Display */}
       {currentCustomer ? (
-        <Card className="bg-gradient-to-r from-retro-purple to-retro-cyan">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-white text-center">
-              {currentCustomer.avatar} {currentCustomer.name}
-            </CardTitle>
-            <div className="text-center">
-              <Badge className="bg-white/20 text-white">
-                {t(currentCustomer.type as any, language)}
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent className="text-white text-center">
-            <div className="space-y-2">
-              <div>💰 {t('budget', language)}: {currentCustomer.budget}₳</div>
-              <div>⏰ {t('patience', language)}: {currentCustomer.patience}/100</div>
+        <Card className="bg-gradient-to-br from-purple-500 via-pink-500 to-cyan-400 shadow-xl">
+          <CardContent className="p-6">
+            <div className="flex flex-col items-center space-y-4">
+              {/* Customer Avatar */}
+              <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center text-3xl backdrop-blur-sm">
+                {currentCustomer.avatar}
+              </div>
+              
+              {/* Customer Info */}
+              <div className="text-center text-white">
+                <h3 className="font-bold text-lg">{currentCustomer.name}</h3>
+                <Badge className="bg-white/20 text-white border-white/30 mb-3">
+                  {t(currentCustomer.type as any, language)}
+                </Badge>
+              </div>
+              
+              {/* Customer Stats */}
+              <div className="grid grid-cols-2 gap-4 w-full text-white text-sm">
+                <div className="bg-white/20 rounded-lg p-3 text-center backdrop-blur-sm">
+                  <div className="text-yellow-200">💰</div>
+                  <div className="font-semibold">{currentCustomer.budget}₳</div>
+                  <div className="text-xs opacity-80">{t('budget', language)}</div>
+                </div>
+                <div className="bg-white/20 rounded-lg p-3 text-center backdrop-blur-sm">
+                  <div className="text-red-200">⏰</div>
+                  <div className="font-semibold">{currentCustomer.patience}%</div>
+                  <div className="text-xs opacity-80">{t('patience', language)}</div>
+                </div>
+              </div>
+              
+              {/* Customer Speech */}
               {customerResponse && (
-                <div className="bg-white/20 p-2 rounded text-sm">
-                  💬 "{customerResponse}"
+                <div className="bg-white/30 backdrop-blur-sm rounded-lg p-3 w-full">
+                  <div className="text-xs text-white/80 mb-1">{t('customerSays', language)}</div>
+                  <div className="text-white font-medium">💬 "{customerResponse}"</div>
                 </div>
               )}
             </div>
           </CardContent>
         </Card>
       ) : (
-        <Card className="bg-muted/50">
-          <CardContent className="p-6 text-center text-muted-foreground">
-            🚶 {t('waitingCustomers', language)}
+        <Card className="bg-muted/50 border-dashed border-2">
+          <CardContent className="p-8 text-center">
+            <div className="text-4xl mb-2">🚶‍♂️</div>
+            <div className="text-muted-foreground">{t('waitingCustomers', language)}</div>
           </CardContent>
         </Card>
       )}
 
-      {/* Shop Items */}
+      {/* Shop Items - Only show when customer is present */}
       {currentCustomer && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">🏪 {t('yourShop', language)}</CardTitle>
+        <Card className="border-2 border-primary/20">
+          <CardHeader className="bg-gradient-to-r from-orange-100 to-yellow-100 dark:from-orange-900/20 dark:to-yellow-900/20">
+            <CardTitle className="text-center flex items-center justify-center gap-2">
+              🏪 {t('yourShop', language)}
+            </CardTitle>
+            <div className="text-center text-sm text-muted-foreground">
+              {t('customerWants', language)}
+            </div>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="space-y-3 p-4">
             {inventory.map((item) => (
               <Card 
                 key={item.id}
-                className={`cursor-pointer transition-all ${
+                className={`cursor-pointer transition-all duration-200 hover:scale-105 ${
                   selectedItem?.id === item.id 
-                    ? 'ring-2 ring-primary shadow-md' 
-                    : 'hover:shadow-sm'
+                    ? 'ring-2 ring-green-500 bg-green-50 dark:bg-green-900/20 shadow-lg' 
+                    : 'hover:shadow-md border-2 border-transparent hover:border-primary/20'
                 }`}
                 onClick={() => handleItemSelect(item)}
               >
-                <CardContent className="p-3">
+                <CardContent className="p-4">
                   <div className="flex items-center gap-3">
-                    <div className="text-xl">{item.image}</div>
+                    <div className="text-2xl w-12 h-12 flex items-center justify-center bg-gradient-to-br from-orange-100 to-yellow-100 dark:from-orange-900/30 dark:to-yellow-900/30 rounded-lg">
+                      {item.image}
+                    </div>
                     <div className="flex-1">
-                      <h4 className="font-medium text-sm">{item.name}</h4>
-                      <div className="text-xs text-muted-foreground">
+                      <h4 className="font-semibold text-base">{item.name}</h4>
+                      <div className="text-sm text-muted-foreground mb-1">
                         {t(item.category as any, language)}
                       </div>
-                      <div className="font-bold text-cash-green">
-                        {calculateSellPrice(item)}₳
+                      <div className="flex items-center gap-2">
+                        <div className="text-lg font-bold text-green-600 dark:text-green-400">
+                          {calculateSellPrice(item)}₳
+                        </div>
+                        {selectedItem?.id === item.id && (
+                          <Badge className="bg-green-500 text-white">Seçili</Badge>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -211,55 +241,82 @@ export const Shop = () => {
 
       {/* Haggle Interface */}
       {selectedItem && currentCustomer && (
-        <Card className="bg-primary/5 border-primary">
-          <CardHeader>
-            <CardTitle className="text-lg">💰 {t('haggle', language)}</CardTitle>
+        <Card className="border-2 border-green-500 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 shadow-xl">
+          <CardHeader className="text-center">
+            <CardTitle className="flex items-center justify-center gap-2 text-green-700 dark:text-green-300">
+              💰 {t('haggle', language)}
+            </CardTitle>
+            <div className="text-sm text-muted-foreground">
+              {t('negotiating', language)}
+            </div>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="text-center">
-              <div className="text-sm text-muted-foreground">{t('currentOffer', language)}</div>
-              <div className="text-2xl font-bold text-cash-green">{currentOffer}₳</div>
+          <CardContent className="space-y-4">
+            {/* Selected Item Display */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border-l-4 border-green-500">
+              <div className="flex items-center gap-3">
+                <div className="text-2xl">{selectedItem.image}</div>
+                <div>
+                  <div className="font-semibold">{selectedItem.name}</div>
+                  <div className="text-sm text-muted-foreground">
+                    {t(selectedItem.category as any, language)}
+                  </div>
+                </div>
+              </div>
             </div>
             
-            <div className="grid grid-cols-3 gap-2">
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => handleCounterOffer(-10)}
-              >
-                -10₳
-              </Button>
-              <Button 
-                variant="default"
-                size="sm"
-                onClick={handleAcceptOffer}
-              >
-                {t('accept', language)}
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => handleCounterOffer(10)}
-              >
-                +10₳
-              </Button>
+            {/* Price Display */}
+            <div className="text-center bg-white dark:bg-gray-800 rounded-lg p-4">
+              <div className="text-sm text-muted-foreground mb-1">{t('yourPrice', language)}</div>
+              <div className="text-3xl font-bold text-green-600 dark:text-green-400">
+                {currentOffer}₳
+              </div>
             </div>
-
-            <div className="grid grid-cols-2 gap-2">
-              <Button 
-                variant="secondary" 
-                size="sm"
-                onClick={() => handleCounterOffer(-25)}
-              >
-                -25₳
-              </Button>
-              <Button 
-                variant="secondary" 
-                size="sm"
-                onClick={() => handleCounterOffer(25)}
-              >
-                +25₳
-              </Button>
+            
+            {/* Price Controls */}
+            <div className="space-y-3">
+              {/* Quick adjust buttons */}
+              <div className="grid grid-cols-5 gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => handleCounterOffer(-25)}
+                  className="text-red-600 border-red-200 hover:bg-red-50"
+                >
+                  -25₳
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => handleCounterOffer(-10)}
+                  className="text-red-600 border-red-200 hover:bg-red-50"
+                >
+                  -10₳
+                </Button>
+                <Button 
+                  variant="default"
+                  size="sm"
+                  onClick={handleAcceptOffer}
+                  className="bg-green-600 hover:bg-green-700 text-white font-bold"
+                >
+                  {t('accept', language)}
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => handleCounterOffer(10)}
+                  className="text-green-600 border-green-200 hover:bg-green-50"
+                >
+                  +10₳
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => handleCounterOffer(25)}
+                  className="text-green-600 border-green-200 hover:bg-green-50"
+                >
+                  +25₳
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
