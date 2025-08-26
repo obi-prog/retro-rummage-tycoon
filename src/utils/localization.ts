@@ -74,6 +74,17 @@ export const translations = {
     damaged: 'Damaged',
     good: 'Good',
     excellent: 'Excellent',
+    
+    // Dealer's Life style
+    buyerBadge: 'BUYER',
+    sellerBadge: 'SELLER',
+    wantsToBuy: 'Wants to buy something from you',
+    wantsToSell: 'Wants to sell something to you',
+    theirItem: 'Their Item',
+    yourOffer: 'Your Offer',
+    theirPrice: 'Their Price',
+    buyFromThem: 'Buy From Them',
+    sellToThem: 'Sell To Them',
   },
   
   de: {
@@ -149,6 +160,17 @@ export const translations = {
     damaged: 'Beschädigt',
     good: 'Gut',
     excellent: 'Ausgezeichnet',
+    
+    // Dealer's Life style
+    buyerBadge: 'KÄUFER',
+    sellerBadge: 'VERKÄUFER',
+    wantsToBuy: 'Möchte etwas von Ihnen kaufen',
+    wantsToSell: 'Möchte Ihnen etwas verkaufen',
+    theirItem: 'Ihr Artikel',
+    yourOffer: 'Ihr Angebot',
+    theirPrice: 'Ihr Preis',
+    buyFromThem: 'Von ihnen kaufen',
+    sellToThem: 'An sie verkaufen',
   },
   
   tr: {
@@ -224,6 +246,17 @@ export const translations = {
     damaged: 'Hasarlı',
     good: 'İyi',
     excellent: 'Mükemmel',
+    
+    // Dealer's Life style
+    buyerBadge: 'ALICI',
+    sellerBadge: 'SATICI',
+    wantsToBuy: 'Sizden bir şey satın almak istiyor',
+    wantsToSell: 'Size bir şey satmak istiyor',
+    theirItem: 'Onların Eşyası',
+    yourOffer: 'Sizin Teklifiniz',
+    theirPrice: 'Onların Fiyatı',
+    buyFromThem: 'Onlardan Satın Al',
+    sellToThem: 'Onlara Sat',
   }
 };
 

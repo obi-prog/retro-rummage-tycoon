@@ -11,6 +11,7 @@ interface GameStore extends GameState {
   addToInventory: (item: Item) => void;
   removeFromInventory: (itemId: string) => void;
   sellItem: (item: Item, price: number) => void;
+  buyItem: (item: Item, price: number) => void;
   setCurrentCustomer: (customer: Customer | null) => void;
   advanceDay: () => void;
   updateReputation: (amount: number) => void;
@@ -115,6 +116,19 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       cash: state.cash + price,
       reputation: state.reputation + 1
     }));
+  },
+
+  buyItem: (item: Item, price: number) => {
+    const { cash } = get();
+    if (cash >= price) {
+      set(state => ({
+        inventory: [...state.inventory, item],
+        cash: state.cash - price,
+        reputation: state.reputation + 1
+      }));
+      return true;
+    }
+    return false;
   },
 
   setCurrentCustomer: (customer: Customer | null) => {

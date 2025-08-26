@@ -32,6 +32,8 @@ export interface Customer {
   knowledge: number;
   preferences: ItemCategory[];
   avatar: string;
+  intent: 'buy' | 'sell'; // Customer wants to buy from you or sell to you
+  carriedItem?: Item; // Item they want to sell (if intent is 'sell')
 }
 
 export type CustomerType = 

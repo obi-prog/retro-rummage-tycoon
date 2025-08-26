@@ -4,7 +4,134 @@ const customerNames = [
   'Alex', 'Sam', 'Morgan', 'Casey', 'Taylor', 'Jordan', 'Avery', 'Riley', 'Quinn', 'Sage'
 ];
 
-const customerAvatars = ['👤', '👨', '👩', '🧑', '👴', '👵', '🎨', '🎭', '🎪', '🎯'];
+// Generate 2D character avatars as SVG strings
+const generate2DAvatar = (type: CustomerType): string => {
+  const avatars = {
+    collector: `data:image/svg+xml;base64,${btoa(`
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="35" r="15" fill="#F4A460"/>
+        <rect x="35" y="50" width="30" height="40" fill="#4169E1" rx="5"/>
+        <circle cx="42" cy="32" r="2" fill="#000"/>
+        <circle cx="58" cy="32" r="2" fill="#000"/>
+        <path d="M 45 40 Q 50 45 55 40" stroke="#000" stroke-width="2" fill="none"/>
+        <rect x="30" y="60" width="10" height="5" fill="#8B4513"/>
+        <rect x="60" y="60" width="10" height="5" fill="#8B4513"/>
+        <text x="50" y="95" text-anchor="middle" font-size="8" fill="#000">📚</text>
+      </svg>
+    `)}`,
+    student: `data:image/svg+xml;base64,${btoa(`
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="35" r="15" fill="#FFB6C1"/>
+        <rect x="35" y="50" width="30" height="40" fill="#32CD32" rx="5"/>
+        <circle cx="42" cy="32" r="2" fill="#000"/>
+        <circle cx="58" cy="32" r="2" fill="#000"/>
+        <path d="M 45 40 Q 50 43 55 40" stroke="#000" stroke-width="2" fill="none"/>
+        <rect x="35" y="25" width="30" height="8" fill="#FFD700" rx="3"/>
+        <text x="50" y="95" text-anchor="middle" font-size="8" fill="#000">🎓</text>
+      </svg>
+    `)}`,
+    trader: `data:image/svg+xml;base64,${btoa(`
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="35" r="15" fill="#DEB887"/>
+        <rect x="35" y="50" width="30" height="40" fill="#2F4F4F" rx="5"/>
+        <circle cx="42" cy="32" r="2" fill="#000"/>
+        <circle cx="58" cy="32" r="2" fill="#000"/>
+        <path d="M 45 38 L 55 38" stroke="#000" stroke-width="2"/>
+        <rect x="32" y="55" width="8" height="15" fill="#8B4513"/>
+        <text x="50" y="95" text-anchor="middle" font-size="8" fill="#000">💼</text>
+      </svg>
+    `)}`,
+    nostalgic: `data:image/svg+xml;base64,${btoa(`
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="35" r="15" fill="#F5DEB3"/>
+        <rect x="35" y="50" width="30" height="40" fill="#8B4513" rx="5"/>
+        <circle cx="42" cy="32" r="2" fill="#000"/>
+        <circle cx="58" cy="32" r="2" fill="#000"/>
+        <path d="M 45 40 Q 50 38 55 40" stroke="#000" stroke-width="2" fill="none"/>
+        <rect x="30" y="20" width="40" height="5" fill="#C0C0C0" rx="2"/>
+        <text x="50" y="95" text-anchor="middle" font-size="8" fill="#000">⏰</text>
+      </svg>
+    `)}`,
+    hunter: `data:image/svg+xml;base64,${btoa(`
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="35" r="15" fill="#CD853F"/>
+        <rect x="35" y="50" width="30" height="40" fill="#228B22" rx="5"/>
+        <circle cx="42" cy="32" r="2" fill="#000"/>
+        <circle cx="58" cy="32" r="2" fill="#000"/>
+        <path d="M 48 40 L 52 40" stroke="#000" stroke-width="2"/>
+        <rect x="30" y="25" width="40" height="5" fill="#8B4513" rx="2"/>
+        <text x="50" y="95" text-anchor="middle" font-size="8" fill="#000">🔍</text>
+      </svg>
+    `)}`,
+    tourist: `data:image/svg+xml;base64,${btoa(`
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="35" r="15" fill="#FFE4B5"/>
+        <rect x="35" y="50" width="30" height="40" fill="#FF6347" rx="5"/>
+        <circle cx="42" cy="32" r="2" fill="#000"/>
+        <circle cx="58" cy="32" r="2" fill="#000"/>
+        <circle cx="50" cy="40" r="3" fill="#FF69B4"/>
+        <rect x="25" y="28" width="50" height="6" fill="#FFD700" rx="3"/>
+        <text x="50" y="95" text-anchor="middle" font-size="8" fill="#000">📷</text>
+      </svg>
+    `)}`,
+    expert: `data:image/svg+xml;base64,${btoa(`
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="35" r="15" fill="#D2B48C"/>
+        <rect x="35" y="50" width="30" height="40" fill="#191970" rx="5"/>
+        <circle cx="42" cy="32" r="2" fill="#000"/>
+        <circle cx="58" cy="32" r="2" fill="#000"/>
+        <path d="M 46 40 Q 50 42 54 40" stroke="#000" stroke-width="2" fill="none"/>
+        <rect x="40" y="28" width="20" height="3" fill="#000" rx="1"/>
+        <circle cx="35" y="30" r="6" fill="none" stroke="#000" stroke-width="1"/>
+        <circle cx="65" y="30" r="6" fill="none" stroke="#000" stroke-width="1"/>
+        <text x="50" y="95" text-anchor="middle" font-size="8" fill="#000">🎯</text>
+      </svg>
+    `)}`,
+  };
+  return avatars[type];
+};
+
+const generateRandomItem = (): Item => {
+  const categories: ItemCategory[] = ['cassette_record', 'walkman_electronics', 'watch', 'toy', 'comic', 'poster', 'camera'];
+  const rarities: Array<'common' | 'rare' | 'very_rare' | 'legendary'> = ['common', 'rare', 'very_rare', 'legendary'];
+  const authenticities: Array<'authentic' | 'fake' | 'suspicious'> = ['authentic', 'fake', 'suspicious'];
+  
+  const category = categories[Math.floor(Math.random() * categories.length)];
+  const rarity = rarities[Math.floor(Math.random() * rarities.length)];
+  const authenticity = authenticities[Math.floor(Math.random() * authenticities.length)];
+  
+  const itemNames = {
+    cassette_record: ['Vintage LP', 'Rock Album', 'Jazz Collection', 'Classical Set'],
+    walkman_electronics: ['Retro Walkman', 'Vintage Radio', 'Old Headphones', 'Cassette Player'],
+    watch: ['Pocket Watch', 'Vintage Rolex', 'Antique Timepiece', 'Classic Watch'],
+    toy: ['Action Figure', 'Vintage Doll', 'Model Car', 'Board Game'],
+    comic: ['First Edition Comic', 'Vintage Magazine', 'Rare Issue', 'Collector Comic'],
+    poster: ['Movie Poster', 'Concert Poster', 'Vintage Ad', 'Art Print'],
+    camera: ['Film Camera', 'Vintage Polaroid', 'Old Lens', 'Photo Equipment']
+  };
+  
+  const images = {
+    cassette_record: '💿',
+    walkman_electronics: '📻',
+    watch: '⌚',
+    toy: '🧸',
+    comic: '📚',
+    poster: '🖼️',
+    camera: '📷'
+  };
+  
+  return {
+    id: Math.random().toString(36).substring(7),
+    name: itemNames[category][Math.floor(Math.random() * itemNames[category].length)],
+    category,
+    baseValue: Math.floor(Math.random() * 500) + 50,
+    condition: Math.floor(Math.random() * 40) + 60,
+    authenticity,
+    rarity,
+    trendBonus: 0,
+    image: images[category]
+  };
+};
 
 export const generateCustomer = (): Customer => {
   const types: CustomerType[] = ['collector', 'student', 'trader', 'nostalgic', 'hunter', 'tourist', 'expert'];
@@ -21,16 +148,19 @@ export const generateCustomer = (): Customer => {
   };
 
   const stats = baseStats[type];
+  const intent: 'buy' | 'sell' = Math.random() > 0.6 ? 'buy' : 'sell'; // 60% buyers, 40% sellers
   
   return {
     id: Math.random().toString(36).substring(7),
     name: customerNames[Math.floor(Math.random() * customerNames.length)],
     type,
-    patience: stats.patience + Math.floor(Math.random() * 21) - 10, // ±10 variation
-    budget: stats.budget + Math.floor(Math.random() * 201) - 100, // ±100 variation
+    patience: stats.patience + Math.floor(Math.random() * 21) - 10,
+    budget: stats.budget + Math.floor(Math.random() * 201) - 100,
     knowledge: stats.knowledge,
-    preferences: [], // Will be implemented later
-    avatar: customerAvatars[Math.floor(Math.random() * customerAvatars.length)]
+    preferences: [],
+    avatar: generate2DAvatar(type),
+    intent,
+    carriedItem: intent === 'sell' ? generateRandomItem() : undefined
   };
 };
 

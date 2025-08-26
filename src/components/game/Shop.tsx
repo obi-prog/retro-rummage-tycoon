@@ -13,10 +13,14 @@ export const Shop = () => {
     currentCustomer, 
     setCurrentCustomer, 
     sellItem, 
+    addToInventory,
+    spendCash,
+    addCash,
     updateReputation, 
     updateTrust,
     language,
-    timeLeft 
+    timeLeft,
+    cash
   } = useGameStore();
   
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
@@ -30,41 +34,8 @@ export const Shop = () => {
     const tryGenerateCustomer = () => {
       if (!currentCustomer && timeLeft > 0) {
         if (Math.random() < 0.4) { // 40% chance
-          const customers: Customer[] = [
-            {
-              id: '1',
-              name: 'Ahmet Koleksiyoncu',
-              type: 'collector',
-              patience: 80,
-              budget: 1000,
-              knowledge: 90,
-              preferences: ['cassette_record', 'walkman_electronics'],
-              avatar: '👨‍💼'
-            },
-            {
-              id: '2',
-              name: 'Elif Öğrenci',
-              type: 'student',
-              patience: 60,
-              budget: 200,
-              knowledge: 40,
-              preferences: ['comic', 'poster'],
-              avatar: '👩‍🎓'
-            },
-            {
-              id: '3',
-              name: 'Mehmet Nostaljik',
-              type: 'nostalgic',
-              patience: 70,
-              budget: 500,
-              knowledge: 60,
-              preferences: ['toy', 'watch'],
-              avatar: '👴'
-            }
-          ];
-          
-          const randomCustomer = customers[Math.floor(Math.random() * customers.length)];
-          setCurrentCustomer(randomCustomer);
+          const newCustomer = generateCustomer();
+          setCurrentCustomer(newCustomer);
         }
       }
     };
@@ -80,7 +51,7 @@ export const Shop = () => {
     };
   }, [currentCustomer, timeLeft, setCurrentCustomer]);
 
-  const calculateSellPrice = (item: Item) => {
+  const calculateItemValue = (item: Item) => {
     const conditionMultiplier = 1 + (item.condition / 100);
     const rarityMultiplier = {
       common: 1,
@@ -96,12 +67,13 @@ export const Shop = () => {
     if (!currentCustomer) return;
     
     setSelectedItem(item);
-    const basePrice = calculateSellPrice(item);
+    const basePrice = calculateItemValue(item);
     setCurrentOffer(basePrice);
     setCustomerResponse('');
+    setHaggleCount(0);
   };
 
-  const handleHaggle = (newPrice: number) => {
+  const handleBuyerHaggle = (newPrice: number) => {
     if (!currentCustomer || !selectedItem) return;
     
     const response = generateHaggleResponse(currentCustomer, selectedItem, newPrice, haggleCount);
@@ -112,24 +84,79 @@ export const Shop = () => {
       sellItem(selectedItem, newPrice);
       updateReputation(response.reputationChange);
       updateTrust(response.trustChange);
-      setCurrentCustomer(null);
-      setSelectedItem(null);
-      setCurrentOffer(0);
-      setHaggleCount(0);
+      resetNegotiation();
     } else if (response.counter) {
       setCurrentOffer(response.counter);
     } else if (haggleCount >= 3) {
-      // Customer leaves after too many haggles
-      setCurrentCustomer(null);
-      setSelectedItem(null);
-      setCurrentOffer(0);
-      setHaggleCount(0);
+      resetNegotiation();
     }
   };
 
+  const handleSellerHaggle = (offerPrice: number) => {
+    if (!currentCustomer || !currentCustomer.carriedItem) return;
+    
+    const item = currentCustomer.carriedItem;
+    const itemValue = calculateItemValue(item);
+    const priceRatio = offerPrice / itemValue;
+    
+    let response;
+    if (priceRatio >= 0.7 && offerPrice <= cash) {
+      response = {
+        accepted: true,
+        message: "Deal! I'll take your offer.",
+        reputationChange: 2,
+        trustChange: 1
+      };
+      
+      if (spendCash(offerPrice)) {
+        addToInventory(item);
+        updateReputation(response.reputationChange);
+        updateTrust(response.trustChange);
+        resetNegotiation();
+      }
+    } else if (offerPrice > cash) {
+      response = {
+        accepted: false,
+        message: "You don't have enough money!",
+        reputationChange: 0,
+        trustChange: 0
+      };
+    } else {
+      const counter = Math.floor(itemValue * 0.8);
+      response = {
+        accepted: false,
+        message: `Too low! How about ${counter}₳?`,
+        reputationChange: 0,
+        trustChange: 0,
+        counter
+      };
+      setCurrentOffer(counter);
+    }
+    
+    setCustomerResponse(response.message);
+    setHaggleCount(prev => prev + 1);
+    
+    if (haggleCount >= 3 && !response.accepted) {
+      setTimeout(resetNegotiation, 2000);
+    }
+  };
+
+  const resetNegotiation = () => {
+    setCurrentCustomer(null);
+    setSelectedItem(null);
+    setCurrentOffer(0);
+    setHaggleCount(0);
+    setCustomerResponse('');
+  };
+
   const handleAcceptOffer = () => {
-    if (!currentCustomer || !selectedItem) return;
-    handleHaggle(currentOffer);
+    if (!currentCustomer) return;
+    
+    if (currentCustomer.intent === 'buy') {
+      handleBuyerHaggle(currentOffer);
+    } else {
+      handleSellerHaggle(currentOffer);
+    }
   };
 
   const handleCounterOffer = (adjustment: number) => {
@@ -139,22 +166,44 @@ export const Shop = () => {
 
   return (
     <div className="w-full max-w-sm mx-auto p-4 space-y-4">
+      {/* Shop Background */}
+      <div className="fixed inset-0 pointer-events-none opacity-10">
+        <div className="absolute top-20 left-10 text-6xl">🏪</div>
+        <div className="absolute top-32 right-10 text-4xl">💰</div>
+        <div className="absolute bottom-40 left-20 text-5xl">📦</div>
+        <div className="absolute bottom-60 right-20 text-4xl">🛍️</div>
+      </div>
+
       {/* Customer Display */}
       {currentCustomer ? (
-        <Card className="bg-gradient-to-br from-purple-500 via-pink-500 to-cyan-400 shadow-xl">
-          <CardContent className="p-6">
+        <Card className="bg-gradient-to-br from-purple-500 via-pink-500 to-cyan-400 shadow-xl relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-black/20 to-transparent"></div>
+          <CardContent className="p-6 relative z-10">
             <div className="flex flex-col items-center space-y-4">
               {/* Customer Avatar */}
-              <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center text-3xl backdrop-blur-sm">
-                {currentCustomer.avatar}
+              <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border-4 border-white/30 overflow-hidden">
+                <img 
+                  src={currentCustomer.avatar} 
+                  alt={currentCustomer.name}
+                  className="w-full h-full object-cover"
+                />
               </div>
               
               {/* Customer Info */}
               <div className="text-center text-white">
                 <h3 className="font-bold text-lg">{currentCustomer.name}</h3>
-                <Badge className="bg-white/20 text-white border-white/30 mb-3">
-                  {t(currentCustomer.type as any, language)}
-                </Badge>
+                <div className="flex gap-2 justify-center mt-2">
+                  <Badge className="bg-white/20 text-white border-white/30">
+                    {t(currentCustomer.type as any, language)}
+                  </Badge>
+                  <Badge className={`${
+                    currentCustomer.intent === 'buy' 
+                      ? 'bg-green-500/80 text-white border-green-300/50' 
+                      : 'bg-blue-500/80 text-white border-blue-300/50'
+                  }`}>
+                    {currentCustomer.intent === 'buy' ? t('buyerBadge', language) : t('sellerBadge', language)}
+                  </Badge>
+                </div>
               </div>
               
               {/* Customer Stats */}
@@ -168,6 +217,16 @@ export const Shop = () => {
                   <div className="text-red-200">⏰</div>
                   <div className="font-semibold">{currentCustomer.patience}%</div>
                   <div className="text-xs opacity-80">{t('patience', language)}</div>
+                </div>
+              </div>
+
+              {/* Intent Description */}
+              <div className="bg-white/30 backdrop-blur-sm rounded-lg p-3 w-full text-center">
+                <div className="text-white font-medium">
+                  {currentCustomer.intent === 'buy' 
+                    ? `🛒 ${t('wantsToBuy', language)}`
+                    : `💼 ${t('wantsToSell', language)}`
+                  }
                 </div>
               </div>
               
@@ -190,15 +249,15 @@ export const Shop = () => {
         </Card>
       )}
 
-      {/* Shop Items - Only show when customer is present */}
-      {currentCustomer && (
-        <Card className="border-2 border-primary/20">
-          <CardHeader className="bg-gradient-to-r from-orange-100 to-yellow-100 dark:from-orange-900/20 dark:to-yellow-900/20">
+      {/* Shop Items - Show when customer wants to buy */}
+      {currentCustomer && currentCustomer.intent === 'buy' && (
+        <Card className="border-2 border-green-500/30 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20">
+          <CardHeader className="bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30">
             <CardTitle className="text-center flex items-center justify-center gap-2">
               🏪 {t('yourShop', language)}
             </CardTitle>
             <div className="text-center text-sm text-muted-foreground">
-              {t('customerWants', language)}
+              {t('wantsToBuy', language)}
             </div>
           </CardHeader>
           <CardContent className="space-y-3 p-4">
@@ -208,13 +267,13 @@ export const Shop = () => {
                 className={`cursor-pointer transition-all duration-200 hover:scale-105 ${
                   selectedItem?.id === item.id 
                     ? 'ring-2 ring-green-500 bg-green-50 dark:bg-green-900/20 shadow-lg' 
-                    : 'hover:shadow-md border-2 border-transparent hover:border-primary/20'
+                    : 'hover:shadow-md border-2 border-transparent hover:border-green-500/20'
                 }`}
                 onClick={() => handleItemSelect(item)}
               >
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3">
-                    <div className="text-2xl w-12 h-12 flex items-center justify-center bg-gradient-to-br from-orange-100 to-yellow-100 dark:from-orange-900/30 dark:to-yellow-900/30 rounded-lg">
+                    <div className="text-2xl w-12 h-12 flex items-center justify-center bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-lg">
                       {item.image}
                     </div>
                     <div className="flex-1">
@@ -224,7 +283,7 @@ export const Shop = () => {
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="text-lg font-bold text-green-600 dark:text-green-400">
-                          {calculateSellPrice(item)}₳
+                          {calculateItemValue(item)}₳
                         </div>
                         {selectedItem?.id === item.id && (
                           <Badge className="bg-green-500 text-white">Seçili</Badge>
@@ -239,42 +298,107 @@ export const Shop = () => {
         </Card>
       )}
 
+      {/* Customer's Item - Show when customer wants to sell */}
+      {currentCustomer && currentCustomer.intent === 'sell' && currentCustomer.carriedItem && (
+        <Card className="border-2 border-blue-500/30 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20">
+          <CardHeader className="bg-gradient-to-r from-blue-100 to-cyan-100 dark:from-blue-900/30 dark:to-cyan-900/30">
+            <CardTitle className="text-center flex items-center justify-center gap-2">
+              💼 {t('theirItem', language)}
+            </CardTitle>
+            <div className="text-center text-sm text-muted-foreground">
+              {t('wantsToSell', language)}
+            </div>
+          </CardHeader>
+          <CardContent className="p-4">
+            <Card 
+              className="cursor-pointer transition-all duration-200 hover:scale-105 bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-500/20"
+              onClick={() => handleItemSelect(currentCustomer.carriedItem!)}
+            >
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="text-2xl w-12 h-12 flex items-center justify-center bg-gradient-to-br from-blue-100 to-cyan-100 dark:from-blue-900/30 dark:to-cyan-900/30 rounded-lg">
+                    {currentCustomer.carriedItem.image}
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-base">{currentCustomer.carriedItem.name}</h4>
+                    <div className="text-sm text-muted-foreground mb-1">
+                      {t(currentCustomer.carriedItem.category as any, language)}
+                    </div>
+                    <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                      ~{calculateItemValue(currentCustomer.carriedItem)}₳
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Haggle Interface */}
-      {selectedItem && currentCustomer && (
-        <Card className="border-2 border-green-500 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 shadow-xl">
+      {currentCustomer && (
+        <Card className={`border-2 shadow-xl ${
+          currentCustomer.intent === 'buy' 
+            ? 'border-green-500 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20'
+            : 'border-blue-500 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20'
+        }`}>
           <CardHeader className="text-center">
-            <CardTitle className="flex items-center justify-center gap-2 text-green-700 dark:text-green-300">
+            <CardTitle className={`flex items-center justify-center gap-2 ${
+              currentCustomer.intent === 'buy' 
+                ? 'text-green-700 dark:text-green-300'
+                : 'text-blue-700 dark:text-blue-300'
+            }`}>
               💰 {t('haggle', language)}
             </CardTitle>
             <div className="text-sm text-muted-foreground">
-              {t('negotiating', language)}
+              {currentCustomer.intent === 'buy' ? t('sellToThem', language) : t('buyFromThem', language)}
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Selected Item Display */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border-l-4 border-green-500">
-              <div className="flex items-center gap-3">
-                <div className="text-2xl">{selectedItem.image}</div>
-                <div>
-                  <div className="font-semibold">{selectedItem.name}</div>
-                  <div className="text-sm text-muted-foreground">
-                    {t(selectedItem.category as any, language)}
+            {(selectedItem || currentCustomer.carriedItem) && (
+              <div className={`rounded-lg p-3 border-l-4 ${
+                currentCustomer.intent === 'buy' 
+                  ? 'bg-white dark:bg-gray-800 border-green-500'
+                  : 'bg-white dark:bg-gray-800 border-blue-500'
+              }`}>
+                <div className="flex items-center gap-3">
+                  <div className="text-2xl">
+                    {(selectedItem || currentCustomer.carriedItem)!.image}
+                  </div>
+                  <div>
+                    <div className="font-semibold">
+                      {(selectedItem || currentCustomer.carriedItem)!.name}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      {t((selectedItem || currentCustomer.carriedItem)!.category as any, language)}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
             
             {/* Price Display */}
             <div className="text-center bg-white dark:bg-gray-800 rounded-lg p-4">
-              <div className="text-sm text-muted-foreground mb-1">{t('yourPrice', language)}</div>
-              <div className="text-3xl font-bold text-green-600 dark:text-green-400">
+              <div className="text-sm text-muted-foreground mb-1">
+                {currentCustomer.intent === 'buy' ? t('yourPrice', language) : t('yourOffer', language)}
+              </div>
+              <div className={`text-3xl font-bold ${
+                currentCustomer.intent === 'buy' 
+                  ? 'text-green-600 dark:text-green-400'
+                  : 'text-blue-600 dark:text-blue-400'
+              }`}>
                 {currentOffer}₳
               </div>
+              {currentCustomer.intent === 'sell' && (
+                <div className="text-xs text-muted-foreground mt-1">
+                  Kasanızda: {cash}₳
+                </div>
+              )}
             </div>
             
             {/* Price Controls */}
             <div className="space-y-3">
-              {/* Quick adjust buttons */}
               <div className="grid grid-cols-5 gap-2">
                 <Button 
                   variant="outline" 
@@ -296,7 +420,12 @@ export const Shop = () => {
                   variant="default"
                   size="sm"
                   onClick={handleAcceptOffer}
-                  className="bg-green-600 hover:bg-green-700 text-white font-bold"
+                  className={`text-white font-bold ${
+                    currentCustomer.intent === 'buy'
+                      ? 'bg-green-600 hover:bg-green-700'
+                      : 'bg-blue-600 hover:bg-blue-700'
+                  }`}
+                  disabled={currentCustomer.intent === 'sell' && currentOffer > cash}
                 >
                   {t('accept', language)}
                 </Button>
