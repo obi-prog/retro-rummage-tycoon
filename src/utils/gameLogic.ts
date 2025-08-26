@@ -16,7 +16,7 @@ const generate2DAvatar = (type: CustomerType): string => {
         <path d="M 45 40 Q 50 45 55 40" stroke="#000" stroke-width="2" fill="none"/>
         <rect x="30" y="60" width="10" height="5" fill="#8B4513"/>
         <rect x="60" y="60" width="10" height="5" fill="#8B4513"/>
-        <text x="50" y="95" text-anchor="middle" font-size="8" fill="#000">📚</text>
+        <rect x="40" y="85" width="20" height="8" fill="#654321" rx="2"/>
       </svg>
     `)}`,
     student: `data:image/svg+xml;base64,${btoa(`
@@ -27,7 +27,7 @@ const generate2DAvatar = (type: CustomerType): string => {
         <circle cx="58" cy="32" r="2" fill="#000"/>
         <path d="M 45 40 Q 50 43 55 40" stroke="#000" stroke-width="2" fill="none"/>
         <rect x="35" y="25" width="30" height="8" fill="#FFD700" rx="3"/>
-        <text x="50" y="95" text-anchor="middle" font-size="8" fill="#000">🎓</text>
+        <circle cx="50" cy="90" r="5" fill="#FF69B4"/>
       </svg>
     `)}`,
     trader: `data:image/svg+xml;base64,${btoa(`
@@ -38,7 +38,7 @@ const generate2DAvatar = (type: CustomerType): string => {
         <circle cx="58" cy="32" r="2" fill="#000"/>
         <path d="M 45 38 L 55 38" stroke="#000" stroke-width="2"/>
         <rect x="32" y="55" width="8" height="15" fill="#8B4513"/>
-        <text x="50" y="95" text-anchor="middle" font-size="8" fill="#000">💼</text>
+        <rect x="40" y="85" width="20" height="8" fill="#000" rx="2"/>
       </svg>
     `)}`,
     nostalgic: `data:image/svg+xml;base64,${btoa(`
@@ -49,7 +49,7 @@ const generate2DAvatar = (type: CustomerType): string => {
         <circle cx="58" cy="32" r="2" fill="#000"/>
         <path d="M 45 40 Q 50 38 55 40" stroke="#000" stroke-width="2" fill="none"/>
         <rect x="30" y="20" width="40" height="5" fill="#C0C0C0" rx="2"/>
-        <text x="50" y="95" text-anchor="middle" font-size="8" fill="#000">⏰</text>
+        <circle cx="50" cy="88" r="6" fill="#C0C0C0"/>
       </svg>
     `)}`,
     hunter: `data:image/svg+xml;base64,${btoa(`
@@ -60,7 +60,7 @@ const generate2DAvatar = (type: CustomerType): string => {
         <circle cx="58" cy="32" r="2" fill="#000"/>
         <path d="M 48 40 L 52 40" stroke="#000" stroke-width="2"/>
         <rect x="30" y="25" width="40" height="5" fill="#8B4513" rx="2"/>
-        <text x="50" y="95" text-anchor="middle" font-size="8" fill="#000">🔍</text>
+        <circle cx="50" cy="88" r="4" fill="#FFD700"/>
       </svg>
     `)}`,
     tourist: `data:image/svg+xml;base64,${btoa(`
@@ -71,7 +71,7 @@ const generate2DAvatar = (type: CustomerType): string => {
         <circle cx="58" cy="32" r="2" fill="#000"/>
         <circle cx="50" cy="40" r="3" fill="#FF69B4"/>
         <rect x="25" y="28" width="50" height="6" fill="#FFD700" rx="3"/>
-        <text x="50" y="95" text-anchor="middle" font-size="8" fill="#000">📷</text>
+        <rect x="42" y="85" width="16" height="10" fill="#000" rx="2"/>
       </svg>
     `)}`,
     expert: `data:image/svg+xml;base64,${btoa(`
@@ -84,7 +84,7 @@ const generate2DAvatar = (type: CustomerType): string => {
         <rect x="40" y="28" width="20" height="3" fill="#000" rx="1"/>
         <circle cx="35" y="30" r="6" fill="none" stroke="#000" stroke-width="1"/>
         <circle cx="65" y="30" r="6" fill="none" stroke="#000" stroke-width="1"/>
-        <text x="50" y="95" text-anchor="middle" font-size="8" fill="#000">🎯</text>
+        <polygon points="45,85 55,85 52,92 48,92" fill="#8B4513"/>
       </svg>
     `)}`,
   };
