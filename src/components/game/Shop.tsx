@@ -326,7 +326,7 @@ export const Shop = () => {
   };
 
   return (
-    <div className="w-full max-w-sm mx-auto p-4 space-y-4">
+    <div className="w-full max-w-sm mx-auto p-4 space-y-4 pb-24">
       {/* Shop Background */}
       <div className="fixed inset-0 pointer-events-none opacity-10">
         <div className="absolute top-20 left-10 text-6xl">🏪</div>
@@ -421,40 +421,42 @@ export const Shop = () => {
               {t('wantsToBuy', language)}
             </div>
           </CardHeader>
-          <CardContent className="space-y-3 p-4">
-            {inventory.map((item) => (
-              <Card 
-                key={item.id}
-                className={`cursor-pointer transition-all duration-200 hover:scale-105 ${
-                  selectedItem?.id === item.id 
-                    ? 'ring-2 ring-green-500 bg-green-50 dark:bg-green-900/20 shadow-lg' 
-                    : 'hover:shadow-md border-2 border-transparent hover:border-green-500/20'
-                }`}
-                onClick={() => handleItemSelect(item)}
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="text-2xl w-12 h-12 flex items-center justify-center bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-lg">
-                      {item.image}
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-base">{item.name}</h4>
-                      <div className="text-sm text-muted-foreground mb-1">
-                        {t(item.category as any, language)}
+          <CardContent className="p-3">
+            <div className="flex gap-3 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-1">
+              {inventory.map((item) => (
+                <Card 
+                  key={item.id}
+                  className={`min-w-[180px] snap-start cursor-pointer transition-all duration-200 hover:scale-105 ${
+                    selectedItem?.id === item.id 
+                      ? 'ring-2 ring-green-500 bg-green-50 dark:bg-green-900/20 shadow-lg' 
+                      : 'hover:shadow-md border-2 border-transparent hover:border-green-500/20'
+                  }`}
+                  onClick={() => handleItemSelect(item)}
+                >
+                  <CardContent className="p-3">
+                    <div className="flex items-center gap-3">
+                      <div className="text-2xl w-12 h-12 flex items-center justify-center bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-lg">
+                        {item.image}
                       </div>
-                      <div className="flex items-center gap-2">
-                        <div className="text-lg font-bold text-green-600 dark:text-green-400">
-                          ${calculateItemValue(item)}
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-base truncate">{item.name}</h4>
+                        <div className="text-sm text-muted-foreground mb-1">
+                          {t(item.category as any, language)}
                         </div>
-                        {selectedItem?.id === item.id && (
-                          <Badge className="bg-green-500 text-white">Seçili</Badge>
-                        )}
+                        <div className="flex items-center gap-2">
+                          <div className="text-lg font-bold text-green-600 dark:text-green-400">
+                            ${calculateItemValue(item)}
+                          </div>
+                          {selectedItem?.id === item.id && (
+                            <Badge className="bg-green-500 text-white">Seçili</Badge>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </CardContent>
         </Card>
       )}
@@ -624,8 +626,8 @@ export const Shop = () => {
 
               {/* Main Action Buttons */}
               {!showOfferInput && (
-                <>
-                  <div className="grid grid-cols-3 gap-2 mb-3">
+                <div className="sticky bottom-2 left-0 right-0 bg-background/90 backdrop-blur-sm rounded-lg p-3 shadow-lg">
+                  <div className="grid grid-cols-3 gap-2 mb-2">
                     <Button 
                       variant="destructive"
                       onClick={handleRejectOffer}
@@ -687,7 +689,7 @@ export const Shop = () => {
                       +$25
                     </Button>
                   </div>
-                </>
+                </div>
               )}
             </div>
           </CardContent>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useGameStore } from '@/store/gameStore';
 import { Shop } from '@/components/game/Shop';
-import { NavigationMenu } from '@/components/game/NavigationMenu';
+import { QuickDock } from '@/components/game/QuickDock';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { t } from '@/utils/localization';
@@ -125,11 +125,11 @@ const Index = () => {
           </Card>
         </div>
 
-        {/* Main Shop Interface */}
-        <Shop />
+        {/* Quick Access Dock */}
+        <QuickDock />
 
-        {/* Navigation Menu */}
-        <NavigationMenu />
+        {/* Pazarlık Arayüzü - Hepsi tek ekranda */}
+        <Shop />
 
         {/* Day End Summary */}
         {timeLeft === 0 && (
