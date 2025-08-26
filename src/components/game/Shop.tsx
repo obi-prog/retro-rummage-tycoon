@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Item, Customer } from '@/types/game';
 import { generateCustomer, generateHaggleResponse, calculateItemValue, generateCustomerInitialOffer, generateInitialMessage } from '@/utils/gameLogic';
+import { toast } from '@/hooks/use-toast';
 
 export const Shop = () => {
   const { 
@@ -32,6 +33,7 @@ export const Shop = () => {
   const [negotiationPhase, setNegotiationPhase] = useState<'initial' | 'customer_offered' | 'shop_offered'>('initial');
   const [showOfferInput, setShowOfferInput] = useState(false);
   const [tempOffer, setTempOffer] = useState<number>(0);
+  const [customerFrustration, setCustomerFrustration] = useState(0);
 
   // Auto-start negotiation when customer arrives
   useEffect(() => {
@@ -103,6 +105,10 @@ export const Shop = () => {
     setCustomerResponse(response.message);
     setHaggleCount(prev => prev + 1);
     
+    // Check if customer gets frustrated
+    const itemValue = calculateItemValue(selectedItem);
+    const priceRatio = newPrice / itemValue;
+    
     if (response.accepted) {
       sellItem(selectedItem, newPrice);
       updateReputation(response.reputationChange);
@@ -110,8 +116,13 @@ export const Shop = () => {
       resetNegotiation();
     } else if (response.counter) {
       setCurrentOffer(response.counter);
-    } else if (haggleCount >= 3) {
-      resetNegotiation();
+      
+      // Increase frustration if shop owner's price is too high
+      if (priceRatio > 1.5 || haggleCount >= 2) {
+        setCustomerFrustration(prev => prev + 1);
+      }
+    } else if (haggleCount >= 3 || customerFrustration >= 2) {
+      customerWalksAway("Müşteri fiyatı çok yüksek buldu ve satın almaktan vazgeçti!");
     }
   };
 
@@ -154,14 +165,38 @@ export const Shop = () => {
         counter
       };
       setCurrentOffer(counter);
+      
+      // Increase frustration if shop owner's offer is too low
+      if (priceRatio < 0.4 || haggleCount >= 2) {
+        setCustomerFrustration(prev => prev + 1);
+      }
     }
     
     setCustomerResponse(response.message);
     setHaggleCount(prev => prev + 1);
     
-    if (haggleCount >= 3 && !response.accepted) {
-      setTimeout(resetNegotiation, 2000);
+    if (haggleCount >= 3 && !response.accepted || customerFrustration >= 2) {
+      if (customerFrustration >= 2) {
+        customerWalksAway("Müşteri teklifinizi çok düşük buldu ve satmaktan vazgeçti!");
+      } else {
+        setTimeout(resetNegotiation, 2000);
+      }
     }
+  };
+
+  const customerWalksAway = (message: string) => {
+    toast({
+      title: "Müşteri Çekti Gitti! 😤",
+      description: message,
+      variant: "destructive",
+    });
+    
+    setCustomerResponse("Artık bu pazarlığı sürdürmek istemiyorum. Başka yerde bakarım.");
+    updateReputation(-1); // Lose reputation when customers walk away
+    
+    setTimeout(() => {
+      resetNegotiation();
+    }, 3000);
   };
 
   const resetNegotiation = () => {
@@ -174,6 +209,7 @@ export const Shop = () => {
     setNegotiationPhase('initial');
     setShowOfferInput(false);
     setTempOffer(0);
+    setCustomerFrustration(0);
   };
 
   const handleMakeOffer = () => {
@@ -214,6 +250,12 @@ export const Shop = () => {
         }
       } else {
         response = "That's too expensive for me. Can you do better?";
+        // Check if price is extremely high and customer should get frustrated
+        if (offerRatio > 2.0) {
+          setCustomerFrustration(prev => prev + 2);
+        } else if (offerRatio > 1.5) {
+          setCustomerFrustration(prev => prev + 1);
+        }
       }
     } else {
       // Customer wants to sell, shop owner is offering a buying price  
@@ -235,12 +277,28 @@ export const Shop = () => {
         }
       } else {
         response = "That's too low for me. I need a better offer.";
+        // Check if offer is extremely low and customer should get frustrated
+        if (offerRatio < 0.3) {
+          setCustomerFrustration(prev => prev + 2);
+        } else if (offerRatio < 0.5) {
+          setCustomerFrustration(prev => prev + 1);
+        }
       }
     }
     
     setCustomerResponse(response);
     setShowOfferInput(false);
     setHaggleCount(prev => prev + 1);
+    
+    // Check if customer should walk away due to frustration
+    if (customerFrustration >= 2) {
+      setTimeout(() => {
+        const walkAwayMessage = currentCustomer.intent === 'buy' 
+          ? "Müşteri fiyatları çok yüksek buldu ve satın almaktan vazgeçti!"
+          : "Müşteri tekliflerinizi çok düşük buldu ve satmaktan vazgeçti!";
+        customerWalksAway(walkAwayMessage);
+      }, 2000);
+    }
   };
 
   const handleCancelOffer = () => {
