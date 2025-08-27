@@ -234,8 +234,58 @@ export const Shop = () => {
     let response;
     if (currentCustomer.intent === 'buy') {
       // Customer wants to buy, shop owner is offering a selling price
-      if (tempOffer <= currentCustomer.budget && offerRatio <= 1.2) {
-        if (Math.random() < 0.7) {
+      const maxBudgetRatio = tempOffer / currentCustomer.budget;
+      
+      // Apply personality traits to negotiation
+      let acceptanceThreshold = 0.7; // Base acceptance probability
+      let priceToleranceMultiplier = 1.2; // Base price tolerance (20% above market value)
+      
+      // Modify behavior based on customer type
+      switch (currentCustomer.type) {
+        case 'student': // Cimri (cheap)
+          acceptanceThreshold = 0.4;
+          priceToleranceMultiplier = 1.1; // Only 10% above market value
+          break;
+        case 'collector': // Willing to pay more for rare items
+          if (selectedItem?.rarity === 'rare' || selectedItem?.rarity === 'very_rare' || selectedItem?.rarity === 'legendary') {
+            acceptanceThreshold = 0.8;
+            priceToleranceMultiplier = 1.5; // 50% above market value for rare items
+          }
+          break;
+        case 'tourist': // Açgözlü but less knowledgeable
+          if (currentCustomer.knowledge < 5) {
+            acceptanceThreshold = 0.8; // More likely to accept if unknowledgeable
+            priceToleranceMultiplier = 1.4; // Willing to overpay
+          }
+          break;
+        case 'expert': // Very knowledgeable, hard to fool
+          acceptanceThreshold = 0.5;
+          priceToleranceMultiplier = 1.15; // Won't overpay much
+          break;
+        case 'hunter': // Sabırsız (impatient)
+          acceptanceThreshold = 0.6;
+          if (haggleCount >= 1) acceptanceThreshold = 0.3; // Gets impatient quickly
+          break;
+        case 'nostalgic': // Duygusal, might overpay for sentimental items
+          acceptanceThreshold = 0.75;
+          priceToleranceMultiplier = 1.3;
+          break;
+      }
+      
+      // Additional knowledge-based adjustments
+      if (currentCustomer.knowledge > 8) {
+        priceToleranceMultiplier *= 0.9; // Very knowledgeable customers are harder to fool
+      } else if (currentCustomer.knowledge < 4) {
+        priceToleranceMultiplier *= 1.2; // Unknowledgeable customers can be overcharged
+      }
+      
+      // Patience affects tolerance for haggling
+      if (currentCustomer.patience < 5 && haggleCount >= 1) {
+        acceptanceThreshold *= 0.7; // Impatient customers get frustrated faster
+      }
+      
+      if (tempOffer <= currentCustomer.budget && offerRatio <= priceToleranceMultiplier) {
+        if (Math.random() < acceptanceThreshold) {
           response = "That sounds fair, I'll take it!";
           setTimeout(() => {
             sellItem(item, tempOffer);
@@ -249,18 +299,63 @@ export const Shop = () => {
           setCurrentOffer(counterOffer);
         }
       } else {
-        response = "That's too expensive for me. Can you do better?";
-        // Check if price is extremely high and customer should get frustrated
-        if (offerRatio > 2.0) {
+        // Generate personality-specific rejection messages
+        if (currentCustomer.type === 'student') {
+          response = "That's way too expensive for my budget! I'm a student, you know.";
+        } else if (currentCustomer.type === 'expert') {
+          response = "I know the market value. That price is unrealistic.";
+        } else if (currentCustomer.type === 'hunter') {
+          response = "Too expensive and I don't have time for this!";
+        } else {
+          response = "That's too expensive for me. Can you do better?";
+        }
+        
+        // Increase frustration based on personality
+        if (currentCustomer.type === 'student' && offerRatio > 1.3) {
+          setCustomerFrustration(prev => prev + 3); // Students get very frustrated with high prices
+        } else if (currentCustomer.type === 'hunter' && offerRatio > 1.4) {
+          setCustomerFrustration(prev => prev + 2); // Hunters are impatient
+        } else if (offerRatio > 2.0) {
           setCustomerFrustration(prev => prev + 2);
         } else if (offerRatio > 1.5) {
           setCustomerFrustration(prev => prev + 1);
         }
       }
     } else {
-      // Customer wants to sell, shop owner is offering a buying price  
-      if (tempOffer <= cash && offerRatio >= 0.6) {
-        if (Math.random() < 0.7) {
+      // Customer wants to sell, shop owner is offering a buying price
+      let acceptanceThreshold = 0.7; // Base acceptance probability
+      let minPriceRatio = 0.6; // Base minimum price they'll accept (60% of market value)
+      
+      // Apply personality traits for selling
+      switch (currentCustomer.type) {
+        case 'student': // Cimri but needs money
+          acceptanceThreshold = 0.8; // More likely to accept because they need money
+          minPriceRatio = 0.5; // Will accept lower prices
+          break;
+        case 'collector': // Values their items highly
+          acceptanceThreshold = 0.4;
+          minPriceRatio = 0.8; // Wants high prices for their items
+          break;
+        case 'trader': // Business-minded
+          acceptanceThreshold = 0.6;
+          minPriceRatio = 0.7; // Knows market values
+          break;
+        case 'expert': // Knows exact values
+          acceptanceThreshold = 0.3;
+          minPriceRatio = 0.85; // Won't accept low prices
+          break;
+        case 'hunter': // Impatient, wants quick sale
+          acceptanceThreshold = 0.9;
+          minPriceRatio = 0.55; // Will take lower prices for quick sale
+          break;
+        case 'tourist': // Doesn't know local market
+          acceptanceThreshold = 0.8;
+          minPriceRatio = 0.5; // Can be lowballed
+          break;
+      }
+      
+      if (tempOffer <= cash && offerRatio >= minPriceRatio) {
+        if (Math.random() < acceptanceThreshold) {
           response = "Deal! I'll sell it for that price.";
           setTimeout(() => {
             if (spendCash(tempOffer)) {
@@ -276,9 +371,23 @@ export const Shop = () => {
           setCurrentOffer(counterOffer);
         }
       } else {
-        response = "That's too low for me. I need a better offer.";
-        // Check if offer is extremely low and customer should get frustrated
-        if (offerRatio < 0.3) {
+        // Generate personality-specific rejection messages for selling
+        if (currentCustomer.type === 'expert') {
+          response = "I know what this is worth. That offer is insulting.";
+        } else if (currentCustomer.type === 'collector') {
+          response = "This item has sentimental value. I need a better offer.";
+        } else if (currentCustomer.type === 'student') {
+          response = "I really need the money, but that's too low.";
+        } else {
+          response = "That's too low for me. I need a better offer.";
+        }
+        
+        // Increase frustration based on personality for selling
+        if (currentCustomer.type === 'expert' && offerRatio < 0.7) {
+          setCustomerFrustration(prev => prev + 3); // Experts get very frustrated with low offers
+        } else if (currentCustomer.type === 'collector' && offerRatio < 0.6) {
+          setCustomerFrustration(prev => prev + 2); // Collectors value their items
+        } else if (offerRatio < 0.3) {
           setCustomerFrustration(prev => prev + 2);
         } else if (offerRatio < 0.5) {
           setCustomerFrustration(prev => prev + 1);
