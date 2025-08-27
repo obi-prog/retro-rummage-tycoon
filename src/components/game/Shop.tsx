@@ -586,42 +586,6 @@ export const Shop = () => {
         </Card>
       )}
 
-      {/* Customer's Item - Show when customer wants to sell */}
-      {currentCustomer && currentCustomer.intent === 'sell' && currentCustomer.carriedItem && (
-        <Card className="border-2 border-blue-500/30 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20">
-          <CardHeader className="bg-gradient-to-r from-blue-100 to-cyan-100 dark:from-blue-900/30 dark:to-cyan-900/30">
-            <CardTitle className="text-center flex items-center justify-center gap-2">
-              💼 {t('theirItem', language)}
-            </CardTitle>
-            <div className="text-center text-sm text-muted-foreground">
-              {t('wantsToSell', language)}
-            </div>
-          </CardHeader>
-          <CardContent className="p-4">
-            <Card 
-              className="cursor-pointer transition-all duration-200 hover:scale-105 bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-500/20"
-              onClick={() => handleItemSelect(currentCustomer.carriedItem!)}
-            >
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="text-2xl w-12 h-12 flex items-center justify-center bg-gradient-to-br from-blue-100 to-cyan-100 dark:from-blue-900/30 dark:to-cyan-900/30 rounded-lg">
-                    {currentCustomer.carriedItem.image}
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-base">{currentCustomer.carriedItem.name}</h4>
-                    <div className="text-sm text-muted-foreground mb-1">
-                      {t(currentCustomer.carriedItem.category as any, language)}
-                    </div>
-                    <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
-                      ~${calculateItemValue(currentCustomer.carriedItem)}
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Haggle Interface */}
       {currentCustomer && (
