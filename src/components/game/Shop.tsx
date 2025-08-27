@@ -335,14 +335,13 @@ export const Shop = () => {
         <div className="absolute bottom-60 right-20 text-4xl">🛍️</div>
       </div>
 
-      {/* Customer Display */}
+      {/* Customer Display - Compact */}
       {currentCustomer ? (
-        <Card className="bg-gradient-to-br from-purple-500 via-pink-500 to-cyan-400 shadow-xl relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-black/20 to-transparent"></div>
-          <CardContent className="p-6 relative z-10">
-            <div className="flex flex-col items-center space-y-4">
+        <Card className="bg-gradient-to-r from-purple-500 to-cyan-400 shadow-lg">
+          <CardContent className="p-3">
+            <div className="flex items-center gap-3">
               {/* Customer Avatar */}
-              <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border-4 border-white/30 overflow-hidden">
+              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm overflow-hidden">
                 <img 
                   src={currentCustomer.avatar} 
                   alt={currentCustomer.name}
@@ -351,54 +350,25 @@ export const Shop = () => {
               </div>
               
               {/* Customer Info */}
-              <div className="text-center text-white">
-                <h3 className="font-bold text-lg">{currentCustomer.name}</h3>
-                <div className="flex gap-2 justify-center mt-2">
-                  <Badge className="bg-white/20 text-white border-white/30">
-                    {t(currentCustomer.type as any, language)}
+              <div className="flex-1 text-white">
+                <h3 className="font-bold text-sm">{currentCustomer.name}</h3>
+                <div className="flex gap-1 mt-1">
+                  <Badge className="bg-white/20 text-white border-white/30 text-xs px-1 py-0">
+                    {currentCustomer.intent === 'buy' ? '🛒' : '💼'}
                   </Badge>
-                  <Badge className={`${
-                    currentCustomer.intent === 'buy' 
-                      ? 'bg-green-500/80 text-white border-green-300/50' 
-                      : 'bg-blue-500/80 text-white border-blue-300/50'
-                  }`}>
-                    {currentCustomer.intent === 'buy' ? t('buyerBadge', language) : t('sellerBadge', language)}
+                  <Badge className="bg-white/20 text-white border-white/30 text-xs px-1 py-0">
+                    💰${currentCustomer.budget}
                   </Badge>
                 </div>
               </div>
-              
-              {/* Customer Stats */}
-              <div className="grid grid-cols-2 gap-4 w-full text-white text-sm">
-                <div className="bg-white/20 rounded-lg p-3 text-center backdrop-blur-sm">
-                  <div className="text-yellow-200">💰</div>
-                  <div className="font-semibold">${currentCustomer.budget}</div>
-                  <div className="text-xs opacity-80">{t('budget', language)}</div>
-                </div>
-                <div className="bg-white/20 rounded-lg p-3 text-center backdrop-blur-sm">
-                  <div className="text-red-200">⏰</div>
-                  <div className="font-semibold">{currentCustomer.patience}%</div>
-                  <div className="text-xs opacity-80">{t('patience', language)}</div>
-                </div>
-              </div>
-
-              {/* Intent Description */}
-              <div className="bg-white/30 backdrop-blur-sm rounded-lg p-3 w-full text-center">
-                <div className="text-white font-medium">
-                  {currentCustomer.intent === 'buy' 
-                    ? `🛒 ${t('wantsToBuy', language)}`
-                    : `💼 ${t('wantsToSell', language)}`
-                  }
-                </div>
-              </div>
-              
-              {/* Customer Speech */}
-              {customerResponse && (
-                <div className="bg-white/30 backdrop-blur-sm rounded-lg p-3 w-full">
-                  <div className="text-xs text-white/80 mb-1">{t('customerSays', language)}</div>
-                  <div className="text-white font-medium">💬 "{customerResponse}"</div>
-                </div>
-              )}
             </div>
+            
+            {/* Customer Speech */}
+            {customerResponse && (
+              <div className="bg-white/20 backdrop-blur-sm rounded p-2 mt-2">
+                <div className="text-white text-xs">💬 "{customerResponse}"</div>
+              </div>
+            )}
           </CardContent>
         </Card>
       ) : (
@@ -627,7 +597,7 @@ export const Shop = () => {
               {/* Main Action Buttons */}
               {!showOfferInput && (
                 <div className="sticky bottom-2 left-0 right-0 bg-background/90 backdrop-blur-sm rounded-lg p-3 shadow-lg">
-                  <div className="grid grid-cols-3 gap-2 mb-2">
+                  <div className="grid grid-cols-3 gap-2">
                     <Button 
                       variant="destructive"
                       onClick={handleRejectOffer}
@@ -640,7 +610,7 @@ export const Shop = () => {
                       onClick={handleMakeOffer}
                       className="font-bold bg-yellow-600 hover:bg-yellow-700 text-white"
                     >
-                      Make Offer
+                      Teklif Ver
                     </Button>
                     <Button 
                       variant="default"
@@ -653,40 +623,6 @@ export const Shop = () => {
                       disabled={currentCustomer.intent === 'sell' && currentOffer > cash}
                     >
                       {t('accept', language)}
-                    </Button>
-                  </div>
-                  <div className="grid grid-cols-4 gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => handleCounterOffer(-25)}
-                      className="text-red-600 border-red-200 hover:bg-red-50"
-                    >
-                      -$25
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => handleCounterOffer(-10)}
-                      className="text-red-600 border-red-200 hover:bg-red-50"
-                    >
-                      -$10
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => handleCounterOffer(10)}
-                      className="text-green-600 border-green-200 hover:bg-green-50"
-                    >
-                      +$10
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => handleCounterOffer(25)}
-                      className="text-green-600 border-green-200 hover:bg-green-50"
-                    >
-                      +$25
                     </Button>
                   </div>
                 </div>
