@@ -359,9 +359,52 @@ export const Shop = () => {
                   <Badge className="bg-white/20 text-white border-white/30 text-xs px-1 py-0">
                     {t(currentCustomer.type as any, language)}
                   </Badge>
-                  <Badge className="bg-white/20 text-white border-white/30 text-xs px-1 py-0">
-                    💰${currentCustomer.budget}
-                  </Badge>
+                  {/* Psychological traits */}
+                  {currentCustomer.type === 'collector' && (
+                    <Badge className="bg-white/20 text-white border-white/30 text-xs px-1 py-0">
+                      🔍 Koleksiyoncu
+                    </Badge>
+                  )}
+                  {currentCustomer.type === 'student' && (
+                    <Badge className="bg-white/20 text-white border-white/30 text-xs px-1 py-0">
+                      💸 Cimri
+                    </Badge>
+                  )}
+                  {currentCustomer.type === 'trader' && (
+                    <Badge className="bg-white/20 text-white border-white/30 text-xs px-1 py-0">
+                      🧠 Bilgili
+                    </Badge>
+                  )}
+                  {currentCustomer.type === 'nostalgic' && (
+                    <Badge className="bg-white/20 text-white border-white/30 text-xs px-1 py-0">
+                      💭 Duygusal
+                    </Badge>
+                  )}
+                  {currentCustomer.type === 'hunter' && (
+                    <Badge className="bg-white/20 text-white border-white/30 text-xs px-1 py-0">
+                      ⚡ Sabırsız
+                    </Badge>
+                  )}
+                  {currentCustomer.type === 'tourist' && (
+                    <Badge className="bg-white/20 text-white border-white/30 text-xs px-1 py-0">
+                      🤑 Açgözlü
+                    </Badge>
+                  )}
+                  {currentCustomer.type === 'expert' && (
+                    <Badge className="bg-white/20 text-white border-white/30 text-xs px-1 py-0">
+                      🎓 Uzman
+                    </Badge>
+                  )}
+                  {currentCustomer.patience < 5 && (
+                    <Badge className="bg-white/20 text-white border-white/30 text-xs px-1 py-0">
+                      😤 Sabırsız
+                    </Badge>
+                  )}
+                  {currentCustomer.knowledge > 8 && (
+                    <Badge className="bg-white/20 text-white border-white/30 text-xs px-1 py-0">
+                      🤓 Çok Bilgili
+                    </Badge>
+                  )}
                 </div>
               </div>
             </div>
