@@ -352,9 +352,12 @@ export const Shop = () => {
               {/* Customer Info */}
               <div className="flex-1 text-white">
                 <h3 className="font-bold text-sm">{currentCustomer.name}</h3>
-                <div className="flex gap-1 mt-1">
+                <div className="flex gap-1 mt-1 flex-wrap">
                   <Badge className="bg-white/20 text-white border-white/30 text-xs px-1 py-0">
-                    {currentCustomer.intent === 'buy' ? '🛒' : '💼'}
+                    {currentCustomer.intent === 'buy' ? '🛒 Alıcı' : '💼 Satıcı'}
+                  </Badge>
+                  <Badge className="bg-white/20 text-white border-white/30 text-xs px-1 py-0">
+                    {t(currentCustomer.type as any, language)}
                   </Badge>
                   <Badge className="bg-white/20 text-white border-white/30 text-xs px-1 py-0">
                     💰${currentCustomer.budget}
