@@ -133,7 +133,7 @@ const generateRandomItem = (): Item => {
   };
 };
 
-export const generateCustomer = (): Customer => {
+export const generateCustomer = (forceSellerIntent?: boolean): Customer => {
   const types: CustomerType[] = ['collector', 'student', 'trader', 'nostalgic', 'hunter', 'tourist', 'expert'];
   const type = types[Math.floor(Math.random() * types.length)];
   
@@ -148,7 +148,8 @@ export const generateCustomer = (): Customer => {
   };
 
   const stats = baseStats[type];
-  const intent: 'buy' | 'sell' = Math.random() > 0.6 ? 'buy' : 'sell'; // 60% buyers, 40% sellers
+  // If forceSellerIntent is true, always make customer a seller; otherwise use normal logic
+  const intent: 'buy' | 'sell' = forceSellerIntent ? 'sell' : (Math.random() > 0.6 ? 'buy' : 'sell'); // 60% buyers, 40% sellers
   
   return {
     id: Math.random().toString(36).substring(7),

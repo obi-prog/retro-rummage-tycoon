@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Item, Customer } from '@/types/game';
 import { generateCustomer, generateHaggleResponse, calculateItemValue, generateCustomerInitialOffer, generateInitialMessage } from '@/utils/gameLogic';
 import { toast } from '@/hooks/use-toast';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Minus, Plus } from 'lucide-react';
 
 // Customer response message pools
@@ -76,10 +76,11 @@ export const Shop = () => {
     if (!currentCustomer && customersServed < dailyCustomerLimit) {
       const timer = setTimeout(() => {
         if (!currentCustomer && customersServed < dailyCustomerLimit) {
-          const newCustomer = generateCustomer();
+          // If no inventory, force seller customer; otherwise random
+          const forceSellerIntent = inventory.length === 0;
+          const newCustomer = generateCustomer(forceSellerIntent);
           setCurrentCustomer(newCustomer);
           
-          // Auto-select item and set initial offer
           setTimeout(() => {
             if (newCustomer.intent === 'buy' && inventory.length > 0) {
               const interestedItem = inventory[Math.floor(Math.random() * inventory.length)];
@@ -95,6 +96,10 @@ export const Shop = () => {
               const customerAskingPrice = Math.max(10, Math.floor(itemValue * (0.8 + Math.random() * 0.3))); // Ensure minimum $10
               setCurrentOffer(customerAskingPrice);
               setCustomerResponse(`I have this ${newCustomer.carriedItem.name}. I'm asking $${customerAskingPrice} for it.`);
+            } else if (newCustomer.intent === 'buy' && inventory.length === 0) {
+              // This shouldn't happen with the new logic, but just in case
+              resetNegotiation();
+              return;
             }
           }, 1000);
         }
@@ -517,6 +522,9 @@ export const Shop = () => {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Teklif Ver</DialogTitle>
+            <DialogDescription>
+              Müşteriyle pazarlık yapmak için fiyat belirleyin.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="flex items-center gap-2">
