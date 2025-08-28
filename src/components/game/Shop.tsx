@@ -173,6 +173,10 @@ export const Shop = () => {
           const counterOffer = Math.max(10, Math.floor(tempOffer * 0.9));
           response = getRandomMessage('counterOffer', language);
           setCurrentOffer(counterOffer);
+          toast({
+            title: "Karşı Teklif",
+            description: `Müşteri $${counterOffer} istiyor.`,
+          });
         }
       } else {
         if (offerRatio > 1.5) {
@@ -221,6 +225,10 @@ export const Shop = () => {
           const counterOffer = Math.max(10, Math.floor(tempOffer * 1.1));
           response = getRandomMessage('counterOffer', language);
           setCurrentOffer(counterOffer);
+          toast({
+            title: "Karşı Teklif",
+            description: `Müşteri $${counterOffer} istiyor.`,
+          });
         }
       } else {
         if (offerRatio < 0.4) {
