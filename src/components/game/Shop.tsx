@@ -11,6 +11,40 @@ import { toast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Minus, Plus } from 'lucide-react';
 
+// Customer response message pools
+const messagesPools = {
+  accept: {
+    tr: ["Tamamdır, anlaştık.", "Harika, bunu alıyorum.", "Süper, işte paran.", "Tam istediğim fiyat.", "Deal!"],
+    en: ["Deal! I'll take it.", "Perfect, I'm buying.", "Alright, here's the cash.", "That works for me.", "Done!"],
+    de: ["Abgemacht, ich nehme es.", "Perfekt, gekauft.", "In Ordnung, hier ist das Geld.", "Passt für mich.", "Erledigt!"]
+  },
+  reject: {
+    tr: ["Peki… vazgeçiyorum.", "Hmm, tamam o zaman.", "Bir dahaki sefere görüşürüz.", "Sen bilirsin.", "Hoşça kal."],
+    en: ["Alright, I'll pass.", "Hmm, okay then.", "Maybe next time.", "Suit yourself.", "See you around."],
+    de: ["Schon gut, ich verzichte.", "Na gut, dann eben nicht.", "Vielleicht beim nächsten Mal.", "Wie du willst.", "Bis später."]
+  },
+  counterOffer: {
+    tr: ["Bu çok düşük, biraz daha artır.", "Daha iyi bir teklif bekliyorum.", "Hadi, biraz daha koy üstüne.", "O kadar ucuz veremem.", "Biraz daha cömert ol."],
+    en: ["That's too low, raise it.", "I expect a better offer.", "Come on, add a little more.", "I can't go that cheap.", "Be a bit more generous."],
+    de: ["Das ist zu wenig, leg etwas drauf.", "Ich erwarte ein besseres Angebot.", "Komm, etwas mehr geht.", "So billig kann ich nicht verkaufen.", "Sei etwas großzügiger."]
+  },
+  insulting: {
+    tr: ["Böyle komik teklif olmaz, vazgeçtim!", "Dalga mı geçiyorsun?!", "Hayır, bitmiştir.", "Bu saygısızlık, gidiyorum.", "Sen ciddi olamazsın!"],
+    en: ["That's ridiculous, I'm out!", "Are you kidding me?!", "No, I'm done here.", "That's insulting, I'm leaving.", "You can't be serious!"],
+    de: ["Lächerlich, ich bin raus!", "Machst du Witze?!", "Nein, ich bin fertig.", "Das ist beleidigend, ich gehe.", "Das meinst du nicht ernst!"]
+  },
+  neutral: {
+    tr: ["Hmmm… fena değil ama biraz daha iyi olabilir.", "Yaklaştın, ama az daha çık.", "Neredeyse ikna oldum.", "Azıcık daha üstüne koy.", "Hadi biraz daha uğraş."],
+    en: ["Hmm… not bad, but can be better.", "You're close, add a bit more.", "Almost convinced.", "Raise it just a little.", "Try harder."],
+    de: ["Hmm… nicht schlecht, aber besser geht.", "Du bist nah dran, etwas mehr.", "Fast überzeugt.", "Leg nur ein bisschen drauf.", "Gib dir mehr Mühe."]
+  }
+};
+
+const getRandomMessage = (pool: keyof typeof messagesPools, language: string) => {
+  const messages = messagesPools[pool]?.[language as keyof typeof messagesPools.accept] || messagesPools[pool].tr;
+  return messages[Math.floor(Math.random() * messages.length)];
+};
+
 export const Shop = () => {
   const { 
     inventory, 
@@ -132,24 +166,23 @@ export const Shop = () => {
       
       if (tempOffer <= currentCustomer.budget && offerRatio <= priceToleranceMultiplier) {
         if (Math.random() < acceptanceThreshold) {
-          response = "That sounds fair, I'll take it!";
+          response = getRandomMessage('accept', language);
           shouldAccept = true;
         } else {
           const counterOffer = Math.max(10, Math.floor(tempOffer * 0.9));
-          response = `How about $${counterOffer} instead?`;
+          response = getRandomMessage('counterOffer', language);
           setCurrentOffer(counterOffer);
         }
       } else {
-        if (currentCustomer.type === 'student') {
-          response = "That's way too expensive for my budget!";
-        } else if (currentCustomer.type === 'expert') {
-          response = "I know the market value. That price is unrealistic.";
+        if (offerRatio > 1.5) {
+          response = getRandomMessage('insulting', language);
+          setCustomerFrustration(prev => prev + 2);
+        } else if (offerRatio > 1.2) {
+          response = getRandomMessage('neutral', language);
+          setCustomerFrustration(prev => prev + 1);
         } else {
-          response = "That's too expensive for me.";
+          response = getRandomMessage('counterOffer', language);
         }
-        
-        if (offerRatio > 1.5) setCustomerFrustration(prev => prev + 2);
-        else if (offerRatio > 1.2) setCustomerFrustration(prev => prev + 1);
       }
     } else {
       // Customer wants to sell to us
@@ -181,24 +214,23 @@ export const Shop = () => {
       
       if (tempOffer <= cash && offerRatio >= minPriceRatio) {
         if (Math.random() < acceptanceThreshold) {
-          response = "Deal! I'll sell it for that price.";
+          response = getRandomMessage('accept', language);
           shouldAccept = true;
         } else {
           const counterOffer = Math.max(10, Math.floor(tempOffer * 1.1));
-          response = `Could you make it $${counterOffer}?`;
+          response = getRandomMessage('counterOffer', language);
           setCurrentOffer(counterOffer);
         }
       } else {
-        if (currentCustomer.type === 'expert') {
-          response = "I know what this is worth. That offer is insulting.";
-        } else if (currentCustomer.type === 'collector') {
-          response = "This item has sentimental value.";
+        if (offerRatio < 0.4) {
+          response = getRandomMessage('insulting', language);
+          setCustomerFrustration(prev => prev + 2);
+        } else if (offerRatio < 0.6) {
+          response = getRandomMessage('neutral', language);
+          setCustomerFrustration(prev => prev + 1);
         } else {
-          response = "That's too low for me.";
+          response = getRandomMessage('counterOffer', language);
         }
-        
-        if (offerRatio < 0.4) setCustomerFrustration(prev => prev + 2);
-        else if (offerRatio < 0.6) setCustomerFrustration(prev => prev + 1);
       }
     }
     
@@ -257,11 +289,10 @@ export const Shop = () => {
   };
 
   const handleRejectOffer = () => {
-    toast({
-      title: "Pazarlık Reddedildi",
-      description: "Müşteri teklifinizi reddetti.",
-    });
-    resetNegotiation();
+    setCustomerResponse(getRandomMessage('reject', language));
+    setTimeout(() => {
+      resetNegotiation();
+    }, 2000);
   };
 
   const adjustOffer = (increment: number) => {
@@ -288,11 +319,11 @@ export const Shop = () => {
       return (
         <Card className="w-full max-w-sm mx-auto mt-4 bg-gradient-to-r from-orange-100 to-pink-100 dark:from-orange-900/20 dark:to-pink-900/20 border-orange-300">
           <CardHeader>
-            <CardTitle className="text-center">🌅 Gün Bitti!</CardTitle>
+            <CardTitle className="text-center">🌅 Dükkan Kapandı!</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-center">
             <p className="text-sm text-muted-foreground">
-              Günlük müşteri limitine ulaştınız ({customersServed}/{dailyCustomerLimit})
+              Dükkan kapandı, yarın tekrar açılıyor.
             </p>
             <Button 
               onClick={() => useGameStore.getState().advanceDay()}

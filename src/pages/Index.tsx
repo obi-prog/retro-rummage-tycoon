@@ -91,10 +91,6 @@ const Index = () => {
                 <span>⭐</span>
                 <span className="font-bold">Lv.{level}</span>
               </div>
-              <div className="flex items-center gap-1">
-                <span>👥</span>
-                <span className="font-bold">{customersServed}/{dailyCustomerLimit}</span>
-              </div>
             </div>
           </CardContent>
         </Card>
