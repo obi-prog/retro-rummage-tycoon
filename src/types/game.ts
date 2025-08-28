@@ -67,6 +67,9 @@ export interface GameState {
   playerSkills: Record<string, number>;
   lastEventDay: number;
   negotiationCount: number;
+  // Customer counting system
+  customersServed: number;
+  dailyCustomerLimit: number;
   dailyStats: DailyStats;
   // Financial tracking
   financialRecords: FinancialRecord[];

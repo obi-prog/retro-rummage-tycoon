@@ -20,6 +20,8 @@ interface GameStore extends GameState {
   updateReputation: (amount: number) => void;
   updateTrust: (amount: number) => void;
   tickTime: () => void;
+  serveCustomer: () => void;
+  getDailyCustomerLimit: () => number;
   // New enhanced actions
   addExperience: (amount: number) => void;
   claimMissionReward: (missionId: string) => void;
@@ -67,7 +69,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
   reputation: 10,
   trust: 50,
   day: 1,
-  timeLeft: 180, // 3 minutes
+  timeLeft: 0, // No timer - use customer counter instead
   inventory: generateStartingItems(),
   shopItems: [],
   currentCustomer: null,
@@ -83,6 +85,9 @@ export const useGameStore = create<GameStore>()((set, get) => ({
   playerSkills: {},
   lastEventDay: 0,
   negotiationCount: 0,
+  // Customer counting system
+  customersServed: 0,
+  dailyCustomerLimit: 5, // Default for level 1
   dailyStats: {
     itemsSold: 0,
     itemsBought: 0,
@@ -111,7 +116,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       reputation: 10,
       trust: 50,
       day: 1,
-      timeLeft: 180, // 3 minutes
+      timeLeft: 0, // No timer
       inventory: generateStartingItems(),
       shopItems: [],
       currentCustomer: null,
@@ -126,6 +131,8 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       playerSkills: {},
       lastEventDay: 0,
       negotiationCount: 0,
+      customersServed: 0,
+      dailyCustomerLimit: 5, // Level 1: 3-5 customers (using 5 as default)
       dailyStats: {
         itemsSold: 0,
         itemsBought: 0,
@@ -317,9 +324,14 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       // Reduce event durations
       const updatedEvents = state.events.map(e => ({ ...e, duration: e.duration ? e.duration - 1 : 0 })).filter(e => e.duration && e.duration > 0);
       
+      // Calculate new daily customer limit based on level
+      const newDailyCustomerLimit = Math.min(3 + state.level, 10); // Level 1: 3-5, Level 2: 4-6, etc., max 10
+      
       return {
         day: state.day + 1,
-        timeLeft: 180 + (state.level * 15), // 3 minutes + bonus time per level
+        timeLeft: 0, // No timer
+        customersServed: 0, // Reset customer counter
+        dailyCustomerLimit: newDailyCustomerLimit,
         cash: state.cash - totalDailyExpenses,
         missions: [...newDailyMissions, ...keepWeeklyMissions, ...allAchievements],
         trends: updatedTrends,
@@ -430,9 +442,14 @@ export const useGameStore = create<GameStore>()((set, get) => ({
           records: currentDayRecords
         };
 
+        // Calculate new daily customer limit based on level
+        const newDailyCustomerLimit = Math.min(3 + state.level, 10); // Level 1: 3-5, Level 2: 4-6, etc., max 10
+        
         return {
-          timeLeft: 180 + (state.level * 15), // 3 minutes + bonus time per level
+          timeLeft: 0, // No timer
           day: state.day + 1,
+          customersServed: 0, // Reset customer counter
+          dailyCustomerLimit: newDailyCustomerLimit,
           cash: state.cash - totalDailyExpenses,
           missions: [...newDailyMissions, ...keepWeeklyMissions, ...allAchievements],
           trends: updatedTrends,
@@ -604,5 +621,32 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     const tax = Math.floor(cash * 0.05);
     const utilities = 30 + (level - 1) * 10;
     return baseRent + tax + utilities;
+  },
+
+  serveCustomer: () => {
+    set(state => {
+      const newCustomersServed = state.customersServed + 1;
+      
+      // Check if day should end
+      if (newCustomersServed >= state.dailyCustomerLimit) {
+        // Auto advance to next day
+        return {
+          customersServed: 0,
+          day: state.day + 1,
+          dailyCustomerLimit: Math.min(3 + state.level, 10),
+          currentCustomer: null
+        };
+      }
+      
+      return {
+        customersServed: newCustomersServed,
+        currentCustomer: null
+      };
+    });
+  },
+
+  getDailyCustomerLimit: () => {
+    const { level } = get();
+    return Math.min(3 + level, 10);
   }
 }));
