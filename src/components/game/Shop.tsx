@@ -51,6 +51,7 @@ export const Shop = () => {
     currentCustomer, 
     setCurrentCustomer, 
     sellItem, 
+    buyItem,
     addToInventory,
     spendCash,
     addCash,
@@ -244,12 +245,23 @@ export const Shop = () => {
           updateReputation(2);
           updateTrust(1);
         } else {
-          if (spendCash(tempOffer)) {
-            addToInventory(item);
+          if (buyItem(item, tempOffer)) {
             updateReputation(2);
             updateTrust(1);
+          } else {
+            toast({
+              title: "Yetersiz Para",
+              description: "Bu teklifi karşılayacak paranız yok.",
+              variant: "destructive",
+            });
           }
         }
+        toast({
+          title: currentCustomer.intent === 'buy' ? 'Satış Tamamlandı' : 'Satın Alma Tamamlandı',
+          description: currentCustomer.intent === 'buy' 
+            ? `$${tempOffer} karşılığında satıldı.` 
+            : `$${tempOffer} karşılığında satın alındı.`,
+        });
         resetNegotiation();
       }, 1500);
     } else if (customerFrustration >= 2) {
@@ -267,25 +279,28 @@ export const Shop = () => {
   const handleAcceptOffer = () => {
     if (!currentCustomer || !selectedItem) return;
     
-    if (currentCustomer.intent === 'buy') {
-      sellItem(selectedItem, currentOffer);
-      updateReputation(1);
-    } else {
-      if (currentOffer <= cash) {
-        spendCash(currentOffer);
-        addToInventory(selectedItem);
+    // Net geri bildirim: önce mesajı göster, sonra işlemi yap
+    setCustomerResponse(getRandomMessage('accept', language));
+    
+    setTimeout(() => {
+      if (currentCustomer.intent === 'buy') {
+        // Müşteri bizden alıyor -> kasaya para girer
+        sellItem(selectedItem, currentOffer);
         updateReputation(1);
       } else {
-        toast({
-          title: "Yetersiz Para",
-          description: "Bu teklifi karşılayacak paranız yok.",
-          variant: "destructive",
-        });
-        return;
+        // Müşteri bize satıyor -> kasadan para çıkar
+        if (!buyItem(selectedItem, currentOffer)) {
+          toast({
+            title: "Yetersiz Para",
+            description: "Bu teklifi karşılayacak paranız yok.",
+            variant: "destructive",
+          });
+          return;
+        }
+        updateReputation(1);
       }
-    }
-    
-    resetNegotiation();
+      resetNegotiation();
+    }, 1500);
   };
 
   const handleRejectOffer = () => {

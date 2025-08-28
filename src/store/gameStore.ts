@@ -14,7 +14,7 @@ interface GameStore extends GameState {
   addToInventory: (item: Item) => void;
   removeFromInventory: (itemId: string) => void;
   sellItem: (item: Item, price: number) => void;
-  buyItem: (item: Item, price: number) => void;
+  buyItem: (item: Item, price: number) => boolean;
   setCurrentCustomer: (customer: Customer | null) => void;
   advanceDay: () => void;
   updateReputation: (amount: number) => void;
