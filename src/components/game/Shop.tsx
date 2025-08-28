@@ -187,6 +187,7 @@ export const Shop = () => {
           setCustomerFrustration(prev => prev + 1);
         } else {
           response = getRandomMessage('counterOffer', language);
+          setCustomerFrustration(prev => prev + 1);
         }
       }
     } else {
@@ -239,6 +240,7 @@ export const Shop = () => {
           setCustomerFrustration(prev => prev + 1);
         } else {
           response = getRandomMessage('counterOffer', language);
+          setCustomerFrustration(prev => prev + 1);
         }
       }
     }
@@ -272,7 +274,7 @@ export const Shop = () => {
         });
         resetNegotiation();
       }, 1500);
-    } else if (customerFrustration >= 2) {
+    } else if (customerFrustration >= 3) {
       setTimeout(() => {
         toast({
           title: "Müşteri Çekti Gitti! 😤",
@@ -313,7 +315,12 @@ export const Shop = () => {
 
   const handleRejectOffer = () => {
     setCustomerResponse(getRandomMessage('reject', language));
+    
     setTimeout(() => {
+      toast({
+        title: "Müşteri Ayrıldı",
+        description: "Müşteri teklifi reddetti ve gitti.",
+      });
       resetNegotiation();
     }, 2000);
   };
