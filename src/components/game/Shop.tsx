@@ -453,6 +453,13 @@ export const Shop = () => {
               </span>
             </div>
             
+            {currentCustomer.intent === 'buy' && selectedItem.purchasePrice && (
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-medium text-red-600">Alış Fiyatım:</span>
+                <span className="text-lg font-bold text-red-600">${selectedItem.purchasePrice}</span>
+              </div>
+            )}
+            
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium">Piyasa Değeri:</span>
               <span className="text-lg font-bold">≈ ${itemValue}</span>

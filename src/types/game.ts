@@ -11,6 +11,7 @@ export interface Item {
   trendBonus: number; // percentage
   storyTag?: string;
   image: string;
+  purchasePrice?: number; // What you paid for this item
 }
 
 export type ItemCategory = 

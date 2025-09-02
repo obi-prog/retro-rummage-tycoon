@@ -225,8 +225,13 @@ export const useGameStore = create<GameStore>()((set, get) => ({
           description: `Satın alma: ${item.name}`
         };
         
+        const itemWithPurchasePrice = {
+          ...item,
+          purchasePrice: price
+        };
+        
         return {
-          inventory: [...state.inventory, item],
+          inventory: [...state.inventory, itemWithPurchasePrice],
           cash: state.cash - price,
           reputation: state.reputation + 1,
           missions: updatedMissions,
