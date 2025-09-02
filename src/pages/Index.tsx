@@ -101,29 +101,6 @@ const Index = () => {
         {/* Main Game Interface - Single Screen */}
         <Shop />
 
-        {/* Bottom Tab Bar (placeholder for future features) */}
-        <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-border">
-          <div className="container mx-auto px-4">
-            <div className="flex justify-around py-3">
-              <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-muted/50">
-                <span className="text-xl">🏠</span>
-                <span className="text-xs">Tezgâh</span>
-              </button>
-              <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-muted/50">
-                <span className="text-xl">📦</span>
-                <span className="text-xs">Envanter</span>
-              </button>
-              <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-muted/50">
-                <span className="text-xl">🎯</span>
-                <span className="text-xs">Görevler</span>
-              </button>
-              <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-muted/50">
-                <span className="text-xl">⚡</span>
-                <span className="text-xs">Yetenekler</span>
-              </button>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
