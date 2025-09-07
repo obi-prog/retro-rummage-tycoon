@@ -70,6 +70,9 @@ export const Shop = () => {
   const [showOfferModal, setShowOfferModal] = useState(false);
   const [tempOffer, setTempOffer] = useState<number>(0);
   const [customerFrustration, setCustomerFrustration] = useState(0);
+  const [showSuccessEffect, setShowSuccessEffect] = useState(false);
+  const [showRejectEffect, setShowRejectEffect] = useState(false);
+  const [showSadCustomer, setShowSadCustomer] = useState(false);
 
   // Auto-generate customer if none present and daily limit not reached
   useEffect(() => {
@@ -294,10 +297,13 @@ export const Shop = () => {
   const handleAcceptOffer = () => {
     if (!currentCustomer || !selectedItem) return;
     
-    // Net geri bildirim: önce mesajı göster, sonra işlemi yap
+    // Show success animation first
+    setShowSuccessEffect(true);
     setCustomerResponse(getRandomMessage('accept', language));
     
     setTimeout(() => {
+      setShowSuccessEffect(false);
+      
       if (currentCustomer.intent === 'buy') {
         // Müşteri bizden alıyor -> kasaya para girer
         sellItem(selectedItem, currentOffer);
@@ -315,19 +321,25 @@ export const Shop = () => {
         updateReputation(1);
       }
       resetNegotiation();
-    }, 1500);
+    }, 1200);
   };
 
   const handleRejectOffer = () => {
+    // Show rejection effects first
+    setShowRejectEffect(true);
+    setShowSadCustomer(true);
     setCustomerResponse(getRandomMessage('reject', language));
     
     setTimeout(() => {
+      setShowRejectEffect(false);
+      setShowSadCustomer(false);
+      
       toast({
         title: "Müşteri Ayrıldı",
         description: "Müşteri dükkânı terk etti.",
       });
       resetNegotiation();
-    }, 2000);
+    }, 1500);
   };
 
   const adjustOffer = (increment: number) => {
@@ -396,7 +408,31 @@ export const Shop = () => {
   const itemValue = calculateItemValue(selectedItem);
 
   return (
-    <div className="w-full max-w-sm mx-auto space-y-4">
+    <div className="w-full max-w-sm mx-auto space-y-4 relative">
+      {/* Success Effect - Flying Money */}
+      {showSuccessEffect && (
+        <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
+          <div className="animate-bounce">
+            <div className="text-6xl animate-pulse">💵</div>
+          </div>
+          <div className="absolute animate-[fade-in_0.3s_ease-out,slide-in-right_1s_ease-out] delay-200">
+            <div className="text-4xl">💵</div>
+          </div>
+          <div className="absolute animate-[fade-in_0.5s_ease-out,slide-in-right_1.2s_ease-out] delay-500">
+            <div className="text-3xl">💵</div>
+          </div>
+        </div>
+      )}
+      
+      {/* Reject Effect - Red X */}
+      {showRejectEffect && (
+        <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
+          <div className="text-8xl text-red-500 animate-[scale-in_0.3s_ease-out,fade-out_0.5s_ease-out_0.5s]">
+            ❌
+          </div>
+        </div>
+      )}
+
       {/* Role Card */}
       <Card className={`border-2 ${
         currentCustomer.intent === 'buy' 
@@ -404,10 +440,10 @@ export const Shop = () => {
           : 'bg-gradient-to-r from-amber-100 to-orange-100 dark:from-amber-900/20 dark:to-orange-900/20 border-amber-500'
       }`}>
         <CardContent className="p-4">
-          <div className="flex items-center gap-3">
-            <div className="text-3xl">
-              {currentCustomer.intent === 'buy' ? '🛒' : '🏷️'}
-            </div>
+            <div className="flex items-center gap-3">
+              <div className="text-3xl">
+                {showSadCustomer ? '😢' : (currentCustomer.intent === 'buy' ? '🛒' : '🏷️')}
+              </div>
             <div className="flex-1">
               <div className={`text-lg font-bold ${
                 currentCustomer.intent === 'buy' ? 'text-green-700 dark:text-green-300' : 'text-amber-700 dark:text-amber-300'
