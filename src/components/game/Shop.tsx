@@ -324,7 +324,7 @@ export const Shop = () => {
     setTimeout(() => {
       toast({
         title: "Müşteri Ayrıldı",
-        description: "Müşteri teklifi reddetti ve gitti.",
+        description: "Müşteri dükkânı terk etti.",
       });
       resetNegotiation();
     }, 2000);
