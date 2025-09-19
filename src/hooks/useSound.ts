@@ -53,9 +53,23 @@ export const useSound = () => {
   // Initialize background music
   useEffect(() => {
     const createBackgroundMusic = () => {
-      const audio = new Audio(musicTracks[settings.currentMusicTrack as keyof typeof musicTracks] || musicTracks.menu);
+      const trackPath = musicTracks[settings.currentMusicTrack as keyof typeof musicTracks] || musicTracks.menu;
+      console.log('Loading music track:', trackPath);
+      
+      const audio = new Audio(trackPath);
       audio.loop = true;
       audio.volume = settings.musicVolume * settings.masterVolume;
+      
+      // Add error handling
+      audio.onerror = (e) => {
+        console.error('Music loading error:', e);
+        console.error('Failed to load track:', trackPath);
+      };
+      
+      audio.onloadeddata = () => {
+        console.log('Music loaded successfully:', trackPath);
+      };
+      
       return audio;
     };
 
@@ -64,6 +78,15 @@ export const useSound = () => {
         musicRef.current.pause();
       }
       musicRef.current = createBackgroundMusic();
+      
+      // Auto-play with error handling
+      if (musicRef.current) {
+        musicRef.current.play().then(() => {
+          console.log('Music started playing');
+        }).catch((error) => {
+          console.warn('Auto-play prevented by browser:', error);
+        });
+      }
     }
 
     return () => {
@@ -87,7 +110,12 @@ export const useSound = () => {
 
   const playMusic = () => {
     if (musicRef.current && settings.musicEnabled) {
-      musicRef.current.play().catch(console.warn);
+      console.log('Attempting to play music');
+      musicRef.current.play().then(() => {
+        console.log('Music playing successfully');
+      }).catch((error) => {
+        console.error('Failed to play music:', error);
+      });
     }
   };
 

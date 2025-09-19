@@ -22,14 +22,23 @@ export const MainMenu = ({
   hasSavedGame = false,
   onContinueGame 
 }: MainMenuProps) => {
-  const { playClickSound, settings, changeMusicTrack } = useSoundContext();
+  const { playClickSound, playMusic, settings, changeMusicTrack } = useSoundContext();
 
-  // Auto-switch to menu music when on main menu
+  // Auto-switch to ambient music when on main menu
   useEffect(() => {
-    if (settings.musicEnabled && settings.currentMusicTrack !== 'menu') {
-      changeMusicTrack('menu');
+    if (settings.musicEnabled && settings.currentMusicTrack !== 'ambient') {
+      changeMusicTrack('ambient');
     }
   }, [settings.musicEnabled, changeMusicTrack]);
+
+  const handleUserInteraction = (callback: () => void) => {
+    playClickSound();
+    // Ensure music plays after user interaction
+    if (settings.musicEnabled) {
+      playMusic();
+    }
+    callback();
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-secondary/20 to-accent/20">
@@ -49,12 +58,9 @@ export const MainMenu = ({
         
         <CardContent className="space-y-4 p-6">
           {/* Continue Game Button - only if saved game exists */}
-          {hasSavedGame && onContinueGame && (
+           {hasSavedGame && onContinueGame && (
             <Button 
-              onClick={() => {
-                playClickSound();
-                onContinueGame();
-              }}
+              onClick={() => handleUserInteraction(onContinueGame)}
               className="w-full bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white font-bold py-3 text-lg shadow-lg transition-all duration-200 hover:scale-105"
             >
               💾 Devam Et
@@ -63,10 +69,7 @@ export const MainMenu = ({
           
           {/* New Game Button */}
           <Button 
-            onClick={() => {
-              playClickSound();
-              onStartGame();
-            }}
+            onClick={() => handleUserInteraction(onStartGame)}
             className="w-full bg-gradient-to-r from-retro-orange to-retro-pink hover:from-retro-orange/90 hover:to-retro-pink/90 text-white font-bold py-3 text-lg shadow-lg transition-all duration-200 hover:scale-105"
           >
             🎮 {hasSavedGame ? 'Yeni Oyun' : t('play', language)}
@@ -74,10 +77,7 @@ export const MainMenu = ({
           
           {/* Settings Button */}
           <Button 
-            onClick={() => {
-              playClickSound();
-              onSettings();
-            }}
+            onClick={() => handleUserInteraction(onSettings)}
             variant="outline" 
             className="w-full border-2 border-primary/30 hover:bg-primary/10 font-semibold py-3 text-lg transition-all duration-200 hover:scale-105"
           >
@@ -86,10 +86,7 @@ export const MainMenu = ({
           
           {/* How to Play Button */}
           <Button 
-            onClick={() => {
-              playClickSound();
-              onHowToPlay();
-            }}
+            onClick={() => handleUserInteraction(onHowToPlay)}
             variant="outline" 
             className="w-full border-2 border-secondary/30 hover:bg-secondary/10 font-semibold py-3 text-lg transition-all duration-200 hover:scale-105"
           >
