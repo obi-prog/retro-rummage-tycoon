@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { t } from '@/utils/localization';
 import { Language } from '@/types/game';
 import { useSoundContext } from '@/contexts/SoundContext';
+import { useEffect } from 'react';
 
 interface MainMenuProps {
   language: Language;
@@ -21,7 +22,14 @@ export const MainMenu = ({
   hasSavedGame = false,
   onContinueGame 
 }: MainMenuProps) => {
-  const { playClickSound, settings } = useSoundContext();
+  const { playClickSound, settings, changeMusicTrack } = useSoundContext();
+
+  // Auto-switch to menu music when on main menu
+  useEffect(() => {
+    if (settings.musicEnabled && settings.currentMusicTrack !== 'menu') {
+      changeMusicTrack('menu');
+    }
+  }, [settings.musicEnabled, changeMusicTrack]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-secondary/20 to-accent/20">

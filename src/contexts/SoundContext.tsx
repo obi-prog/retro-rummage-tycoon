@@ -7,6 +7,8 @@ interface SoundContextType {
   updateSettings: (settings: Partial<SoundSettings>) => void;
   playMusic: () => void;
   pauseMusic: () => void;
+  changeMusicTrack: (track: string) => void;
+  musicTracks: Record<string, string>;
   playCoinSound: () => void;
   playSellSound: () => void;
   playBuySound: () => void;

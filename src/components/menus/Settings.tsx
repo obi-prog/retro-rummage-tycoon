@@ -16,7 +16,19 @@ interface SettingsProps {
 
 export const Settings = ({ onBack }: SettingsProps) => {
   const { language, setLanguage, initGame, saveGameState } = useGameStore();
-  const { settings, updateSettings, playClickSound, playNotificationSound } = useSoundContext();
+  const { 
+    settings, 
+    updateSettings, 
+    playClickSound, 
+    playNotificationSound, 
+    playMusic, 
+    pauseMusic,
+    changeMusicTrack,
+    musicTracks,
+    playCoinSound,
+    playSellSound,
+    playBuySound
+  } = useSoundContext();
   const [showResetConfirm, setShowResetConfirm] = useState(false);
 
   const handleLanguageChange = (newLang: Language) => {
@@ -105,24 +117,72 @@ export const Settings = ({ onBack }: SettingsProps) => {
                   onCheckedChange={(enabled) => {
                     updateSettings({ musicEnabled: enabled });
                     playClickSound();
+                    if (enabled) {
+                      playMusic();
+                    } else {
+                      pauseMusic();
+                    }
                   }}
                 />
               </div>
               {settings.musicEnabled && (
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground">Müzik Seviyesi ({Math.round(settings.musicVolume * 100)}%)</span>
-                    <span className="text-xs">🎵</span>
+                <div className="space-y-3">
+                  {/* Music Track Selection */}
+                  <div className="space-y-2">
+                    <span className="text-xs text-muted-foreground">Müzik Parçası</span>
+                    <Select 
+                      value={settings.currentMusicTrack} 
+                      onValueChange={(track) => {
+                        changeMusicTrack(track);
+                        playClickSound();
+                      }}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="menu">🏠 Menü Müziği</SelectItem>
+                        <SelectItem value="game">🎮 Oyun Müziği</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
-                  <Slider
-                    value={[settings.musicVolume * 100]}
-                    onValueChange={(value) => {
-                      updateSettings({ musicVolume: value[0] / 100 });
-                    }}
-                    max={100}
-                    step={5}
-                    className="w-full"
-                  />
+                  
+                  {/* Music Volume */}
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground">Müzik Seviyesi ({Math.round(settings.musicVolume * 100)}%)</span>
+                      <span className="text-xs">🎵</span>
+                    </div>
+                    <Slider
+                      value={[settings.musicVolume * 100]}
+                      onValueChange={(value) => {
+                        updateSettings({ musicVolume: value[0] / 100 });
+                      }}
+                      max={100}
+                      step={5}
+                      className="w-full"
+                    />
+                  </div>
+
+                  {/* Music Control Buttons */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={playMusic}
+                      className="text-xs"
+                    >
+                      ▶️ Oynat
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={pauseMusic}
+                      className="text-xs"
+                    >
+                      ⏸️ Durdur
+                    </Button>
+                  </div>
                 </div>
               )}
             </div>
@@ -159,22 +219,33 @@ export const Settings = ({ onBack }: SettingsProps) => {
             </div>
 
             {/* Sound Test Buttons */}
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-3 gap-2">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => playNotificationSound()}
+                onClick={playCoinSound}
+                disabled={!settings.sfxEnabled}
                 className="text-xs"
               >
-                🔔 Test
+                💰 Para
               </Button>
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => playClickSound()}
+                onClick={playSellSound}
+                disabled={!settings.sfxEnabled}
                 className="text-xs"
               >
-                🎵 Test
+                💸 Satış
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={playBuySound}
+                disabled={!settings.sfxEnabled}
+                className="text-xs"
+              >
+                🛒 Alış
               </Button>
             </div>
           </div>

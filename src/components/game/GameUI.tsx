@@ -12,6 +12,8 @@ import { MissionsPanel } from './MissionsPanel';
 import { EventsPanel } from './EventsPanel';
 import { SkillsPanel } from './SkillsPanel';
 import { FinancialLedger } from './FinancialLedger';
+import { useSoundContext } from '@/contexts/SoundContext';
+import { useEffect } from 'react';
 
 export const GameUI = () => {
   const { 
@@ -24,6 +26,15 @@ export const GameUI = () => {
     language,
     experience 
   } = useGameStore();
+
+  const { settings, changeMusicTrack } = useSoundContext();
+
+  // Auto-switch to game music when in game
+  useEffect(() => {
+    if (settings.musicEnabled && settings.currentMusicTrack !== 'game') {
+      changeMusicTrack('game');
+    }
+  }, [settings.musicEnabled, changeMusicTrack]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);

@@ -6,6 +6,7 @@ export interface SoundSettings {
   sfxVolume: number;
   musicEnabled: boolean;
   sfxEnabled: boolean;
+  currentMusicTrack: string;
 }
 
 const defaultSettings: SoundSettings = {
@@ -14,6 +15,7 @@ const defaultSettings: SoundSettings = {
   sfxVolume: 0.8,
   musicEnabled: true,
   sfxEnabled: true,
+  currentMusicTrack: 'menu',
 };
 
 // Sound effect URLs - using web-based retro sounds
@@ -25,6 +27,11 @@ const soundEffects = {
   notification: 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFAg+ltryxnkpBSl+zfPZjDkIHGS57OKeQQIYarfux2kgBjiS2O7TfCMFKHzH8N2OSAoXY7jux2scCT2SzfLUfjAGJXfJ8OKLQQoZbLvv4aKLK',
   error: 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFAg+ltryxnkpBSl+zfPZjDkIHGS57OKeQQIYarfux2kgBjiS2O7TfCMFKHzH8N2OSAoXY7jux2scCT2SzfLUfjAGJXfJ8OKLQQoZbLvv4aKLK',
   levelUp: 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFAg+ltryxnkpBSl+zfPZjDkIHGS57OKeQQIYarfux2kgBjiS2O7TfCMFKHzH8N2OSAoXY7jux2scCT2SzfLUfjAGJXfJ8OKLQQoZbLvv4aKLK',
+};
+
+const musicTracks = {
+  menu: '/audio/music/menu-theme.mp3',
+  game: '/audio/music/game-theme.mp3'
 };
 
 export const useSound = () => {
@@ -43,18 +50,17 @@ export const useSound = () => {
 
   // Initialize background music
   useEffect(() => {
-    // Create a simple retro-style background music using Web Audio API
-    // For now, we'll use a placeholder
     const createBackgroundMusic = () => {
-      const audio = new Audio();
-      // This would be a retro 80s-style background track
-      // For demo purposes, we'll create a simple tone sequence
+      const audio = new Audio(musicTracks[settings.currentMusicTrack as keyof typeof musicTracks] || musicTracks.menu);
       audio.loop = true;
       audio.volume = settings.musicVolume * settings.masterVolume;
       return audio;
     };
 
     if (settings.musicEnabled) {
+      if (musicRef.current) {
+        musicRef.current.pause();
+      }
       musicRef.current = createBackgroundMusic();
     }
 
@@ -64,7 +70,7 @@ export const useSound = () => {
         musicRef.current = null;
       }
     };
-  }, [settings.musicEnabled]);
+  }, [settings.musicEnabled, settings.currentMusicTrack]);
 
   // Update music volume when settings change
   useEffect(() => {
@@ -104,6 +110,10 @@ export const useSound = () => {
     audio.play().catch(console.warn);
   };
 
+  const changeMusicTrack = (track: string) => {
+    updateSettings({ currentMusicTrack: track });
+  };
+
   // Convenience methods for common game sounds
   const playCoinSound = () => playSound('coin');
   const playSellSound = () => playSound('sell');
@@ -119,6 +129,8 @@ export const useSound = () => {
     playMusic,
     pauseMusic,
     playSound,
+    changeMusicTrack,
+    musicTracks,
     playCoinSound,
     playSellSound,
     playBuySound,
