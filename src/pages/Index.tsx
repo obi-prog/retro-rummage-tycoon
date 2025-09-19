@@ -3,6 +3,7 @@ import { useGameStore } from '@/store/gameStore';
 import { Shop } from '@/components/game/Shop';
 import { QuickDock } from '@/components/game/QuickDock';
 import { MainMenu } from '@/components/menus/MainMenu';
+import { Settings } from '@/components/menus/Settings';
 import { Card, CardContent } from '@/components/ui/card';
 import { t } from '@/utils/localization';
 
@@ -69,27 +70,9 @@ const Index = () => {
     );
   }
 
-  // Show settings (placeholder for now)
+  // Show settings
   if (currentView === 'settings') {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-secondary/20 to-accent/20">
-        <Card className="w-full max-w-md mx-4 bg-card/95 backdrop-blur-sm shadow-xl">
-          <CardContent className="p-6 text-center">
-            <h2 className="text-2xl font-bold mb-4">⚙️ Ayarlar</h2>
-            <p className="text-muted-foreground mb-4">Ayarlar menüsü yakında gelecek!</p>
-            <button 
-              onClick={() => {
-                saveGameState();
-                handleBackToMenu();
-              }}
-              className="w-full bg-gradient-to-r from-retro-orange to-retro-pink hover:from-retro-orange/90 hover:to-retro-pink/90 text-white font-bold py-3 text-lg shadow-lg rounded-md"
-            >
-              💾 Kaydet ve Ana Menü
-            </button>
-          </CardContent>
-        </Card>
-      </div>
-    );
+    return <Settings onBack={handleBackToMenu} />;
   }
 
   // Show how to play (placeholder for now)
