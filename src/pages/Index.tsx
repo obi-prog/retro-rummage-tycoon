@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { useGameStore } from '@/store/gameStore';
 import { Shop } from '@/components/game/Shop';
 import { QuickDock } from '@/components/game/QuickDock';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { MainMenu } from '@/components/menus/MainMenu';
+import { Card, CardContent } from '@/components/ui/card';
 import { t } from '@/utils/localization';
 
 const Index = () => {
@@ -21,55 +21,78 @@ const Index = () => {
   } = useGameStore();
   
   const [gameStarted, setGameStarted] = useState(false);
-
-  // No timer needed - using customer counter system instead
+  const [currentView, setCurrentView] = useState<'menu' | 'game' | 'settings' | 'howtoplay'>('menu');
 
   const handleStartGame = () => {
     initGame();
     setGameStarted(true);
+    setCurrentView('game');
   };
 
-  if (!gameStarted) {
+  const handleSettings = () => {
+    setCurrentView('settings');
+  };
+
+  const handleHowToPlay = () => {
+    setCurrentView('howtoplay');
+  };
+
+  const handleBackToMenu = () => {
+    setCurrentView('menu');
+  };
+
+  // Show main menu
+  if (currentView === 'menu') {
+    return (
+      <MainMenu
+        language={language}
+        onStartGame={handleStartGame}
+        onSettings={handleSettings}
+        onHowToPlay={handleHowToPlay}
+        hasSavedGame={false} // TODO: Implement save system
+      />
+    );
+  }
+
+  // Show settings (placeholder for now)
+  if (currentView === 'settings') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-secondary/20 to-accent/20">
         <Card className="w-full max-w-md mx-4 bg-card/95 backdrop-blur-sm shadow-xl">
-          <CardHeader className="text-center space-y-4">
-            <div className="text-6xl">🕰️</div>
-            <CardTitle className="text-3xl font-bold bg-gradient-to-r from-retro-orange to-retro-pink bg-clip-text text-transparent">
-              Sokak Bitpazarı
-            </CardTitle>
-            <div className="text-xl font-semibold text-retro-purple">
-              Retro Flip Tycoon
-            </div>
-            <p className="text-sm text-muted-foreground">
-              1980s Street Market • Buy Low, Sell High • Build Your Vintage Empire
-            </p>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="text-center space-y-2">
-              <div className="text-sm text-muted-foreground">
-                📱 Mobile optimized • 🎮 One-hand play
-              </div>
-              <div className="text-sm text-muted-foreground">
-                🌍 {language.toUpperCase()} • Auto-detected
-              </div>
-            </div>
-            
-            <Button 
-              onClick={handleStartGame}
-              className="w-full bg-gradient-to-r from-retro-orange to-retro-pink hover:from-retro-orange/90 hover:to-retro-pink/90 text-white font-bold py-3 text-lg shadow-lg"
+          <CardContent className="p-6 text-center">
+            <h2 className="text-2xl font-bold mb-4">⚙️ Ayarlar</h2>
+            <p className="text-muted-foreground mb-4">Ayarlar menüsü yakında gelecek!</p>
+            <button 
+              onClick={handleBackToMenu}
+              className="w-full bg-gradient-to-r from-retro-orange to-retro-pink hover:from-retro-orange/90 hover:to-retro-pink/90 text-white font-bold py-3 text-lg shadow-lg rounded-md"
             >
-              🎯 {t('play', language)}
-            </Button>
-            
-            <div className="text-center">
-              <div className="text-xs text-muted-foreground mb-2">Starting Resources</div>
-              <div className="flex justify-center gap-4 text-sm">
-                <span>💰 $500</span>
-                <span>📦 2 Items</span>
-                <span>⭐ Level 1</span>
-              </div>
+              ← Ana Menüye Dön
+            </button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Show how to play (placeholder for now)
+  if (currentView === 'howtoplay') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-secondary/20 to-accent/20">
+        <Card className="w-full max-w-md mx-4 bg-card/95 backdrop-blur-sm shadow-xl">
+          <CardContent className="p-6 text-center">
+            <h2 className="text-2xl font-bold mb-4">❓ Nasıl Oynanır</h2>
+            <div className="text-left space-y-2 text-sm">
+              <p>🎯 <strong>Amaç:</strong> Eşyaları ucuza alıp pahalıya sat!</p>
+              <p>💰 <strong>Para Kazan:</strong> Müşterilerle pazarlık yap</p>
+              <p>⭐ <strong>Seviye At:</strong> Deneyim kazan ve yeni özellikler aç</p>
+              <p>📦 <strong>Envanter:</strong> Eşyalarını yönet ve değerlendir</p>
             </div>
+            <button 
+              onClick={handleBackToMenu}
+              className="mt-4 w-full bg-gradient-to-r from-retro-orange to-retro-pink hover:from-retro-orange/90 hover:to-retro-pink/90 text-white font-bold py-3 text-lg shadow-lg rounded-md"
+            >
+              ← Ana Menüye Dön
+            </button>
           </CardContent>
         </Card>
       </div>
