@@ -4,6 +4,7 @@ import { Mission } from '@/types/missions';
 import { detectLanguage } from '@/utils/localization';
 import { generateDailyMissions, generateWeeklyMissions, generateAchievementMissions, calculateLevelProgress, updateMissionProgress } from '@/utils/missionSystem';
 import { generateRandomEvent, generateTrendBurst, processEventEffects } from '@/utils/eventSystem';
+import { saveGame, loadGame, hasSavedGame } from '@/utils/saveGame';
 
 interface GameStore extends GameState {
   // Actions
@@ -33,6 +34,10 @@ interface GameStore extends GameState {
   // Financial actions
   addFinancialRecord: (type: 'income' | 'expense', category: 'sales' | 'purchases' | 'rent' | 'tax' | 'fine' | 'utilities' | 'other', amount: number, description: string) => void;
   calculateDailyExpenses: () => number;
+  // Save/Load actions
+  saveGameState: () => boolean;
+  loadGameState: () => boolean;
+  hasSavedGame: () => boolean;
 }
 
 const generateStartingItems = (): Item[] => {
@@ -332,7 +337,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       // Calculate new daily customer limit based on level
       const newDailyCustomerLimit = Math.min(3 + state.level, 10); // Level 1: 3-5, Level 2: 4-6, etc., max 10
       
-      return {
+      const newState = {
         day: state.day + 1,
         timeLeft: 0, // No timer
         customersServed: 0, // Reset customer counter
@@ -356,6 +361,42 @@ export const useGameStore = create<GameStore>()((set, get) => ({
           fakeItemsDetected: 0
         }
       };
+      
+      // Auto-save after advancing day
+      setTimeout(() => {
+        const currentState = get();
+        const gameState: GameState = {
+          level: currentState.level,
+          cash: currentState.cash,
+          reputation: currentState.reputation,
+          trust: currentState.trust,
+          day: currentState.day,
+          timeLeft: currentState.timeLeft,
+          inventory: currentState.inventory,
+          shopItems: currentState.shopItems,
+          currentCustomer: currentState.currentCustomer,
+          events: currentState.events,
+          trends: currentState.trends,
+          dailyExpenses: currentState.dailyExpenses,
+          language: currentState.language,
+          experience: currentState.experience,
+          skillPoints: currentState.skillPoints,
+          missions: currentState.missions,
+          completedMissions: currentState.completedMissions,
+          playerSkills: currentState.playerSkills,
+          lastEventDay: currentState.lastEventDay,
+          negotiationCount: currentState.negotiationCount,
+          customersServed: currentState.customersServed,
+          dailyCustomerLimit: currentState.dailyCustomerLimit,
+          dailyStats: currentState.dailyStats,
+          financialRecords: currentState.financialRecords,
+          dailyFinancials: currentState.dailyFinancials,
+          weeklyExpenses: currentState.weeklyExpenses
+        };
+        saveGame(gameState);
+      }, 100);
+      
+      return newState;
     });
   },
 
@@ -653,5 +694,53 @@ export const useGameStore = create<GameStore>()((set, get) => ({
   getDailyCustomerLimit: () => {
     const { level } = get();
     return Math.min(3 + level, 10);
+  },
+
+  // Save/Load implementations
+  saveGameState: () => {
+    const state = get();
+    const gameState: GameState = {
+      level: state.level,
+      cash: state.cash,
+      reputation: state.reputation,
+      trust: state.trust,
+      day: state.day,
+      timeLeft: state.timeLeft,
+      inventory: state.inventory,
+      shopItems: state.shopItems,
+      currentCustomer: state.currentCustomer,
+      events: state.events,
+      trends: state.trends,
+      dailyExpenses: state.dailyExpenses,
+      language: state.language,
+      experience: state.experience,
+      skillPoints: state.skillPoints,
+      missions: state.missions,
+      completedMissions: state.completedMissions,
+      playerSkills: state.playerSkills,
+      lastEventDay: state.lastEventDay,
+      negotiationCount: state.negotiationCount,
+      customersServed: state.customersServed,
+      dailyCustomerLimit: state.dailyCustomerLimit,
+      dailyStats: state.dailyStats,
+      financialRecords: state.financialRecords,
+      dailyFinancials: state.dailyFinancials,
+      weeklyExpenses: state.weeklyExpenses
+    };
+    
+    return saveGame(gameState);
+  },
+
+  loadGameState: () => {
+    const savedState = loadGame();
+    if (savedState) {
+      set(savedState);
+      return true;
+    }
+    return false;
+  },
+
+  hasSavedGame: () => {
+    return hasSavedGame();
   }
 }));

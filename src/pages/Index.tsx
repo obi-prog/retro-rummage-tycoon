@@ -17,7 +17,10 @@ const Index = () => {
     experience,
     missions,
     customersServed,
-    dailyCustomerLimit
+    dailyCustomerLimit,
+    loadGameState,
+    hasSavedGame,
+    saveGameState
   } = useGameStore();
   
   const [gameStarted, setGameStarted] = useState(false);
@@ -29,6 +32,14 @@ const Index = () => {
     setCurrentView('game');
   };
 
+  const handleContinueGame = () => {
+    const loaded = loadGameState();
+    if (loaded) {
+      setGameStarted(true);
+      setCurrentView('game');
+    }
+  };
+
   const handleSettings = () => {
     setCurrentView('settings');
   };
@@ -38,6 +49,9 @@ const Index = () => {
   };
 
   const handleBackToMenu = () => {
+    if (gameStarted) {
+      saveGameState(); // Otomatik kayıt
+    }
     setCurrentView('menu');
   };
 
@@ -49,7 +63,8 @@ const Index = () => {
         onStartGame={handleStartGame}
         onSettings={handleSettings}
         onHowToPlay={handleHowToPlay}
-        hasSavedGame={false} // TODO: Implement save system
+        hasSavedGame={hasSavedGame()}
+        onContinueGame={handleContinueGame}
       />
     );
   }
@@ -63,10 +78,13 @@ const Index = () => {
             <h2 className="text-2xl font-bold mb-4">⚙️ Ayarlar</h2>
             <p className="text-muted-foreground mb-4">Ayarlar menüsü yakında gelecek!</p>
             <button 
-              onClick={handleBackToMenu}
+              onClick={() => {
+                saveGameState();
+                handleBackToMenu();
+              }}
               className="w-full bg-gradient-to-r from-retro-orange to-retro-pink hover:from-retro-orange/90 hover:to-retro-pink/90 text-white font-bold py-3 text-lg shadow-lg rounded-md"
             >
-              ← Ana Menüye Dön
+              💾 Kaydet ve Ana Menü
             </button>
           </CardContent>
         </Card>
