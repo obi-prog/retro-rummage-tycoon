@@ -11,27 +11,28 @@ export interface SoundSettings {
 
 const defaultSettings: SoundSettings = {
   masterVolume: 0.7,
-  musicVolume: 0.5,
+  musicVolume: 0.6,
   sfxVolume: 0.8,
   musicEnabled: true,
   sfxEnabled: true,
   currentMusicTrack: 'menu',
 };
 
-// Sound effect URLs - using web-based retro sounds
+// Music and sound effect paths
 const soundEffects = {
-  coin: 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFAg+ltryxnkpBSl+zfPZjDkIHGS57OKeQQIYarfux2kgBjiS2O7TfCMFKHzH8N2OSAoXY7jux2scCT2SzfLUfjAGJXfJ8OKLQQoZbLvv4aKLK',
-  sell: 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFAg+ltryxnkpBSl+zfPZjDkIHGS57OKeQQIYarfux2kgBjiS2O7TfCMFKHzH8N2OSAoXY7jux2scCT2SzfLUfjAGJXfJ8OKLQQoZbLvv4aKLK',
-  buy: 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFAg+ltryxnkpBSl+zfPZjDkIHGS57OKeQQIYarfux2kgBjiS2O7TfCMFKHzH8N2OSAoXY7jux2scCT2SzfLUfjAGJXfJ8OKLQQoZbLvv4aKLK',
-  click: 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFAg+ltryxnkpBSl+zfPZjDkIHGS57OKeQQIYarfux2kgBjiS2O7TfCMFKHzH8N2OSAoXY7jux2scCT2SzfLUfjAGJXfJ8OKLQQoZbLvv4aKLK',
-  notification: 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFAg+ltryxnkpBSl+zfPZjDkIHGS57OKeQQIYarfux2kgBjiS2O7TfCMFKHzH8N2OSAoXY7jux2scCT2SzfLUfjAGJXfJ8OKLQQoZbLvv4aKLK',
-  error: 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFAg+ltryxnkpBSl+zfPZjDkIHGS57OKeQQIYarfux2kgBjiS2O7TfCMFKHzH8N2OSAoXY7jux2scCT2SzfLUfjAGJXfJ8OKLQQoZbLvv4aKLK',
-  levelUp: 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFAg+ltryxnkpBSl+zfPZjDkIHGS57OKeQQIYarfux2kgBjiS2O7TfCMFKHzH8N2OSAoXY7jux2scCT2SzfLUfjAGJXfJ8OKLQQoZbLvv4aKLK',
+  coin: '/audio/sound-effects/coin.wav',
+  sell: '/audio/sound-effects/sell.wav',
+  buy: '/audio/sound-effects/buy.wav',
+  click: '/audio/sound-effects/click.wav',
+  notification: '/audio/sound-effects/notification.wav',
+  error: '/audio/sound-effects/error.wav',
+  levelUp: '/audio/sound-effects/levelup.wav',
 };
 
 const musicTracks = {
-  menu: '/audio/music/menu-theme.mp3',
-  game: '/audio/music/game-theme.mp3'
+  menu: '/audio/music/retro-pop-menu.mp3',
+  game: '/audio/music/retro-pop-game.mp3',
+  classic: '/audio/music/menu-theme.mp3'
 };
 
 export const useSound = () => {
