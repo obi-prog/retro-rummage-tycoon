@@ -15,7 +15,7 @@ const defaultSettings: SoundSettings = {
   sfxVolume: 0.8,
   musicEnabled: true,
   sfxEnabled: true,
-  currentMusicTrack: 'menu',
+  currentMusicTrack: 'ambient',
 };
 
 // Music and sound effect paths
@@ -32,7 +32,8 @@ const soundEffects = {
 const musicTracks = {
   menu: '/audio/music/retro-pop-menu.mp3',
   game: '/audio/music/retro-pop-game.mp3',
-  classic: '/audio/music/menu-theme.mp3'
+  classic: '/audio/music/menu-theme.mp3',
+  ambient: '/audio/music/deep-abstract-ambient.mp3'
 };
 
 export const useSound = () => {
