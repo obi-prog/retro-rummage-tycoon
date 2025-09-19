@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { t } from '@/utils/localization';
 import { Language } from '@/types/game';
+import { useSoundContext } from '@/contexts/SoundContext';
 
 interface MainMenuProps {
   language: Language;
@@ -20,6 +21,8 @@ export const MainMenu = ({
   hasSavedGame = false,
   onContinueGame 
 }: MainMenuProps) => {
+  const { playClickSound, settings } = useSoundContext();
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-secondary/20 to-accent/20">
       <Card className="w-full max-w-md mx-4 bg-card/95 backdrop-blur-sm shadow-xl border-2 border-primary/20">
@@ -40,7 +43,10 @@ export const MainMenu = ({
           {/* Continue Game Button - only if saved game exists */}
           {hasSavedGame && onContinueGame && (
             <Button 
-              onClick={onContinueGame}
+              onClick={() => {
+                playClickSound();
+                onContinueGame();
+              }}
               className="w-full bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white font-bold py-3 text-lg shadow-lg transition-all duration-200 hover:scale-105"
             >
               💾 Devam Et
@@ -49,7 +55,10 @@ export const MainMenu = ({
           
           {/* New Game Button */}
           <Button 
-            onClick={onStartGame}
+            onClick={() => {
+              playClickSound();
+              onStartGame();
+            }}
             className="w-full bg-gradient-to-r from-retro-orange to-retro-pink hover:from-retro-orange/90 hover:to-retro-pink/90 text-white font-bold py-3 text-lg shadow-lg transition-all duration-200 hover:scale-105"
           >
             🎮 {hasSavedGame ? 'Yeni Oyun' : t('play', language)}
@@ -57,7 +66,10 @@ export const MainMenu = ({
           
           {/* Settings Button */}
           <Button 
-            onClick={onSettings}
+            onClick={() => {
+              playClickSound();
+              onSettings();
+            }}
             variant="outline" 
             className="w-full border-2 border-primary/30 hover:bg-primary/10 font-semibold py-3 text-lg transition-all duration-200 hover:scale-105"
           >
@@ -66,7 +78,10 @@ export const MainMenu = ({
           
           {/* How to Play Button */}
           <Button 
-            onClick={onHowToPlay}
+            onClick={() => {
+              playClickSound();
+              onHowToPlay();
+            }}
             variant="outline" 
             className="w-full border-2 border-secondary/30 hover:bg-secondary/10 font-semibold py-3 text-lg transition-all duration-200 hover:scale-105"
           >
@@ -86,7 +101,9 @@ export const MainMenu = ({
           {/* Language indicator */}
           <div className="text-center">
             <div className="text-xs text-muted-foreground">
-              🌍 {language.toUpperCase()} • 📱 Mobile Optimized
+              🌍 {language.toUpperCase()} • 📱 Mobile Optimized 
+              {settings.musicEnabled && <span> • 🎵 Müzik Açık</span>}
+              {settings.sfxEnabled && <span> • 🔊 Ses Açık</span>}
             </div>
           </div>
         </CardContent>

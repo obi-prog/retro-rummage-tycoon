@@ -5,6 +5,7 @@ import { detectLanguage } from '@/utils/localization';
 import { generateDailyMissions, generateWeeklyMissions, generateAchievementMissions, calculateLevelProgress, updateMissionProgress } from '@/utils/missionSystem';
 import { generateRandomEvent, generateTrendBurst, processEventEffects } from '@/utils/eventSystem';
 import { saveGame, loadGame, hasSavedGame } from '@/utils/saveGame';
+import { soundEventEmitter } from '@/utils/soundEvents';
 
 interface GameStore extends GameState {
   // Actions
@@ -199,6 +200,10 @@ export const useGameStore = create<GameStore>()((set, get) => ({
         description: `Satış: ${item.name}`
       };
       
+      // Emit sound events for selling
+      soundEventEmitter.emit('sell');
+      soundEventEmitter.emit('coin');
+      
       return {
         inventory: state.inventory.filter(i => i.id !== item.id),
         cash: state.cash + price,
@@ -235,6 +240,9 @@ export const useGameStore = create<GameStore>()((set, get) => ({
           purchasePrice: price
         };
         
+        // Emit sound event for buying
+        soundEventEmitter.emit('buy');
+        
         return {
           inventory: [...state.inventory, itemWithPurchasePrice],
           cash: state.cash - price,
@@ -248,6 +256,9 @@ export const useGameStore = create<GameStore>()((set, get) => ({
         };
       });
       return true;
+    } else {
+      // Emit error sound for insufficient funds
+      soundEventEmitter.emit('error');
     }
     return false;
   },
@@ -528,6 +539,12 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       const newProgress = calculateLevelProgress(newExperience);
       
       const leveledUp = newProgress.currentLevel > oldProgress.currentLevel;
+      
+      // Emit sound events
+      if (leveledUp) {
+        soundEventEmitter.emit('levelUp');
+        soundEventEmitter.emit('notification');
+      }
       
       return {
         experience: newExperience,

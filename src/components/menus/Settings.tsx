@@ -2,8 +2,11 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Slider } from '@/components/ui/slider';
+import { Switch } from '@/components/ui/switch';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useGameStore } from '@/store/gameStore';
+import { useSoundContext } from '@/contexts/SoundContext';
 import { Language } from '@/types/game';
 import { t } from '@/utils/localization';
 
@@ -13,9 +16,11 @@ interface SettingsProps {
 
 export const Settings = ({ onBack }: SettingsProps) => {
   const { language, setLanguage, initGame, saveGameState } = useGameStore();
+  const { settings, updateSettings, playClickSound, playNotificationSound } = useSoundContext();
   const [showResetConfirm, setShowResetConfirm] = useState(false);
 
   const handleLanguageChange = (newLang: Language) => {
+    playClickSound();
     setLanguage(newLang);
     saveGameState(); // Save immediately when language changes
   };
@@ -66,14 +71,111 @@ export const Settings = ({ onBack }: SettingsProps) => {
             </Select>
           </div>
 
-          {/* Sound Settings - Placeholder for future */}
-          <div className="space-y-3 opacity-60">
+          {/* Sound Settings */}
+          <div className="space-y-4">
             <div className="flex items-center gap-2">
               <span className="text-lg">🔊</span>
               <h3 className="font-semibold">Ses Ayarları</h3>
             </div>
-            <div className="text-sm text-muted-foreground bg-secondary/20 p-3 rounded-md border border-secondary/30">
-              🎵 Müzik ve ses efektleri yakında eklenecek!
+            
+            {/* Master Volume */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium">Ana Ses ({Math.round(settings.masterVolume * 100)}%)</label>
+                <span className="text-xs text-muted-foreground">🔊</span>
+              </div>
+              <Slider
+                value={[settings.masterVolume * 100]}
+                onValueChange={(value) => {
+                  updateSettings({ masterVolume: value[0] / 100 });
+                  playClickSound();
+                }}
+                max={100}
+                step={5}
+                className="w-full"
+              />
+            </div>
+
+            {/* Music Settings */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium">Müzik</label>
+                <Switch
+                  checked={settings.musicEnabled}
+                  onCheckedChange={(enabled) => {
+                    updateSettings({ musicEnabled: enabled });
+                    playClickSound();
+                  }}
+                />
+              </div>
+              {settings.musicEnabled && (
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">Müzik Seviyesi ({Math.round(settings.musicVolume * 100)}%)</span>
+                    <span className="text-xs">🎵</span>
+                  </div>
+                  <Slider
+                    value={[settings.musicVolume * 100]}
+                    onValueChange={(value) => {
+                      updateSettings({ musicVolume: value[0] / 100 });
+                    }}
+                    max={100}
+                    step={5}
+                    className="w-full"
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Sound Effects Settings */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium">Ses Efektleri</label>
+                <Switch
+                  checked={settings.sfxEnabled}
+                  onCheckedChange={(enabled) => {
+                    updateSettings({ sfxEnabled: enabled });
+                    if (enabled) playNotificationSound();
+                  }}
+                />
+              </div>
+              {settings.sfxEnabled && (
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">Efekt Seviyesi ({Math.round(settings.sfxVolume * 100)}%)</span>
+                    <span className="text-xs">🔔</span>
+                  </div>
+                  <Slider
+                    value={[settings.sfxVolume * 100]}
+                    onValueChange={(value) => {
+                      updateSettings({ sfxVolume: value[0] / 100 });
+                    }}
+                    max={100}
+                    step={5}
+                    className="w-full"
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Sound Test Buttons */}
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => playNotificationSound()}
+                className="text-xs"
+              >
+                🔔 Test
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => playClickSound()}
+                className="text-xs"
+              >
+                🎵 Test
+              </Button>
             </div>
           </div>
 
