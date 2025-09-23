@@ -582,8 +582,17 @@ export const Shop = () => {
               <div className="flex-1">
                 <Input
                   type="number"
-                  value={tempOffer}
-                  onChange={(e) => setTempOffer(Math.max(1, parseInt(e.target.value) || 1))}
+                  value={tempOffer === 0 ? '' : tempOffer}
+                  onChange={(e) => {
+                    const value = e.target.value === '' ? 0 : parseInt(e.target.value) || 0;
+                    setTempOffer(Math.max(0, value));
+                  }}
+                  onBlur={(e) => {
+                    if (tempOffer === 0) {
+                      setTempOffer(1);
+                    }
+                  }}
+                  placeholder="Tutar girin"
                   className="text-center text-lg font-bold"
                 />
               </div>
