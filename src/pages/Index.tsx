@@ -107,13 +107,29 @@ const Index = () => {
         <Card className="mb-4 bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/20">
           <CardContent className="p-3">
             <div className="flex justify-between items-center text-sm">
-              <div className="flex items-center gap-1">
-                <span>💵</span>
-                <span className="font-bold">${cash}</span>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-1">
+                  <span>💵</span>
+                  <span className="font-bold">${cash}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span>⭐</span>
+                  <span className="font-bold">Lv.{level}</span>
+                </div>
               </div>
-              <div className="flex items-center gap-1">
-                <span>⭐</span>
-                <span className="font-bold">Lv.{level}</span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleBackToMenu}
+                  className="px-3 py-1 bg-secondary hover:bg-secondary/80 text-secondary-foreground rounded-md text-xs font-medium transition-colors"
+                >
+                  📋 Ana Menü
+                </button>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="px-3 py-1 bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-md text-xs font-medium transition-colors"
+                >
+                  🚪 Oyundan Çık
+                </button>
               </div>
             </div>
           </CardContent>
