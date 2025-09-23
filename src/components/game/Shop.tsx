@@ -11,39 +11,90 @@ import { toast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Minus, Plus } from 'lucide-react';
 
-// Customer response message pools
-const messagesPools = {
-  accept: {
-    tr: ["Tamamdır, anlaştık.", "Harika, bunu alıyorum.", "Süper, işte paran.", "Tam istediğim fiyat.", "Deal!"],
-    en: ["Deal! I'll take it.", "Perfect, I'm buying.", "Alright, here's the cash.", "That works for me.", "Done!"],
-    de: ["Abgemacht, ich nehme es.", "Perfekt, gekauft.", "In Ordnung, hier ist das Geld.", "Passt für mich.", "Erledigt!"]
+// Comprehensive buyer-seller dialogue system
+const dialoguePools = {
+  // Buyer responses (customer wants to buy from player)
+  buyer: {
+    accept: {
+      tr: ["Tamamdır, anlaştık!", "Harika, bunu alıyorum!", "Süper, işte paran.", "Tam istediğim fiyat.", "Deal, kaşla göz arasında!"],
+      en: ["Deal! I'll take it.", "Perfect, I'm buying this.", "Great, here's the cash.", "That's exactly what I wanted to pay.", "Sold, quick decision!"],
+      de: ["Abgemacht, ich nehme es!", "Perfekt, das kaufe ich.", "Super, hier ist das Geld.", "Genau der Preis, den ich zahlen wollte.", "Verkauft, schnelle Entscheidung!"]
+    },
+    reject: {
+      tr: ["Peki, vazgeçiyorum.", "O zaman olmaz, hoşça kal.", "Çok pahalı, başka yerde bakarım.", "Bütçem yetersiz.", "Başka sefer görüşürüz."],
+      en: ["Alright, I'll pass.", "Too expensive for me, goodbye.", "I'll look elsewhere.", "Out of my budget.", "Maybe another time."],
+      de: ["Okay, ich verzichte.", "Zu teuer für mich, auf Wiedersehen.", "Ich schaue woanders.", "Übersteigt mein Budget.", "Vielleicht ein andermal."]
+    },
+    counter_low: {
+      tr: ["Bu çok pahalı, daha düşük olabilir mi?", "Fiyatı biraz indirebilir misin?", "Çok yüksek, pazarlık yapalım.", "Bu kadar vermem, daha makul ol.", "İndirim yapar mısın?"],
+      en: ["That's too expensive, can you go lower?", "Can you reduce the price a bit?", "Too high, let's negotiate.", "I won't pay that much, be reasonable.", "Any discount possible?"],
+      de: ["Das ist zu teuer, können Sie runter gehen?", "Können Sie den Preis etwas senken?", "Zu hoch, lass uns verhandeln.", "So viel zahle ich nicht, seien Sie vernünftig.", "Gibt es einen Rabatt?"]
+    },
+    counter_angry: {
+      tr: ["Bu ne biçim fiyat böyle?!", "Dalga mı geçiyorsun?!", "Çok abartıyorsun!", "Bu kadar pahalı olmaz!", "Saygısızlık bu!"],
+      en: ["What kind of price is this?!", "Are you kidding me?!", "You're way overcharging!", "This can't be that expensive!", "That's outrageous!"],
+      de: ["Was ist das denn für ein Preis?!", "Machst du Witze?!", "Du verlangst viel zu viel!", "So teuer kann das nicht sein!", "Das ist eine Frechheit!"]
+    },
+    counter_neutral: {
+      tr: ["Hmmm, fena değil ama biraz düşük olabilir.", "Makul ama daha iyi olur.", "Neredeyse tamam, biraz daha inin.", "Yaklaştın ama tam değil.", "İyi ama mükemmel değil."],
+      en: ["Hmm, not bad but could be lower.", "Reasonable but could be better.", "Almost there, come down a bit more.", "You're close but not quite.", "Good but not perfect."],
+      de: ["Hmm, nicht schlecht aber könnte niedriger sein.", "Vernünftig aber könnte besser sein.", "Fast da, gehen Sie noch etwas runter.", "Sie sind nah dran aber nicht ganz.", "Gut aber nicht perfekt."]
+    }
   },
-  reject: {
-    tr: ["Peki… vazgeçiyorum.", "Hmm, tamam o zaman.", "Bir dahaki sefere görüşürüz.", "Sen bilirsin.", "Hoşça kal."],
-    en: ["Alright, I'll pass.", "Hmm, okay then.", "Maybe next time.", "Suit yourself.", "See you around."],
-    de: ["Schon gut, ich verzichte.", "Na gut, dann eben nicht.", "Vielleicht beim nächsten Mal.", "Wie du willst.", "Bis später."]
+  // Seller responses (customer wants to sell to player)
+  seller: {
+    accept: {
+      tr: ["Tamamdır, satıyorum!", "Anlaştık, al bakalım.", "Deal, işte ürün.", "Bu fiyata razıyım.", "Tamam, sende kalsın."],
+      en: ["Deal, I'm selling!", "Agreed, here you go.", "Alright, it's yours.", "I accept this price.", "Fine, take it."],
+      de: ["Abgemacht, ich verkaufe!", "Einverstanden, hier haben Sie es.", "In Ordnung, es gehört Ihnen.", "Ich akzeptiere diesen Preis.", "Gut, nehmen Sie es."]
+    },
+    reject: {
+      tr: ["Bu çok düşük, olmaz.", "Böyle ucuza satmam.", "Daha fazlasını hak ediyor.", "Çok az teklif ediyorsun.", "Başka yerde satarım."],
+      en: ["That's too low, no deal.", "I won't sell for so little.", "It's worth more than that.", "You're offering too little.", "I'll sell it elsewhere."],
+      de: ["Das ist zu wenig, kein Geschäft.", "So billig verkaufe ich nicht.", "Es ist mehr wert.", "Sie bieten zu wenig.", "Ich verkaufe es woanders."]
+    },
+    counter_high: {
+      tr: ["Daha fazla ver, bu az.", "Biraz daha artır bakalım.", "Bu fiyata değmez, daha yüksek ol.", "Az teklif ediyorsun, artır.", "Daha cömert olmalısın."],
+      en: ["Pay more, this is too little.", "Raise it a bit, please.", "Not worth this price, go higher.", "You're offering too little, increase it.", "You need to be more generous."],
+      de: ["Zahlen Sie mehr, das ist zu wenig.", "Erhöhen Sie es etwas, bitte.", "Das ist den Preis nicht wert, gehen Sie höher.", "Sie bieten zu wenig, erhöhen Sie es.", "Sie müssen großzügiger sein."]
+    },
+    counter_angry: {
+      tr: ["Bu ne biçim teklif böyle?!", "Dalga mı geçiyorsun?!", "Çok düşük, saygısızlık!", "Bu kadar ucuza olmaz!", "Ciddiye almıyorsun!"],
+      en: ["What kind of offer is this?!", "Are you joking?!", "Too low, that's insulting!", "It can't be this cheap!", "You're not taking this seriously!"],
+      de: ["Was ist das denn für ein Angebot?!", "Machen Sie Witze?!", "Zu niedrig, das ist beleidigend!", "So billig kann es nicht sein!", "Sie nehmen das nicht ernst!"]
+    },
+    counter_neutral: {
+      tr: ["Fena değil ama biraz daha artırsan iyi olur.", "Yaklaştın, biraz daha üstüne koy.", "Makul ama mükemmel değil.", "İyi başlangıç, biraz daha yüksel.", "Neredeyse tamam, ufak bir artış yeter."],
+      en: ["Not bad but a bit more would be good.", "You're close, add a little more.", "Reasonable but not perfect.", "Good start, go a bit higher.", "Almost there, just a small increase needed."],
+      de: ["Nicht schlecht aber etwas mehr wäre gut.", "Sie sind nah dran, legen Sie etwas drauf.", "Vernünftig aber nicht perfekt.", "Guter Anfang, gehen Sie etwas höher.", "Fast da, nur eine kleine Erhöhung nötig."]
+    }
   },
-  counterOffer: {
-    tr: ["Bu çok düşük, biraz daha artır.", "Daha iyi bir teklif bekliyorum.", "Hadi, biraz daha koy üstüne.", "O kadar ucuz veremem.", "Biraz daha cömert ol."],
-    en: ["That's too low, raise it.", "I expect a better offer.", "Come on, add a little more.", "I can't go that cheap.", "Be a bit more generous."],
-    de: ["Das ist zu wenig, leg etwas drauf.", "Ich erwarte ein besseres Angebot.", "Komm, etwas mehr geht.", "So billig kann ich nicht verkaufen.", "Sei etwas großzügiger."]
-  },
-  insulting: {
-    tr: ["Böyle komik teklif olmaz, vazgeçtim!", "Dalga mı geçiyorsun?!", "Hayır, bitmiştir.", "Bu saygısızlık, gidiyorum.", "Sen ciddi olamazsın!"],
-    en: ["That's ridiculous, I'm out!", "Are you kidding me?!", "No, I'm done here.", "That's insulting, I'm leaving.", "You can't be serious!"],
-    de: ["Lächerlich, ich bin raus!", "Machst du Witze?!", "Nein, ich bin fertig.", "Das ist beleidigend, ich gehe.", "Das meinst du nicht ernst!"]
-  },
-  neutral: {
-    tr: ["Hmmm… fena değil ama biraz daha iyi olabilir.", "Yaklaştın, ama az daha çık.", "Neredeyse ikna oldum.", "Azıcık daha üstüne koy.", "Hadi biraz daha uğraş."],
-    en: ["Hmm… not bad, but can be better.", "You're close, add a bit more.", "Almost convinced.", "Raise it just a little.", "Try harder."],
-    de: ["Hmm… nicht schlecht, aber besser geht.", "Du bist nah dran, etwas mehr.", "Fast überzeugt.", "Leg nur ein bisschen drauf.", "Gib dir mehr Mühe."]
+  // Initial offers
+  initial: {
+    buyer: {
+      tr: ["Bu {item} çok hoşuma gitti, {price} dolara alabilir miyim?", "Şu {item} için {price} dolar veriyorum.", "Bu {item} tam aradığım şey, {price} dolar teklif ediyorum.", "{item} için {price} dolar uygun mu?", "Bu güzel {item} için {price} dolar nasıl?"],
+      en: ["I really like this {item}, can I buy it for ${price}?", "I'm offering ${price} for that {item}.", "This {item} is exactly what I'm looking for, I offer ${price}.", "Is ${price} okay for the {item}?", "How about ${price} for this nice {item}?"],
+      de: ["Mir gefällt dieses {item} sehr, kann ich es für {price} Dollar kaufen?", "Ich biete {price} Dollar für das {item}.", "Dieses {item} ist genau das, was ich suche, ich biete {price} Dollar.", "Sind {price} Dollar für das {item} in Ordnung?", "Wie wäre es mit {price} Dollar für dieses schöne {item}?"]
+    },
+    seller: {
+      tr: ["Bu {item}'imi satmak istiyorum, {price} dolara veriyorum.", "Şu {item} için {price} dolar istiyorum.", "Bu güzel {item}'imi {price} dolara satıyorum.", "{item} var elimde, {price} dolar verirsen sat-arım.", "Bu {item} için {price} dolar makul fiyat."],
+      en: ["I want to sell this {item}, I'm asking ${price}.", "I want ${price} for this {item}.", "I'm selling this nice {item} for ${price}.", "I have this {item}, I'll sell it for ${price}.", "${price} is a fair price for this {item}."],
+      de: ["Ich möchte dieses {item} verkaufen, ich verlange {price} Dollar.", "Ich möchte {price} Dollar für dieses {item}.", "Ich verkaufe dieses schöne {item} für {price} Dollar.", "Ich habe dieses {item}, ich verkaufe es für {price} Dollar.", "{price} Dollar ist ein fairer Preis für dieses {item}."]
+    }
   }
 };
 
-const getRandomMessage = (pool: keyof typeof messagesPools, language: string) => {
-  const messages = messagesPools[pool]?.[language as keyof typeof messagesPools.accept] || messagesPools[pool].tr;
-  return messages[Math.floor(Math.random() * messages.length)];
+const getRandomMessage = (role: 'buyer' | 'seller', scenario: string, language: string) => {
+  const messages = dialoguePools[role]?.[scenario]?.[language] || dialoguePools[role]?.[scenario]?.tr || [];
+  return messages[Math.floor(Math.random() * messages.length)] || "...";
 };
+
+const getInitialOfferMessage = (role: 'buyer' | 'seller', item: Item, price: number, language: string) => {
+  const messages = dialoguePools.initial[role]?.[language] || dialoguePools.initial[role]?.tr || [];
+  const template = messages[Math.floor(Math.random() * messages.length)] || "...";
+  return template.replace('{item}', item.name).replace('{price}', price.toString());
+};
+
 
 export const Shop = () => {
   const { 
@@ -92,13 +143,13 @@ export const Shop = () => {
               const itemValue = calculateItemValue(interestedItem);
               const customerOffer = Math.max(10, generateCustomerInitialOffer(newCustomer, itemValue)); // Ensure minimum $10
               setCurrentOffer(customerOffer);
-              setCustomerResponse(generateInitialMessage(newCustomer, interestedItem, customerOffer));
+              setCustomerResponse(getInitialOfferMessage('buyer', interestedItem, customerOffer, language));
             } else if (newCustomer.intent === 'sell' && newCustomer.carriedItem) {
               setSelectedItem(newCustomer.carriedItem);
               const itemValue = calculateItemValue(newCustomer.carriedItem);
               const customerAskingPrice = Math.max(10, Math.floor(itemValue * (0.8 + Math.random() * 0.3))); // Ensure minimum $10
               setCurrentOffer(customerAskingPrice);
-              setCustomerResponse(`I have this ${newCustomer.carriedItem.name}. I'm asking $${customerAskingPrice} for it.`);
+              setCustomerResponse(getInitialOfferMessage('seller', newCustomer.carriedItem, customerAskingPrice, language));
             } else if (newCustomer.intent === 'buy' && inventory.length === 0) {
               // This shouldn't happen with the new logic, but just in case
               resetNegotiation();
@@ -175,26 +226,26 @@ export const Shop = () => {
       
       if (tempOffer <= currentCustomer.budget && offerRatio <= priceToleranceMultiplier) {
         if (Math.random() < acceptanceThreshold) {
-          response = getRandomMessage('accept', language);
+          response = getRandomMessage('buyer', 'accept', language);
           shouldAccept = true;
         } else {
           const counterOffer = Math.max(10, Math.floor(tempOffer * 0.9));
-          response = getRandomMessage('counterOffer', language);
+          response = getRandomMessage('buyer', 'counter_low', language);
           setCurrentOffer(counterOffer);
           toast({
             title: "Karşı Teklif",
-            description: `Müşteri $${counterOffer} istiyor.`,
+            description: `Müşteri $${counterOffer} teklif ediyor.`,
           });
         }
       } else {
         if (offerRatio > 1.5) {
-          response = getRandomMessage('insulting', language);
+          response = getRandomMessage('buyer', 'counter_angry', language);
           setCustomerFrustration(prev => prev + 2);
         } else if (offerRatio > 1.2) {
-          response = getRandomMessage('neutral', language);
+          response = getRandomMessage('buyer', 'counter_neutral', language);
           setCustomerFrustration(prev => prev + 1);
         } else {
-          response = getRandomMessage('counterOffer', language);
+          response = getRandomMessage('buyer', 'counter_low', language);
           setCustomerFrustration(prev => prev + 1);
         }
       }
@@ -228,11 +279,11 @@ export const Shop = () => {
       
       if (tempOffer <= cash && offerRatio >= minPriceRatio) {
         if (Math.random() < acceptanceThreshold) {
-          response = getRandomMessage('accept', language);
+          response = getRandomMessage('seller', 'accept', language);
           shouldAccept = true;
         } else {
           const counterOffer = Math.max(10, Math.floor(tempOffer * 1.1));
-          response = getRandomMessage('counterOffer', language);
+          response = getRandomMessage('seller', 'counter_high', language);
           setCurrentOffer(counterOffer);
           toast({
             title: "Karşı Teklif",
@@ -241,13 +292,13 @@ export const Shop = () => {
         }
       } else {
         if (offerRatio < 0.4) {
-          response = getRandomMessage('insulting', language);
+          response = getRandomMessage('seller', 'counter_angry', language);
           setCustomerFrustration(prev => prev + 2);
         } else if (offerRatio < 0.6) {
-          response = getRandomMessage('neutral', language);
+          response = getRandomMessage('seller', 'counter_neutral', language);
           setCustomerFrustration(prev => prev + 1);
         } else {
-          response = getRandomMessage('counterOffer', language);
+          response = getRandomMessage('seller', 'counter_high', language);
           setCustomerFrustration(prev => prev + 1);
         }
       }
@@ -299,7 +350,7 @@ export const Shop = () => {
     
     // Show success animation first
     setShowSuccessEffect(true);
-    setCustomerResponse(getRandomMessage('accept', language));
+    setCustomerResponse(getRandomMessage(currentCustomer.intent === 'buy' ? 'buyer' : 'seller', 'accept', language));
     
     setTimeout(() => {
       setShowSuccessEffect(false);
@@ -328,7 +379,7 @@ export const Shop = () => {
     // Show rejection effects first
     setShowRejectEffect(true);
     setShowSadCustomer(true);
-    setCustomerResponse(getRandomMessage('reject', language));
+    setCustomerResponse(getRandomMessage(currentCustomer.intent === 'buy' ? 'buyer' : 'seller', 'reject', language));
     
     setTimeout(() => {
       setShowRejectEffect(false);
