@@ -5,6 +5,12 @@ import { QuickDock } from '@/components/game/QuickDock';
 import { MainMenu } from '@/components/menus/MainMenu';
 import { Settings } from '@/components/menus/Settings';
 import { Card, CardContent } from '@/components/ui/card';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { Separator } from '@/components/ui/separator';
+import { useSoundContext } from '@/contexts/SoundContext';
+import { Settings as SettingsIcon, X } from 'lucide-react';
 import { t } from '@/utils/localization';
 
 const Index = () => {
@@ -24,8 +30,17 @@ const Index = () => {
     saveGameState
   } = useGameStore();
   
+  const { 
+    settings, 
+    updateSettings, 
+    playMusic, 
+    pauseMusic, 
+    playClickSound 
+  } = useSoundContext();
+  
   const [gameStarted, setGameStarted] = useState(false);
   const [currentView, setCurrentView] = useState<'menu' | 'game' | 'settings' | 'howtoplay'>('menu');
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const handleStartGame = () => {
     initGame();
@@ -118,18 +133,116 @@ const Index = () => {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <button
-                  onClick={handleBackToMenu}
-                  className="px-3 py-1 bg-secondary hover:bg-secondary/80 text-secondary-foreground rounded-md text-xs font-medium transition-colors"
-                >
-                  📋 Ana Menü
-                </button>
-                <button
-                  onClick={() => window.location.reload()}
-                  className="px-3 py-1 bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-md text-xs font-medium transition-colors"
-                >
-                  🚪 Oyundan Çık
-                </button>
+                <Popover open={settingsOpen} onOpenChange={setSettingsOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="px-3 py-1 text-xs font-medium border-primary/30 hover:bg-primary/10"
+                      onClick={playClickSound}
+                    >
+                      <SettingsIcon className="w-4 h-4" />
+                      ⚙️
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent 
+                    className="w-80 bg-background/95 backdrop-blur-sm border-primary/20 shadow-xl" 
+                    align="end"
+                  >
+                    <div className="space-y-4">
+                      {/* Header */}
+                      <div className="flex items-center justify-between">
+                        <h3 className="font-semibold flex items-center gap-2">
+                          ⚙️ Oyun Ayarları
+                        </h3>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setSettingsOpen(false)}
+                          className="h-8 w-8 p-0"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+
+                      <Separator />
+
+                      {/* Sound Settings */}
+                      <div className="space-y-3">
+                        <h4 className="text-sm font-medium flex items-center gap-2">
+                          🔊 Ses Ayarları
+                        </h4>
+                        
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm">🎵 Müzik</span>
+                          <Switch
+                            checked={settings.musicEnabled}
+                            onCheckedChange={(enabled) => {
+                              updateSettings({ musicEnabled: enabled });
+                              playClickSound();
+                              if (enabled) {
+                                playMusic();
+                              } else {
+                                pauseMusic();
+                              }
+                            }}
+                          />
+                        </div>
+                        
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm">🔔 Ses Efektleri</span>
+                          <Switch
+                            checked={settings.sfxEnabled}
+                            onCheckedChange={(enabled) => {
+                              updateSettings({ sfxEnabled: enabled });
+                              if (enabled) playClickSound();
+                            }}
+                          />
+                        </div>
+                      </div>
+
+                      <Separator />
+
+                      {/* Action Buttons */}
+                      <div className="space-y-2">
+                        <Button
+                          onClick={() => {
+                            playClickSound();
+                            setSettingsOpen(false);
+                            handleSettings();
+                          }}
+                          variant="outline"
+                          className="w-full justify-start text-sm"
+                        >
+                          ⚙️ Detaylı Ayarlar
+                        </Button>
+                        
+                        <Button
+                          onClick={() => {
+                            playClickSound();
+                            setSettingsOpen(false);
+                            handleBackToMenu();
+                          }}
+                          variant="outline"
+                          className="w-full justify-start text-sm"
+                        >
+                          📋 Ana Menü
+                        </Button>
+                        
+                        <Button
+                          onClick={() => {
+                            playClickSound();
+                            window.location.reload();
+                          }}
+                          variant="outline"
+                          className="w-full justify-start text-sm text-destructive hover:text-destructive"
+                        >
+                          🚪 Oyundan Çık
+                        </Button>
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
               </div>
             </div>
           </CardContent>
