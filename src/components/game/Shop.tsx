@@ -11,6 +11,16 @@ import { toast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Minus, Plus } from 'lucide-react';
 
+// Import customer avatars (for reference only)
+import customer1 from '@/assets/avatars/customer-1.jpg';
+import customer2 from '@/assets/avatars/customer-2.jpg';
+import customer3 from '@/assets/avatars/customer-3.jpg';
+import customer4 from '@/assets/avatars/customer-4.jpg';
+import customer5 from '@/assets/avatars/customer-5.jpg';
+import customer6 from '@/assets/avatars/customer-6.jpg';
+import customer7 from '@/assets/avatars/customer-7.jpg';
+import customer8 from '@/assets/avatars/customer-8.jpg';
+
 // Comprehensive buyer-seller dialogue system
 const dialoguePools = {
   // Buyer responses (customer wants to buy from player)
@@ -492,8 +502,12 @@ export const Shop = () => {
       }`}>
         <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="text-3xl">
-                {showSadCustomer ? '😢' : (currentCustomer.intent === 'buy' ? '🛒' : '🏷️')}
+              <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white/20 bg-background">
+                <img 
+                  src={currentCustomer.avatar} 
+                  alt={`${currentCustomer.name} avatar`}
+                  className="w-full h-full object-cover"
+                />
               </div>
             <div className="flex-1">
               <div className={`text-lg font-bold ${
