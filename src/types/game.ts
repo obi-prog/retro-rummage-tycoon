@@ -80,6 +80,8 @@ export interface GameState {
     tax: number;
     utilities: number;
   };
+  // End of day modal
+  showEndOfDayModal: boolean;
 }
 
 

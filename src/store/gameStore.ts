@@ -35,11 +35,25 @@ interface GameStore extends GameState {
   // Financial actions
   addFinancialRecord: (type: 'income' | 'expense', category: 'sales' | 'purchases' | 'rent' | 'tax' | 'fine' | 'utilities' | 'other', amount: number, description: string) => void;
   calculateDailyExpenses: () => number;
+  // End of day modal
+  setShowEndOfDayModal: (show: boolean) => void;
   // Save/Load actions
   saveGameState: () => boolean;
   loadGameState: () => boolean;
   hasSavedGame: () => boolean;
 }
+
+const getDailyCustomerLimitByLevel = (level: number): number => {
+  if (level >= 1 && level <= 3) {
+    return 5; // Level 1-3: max 5 customers
+  } else if (level >= 4 && level <= 8) {
+    return 4 + Math.floor(Math.random() * 4); // Level 4-8: 4-7 customers (random)
+  } else if (level >= 9 && level <= 12) {
+    return 5 + Math.floor(Math.random() * 4); // Level 9-12: 5-8 customers (random)
+  } else {
+    return 8; // Level 13+: 8 customers
+  }
+};
 
 const generateStartingItems = (): Item[] => {
   return [
@@ -64,6 +78,39 @@ const generateStartingItems = (): Item[] => {
       rarity: 'common',
       trendBonus: 0,
       image: '💿'
+    },
+    {
+      id: '3',
+      name: 'Retro Saat',
+      category: 'watch',
+      baseValue: 200,
+      condition: 80,
+      authenticity: 'authentic',
+      rarity: 'rare',
+      trendBonus: 0,
+      image: '⌚'
+    },
+    {
+      id: '4',
+      name: 'Oyuncak Araba',
+      category: 'toy',
+      baseValue: 60,
+      condition: 70,
+      authenticity: 'authentic',
+      rarity: 'common',
+      trendBonus: 0,
+      image: '🧸'
+    },
+    {
+      id: '5',
+      name: 'Film Kamerası',
+      category: 'camera',
+      baseValue: 300,
+      condition: 85,
+      authenticity: 'authentic',
+      rarity: 'very_rare',
+      trendBonus: 0,
+      image: '📷'
     }
   ];
 };
@@ -71,7 +118,7 @@ const generateStartingItems = (): Item[] => {
 export const useGameStore = create<GameStore>()((set, get) => ({
   // Initial state
   level: 1,
-  cash: 500,
+  cash: 10000,
   reputation: 10,
   trust: 50,
   day: 1,
@@ -108,6 +155,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     tax: 25,
     utilities: 30
   },
+  showEndOfDayModal: false,
 
   // Actions
   initGame: () => {
@@ -118,7 +166,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     ];
     set({
       level: 1,
-      cash: 500,
+      cash: 10000,
       reputation: 10,
       trust: 50,
       day: 1,
@@ -138,7 +186,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       lastEventDay: 0,
       negotiationCount: 0,
       customersServed: 0,
-      dailyCustomerLimit: 5, // Level 1: 3-5 customers (using 5 as default)
+      dailyCustomerLimit: getDailyCustomerLimitByLevel(1), // Level 1
       dailyStats: {
         itemsSold: 0,
         itemsBought: 0,
@@ -153,6 +201,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
         tax: 25,
         utilities: 30
       },
+      showEndOfDayModal: false,
     });
   },
 
@@ -346,7 +395,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       const updatedEvents = state.events.map(e => ({ ...e, duration: e.duration ? e.duration - 1 : 0 })).filter(e => e.duration && e.duration > 0);
       
       // Calculate new daily customer limit based on level
-      const newDailyCustomerLimit = Math.min(3 + state.level, 10); // Level 1: 3-5, Level 2: 4-6, etc., max 10
+      const newDailyCustomerLimit = getDailyCustomerLimitByLevel(state.level);
       
       const newState = {
         day: state.day + 1,
@@ -402,7 +451,8 @@ export const useGameStore = create<GameStore>()((set, get) => ({
           dailyStats: currentState.dailyStats,
           financialRecords: currentState.financialRecords,
           dailyFinancials: currentState.dailyFinancials,
-          weeklyExpenses: currentState.weeklyExpenses
+          weeklyExpenses: currentState.weeklyExpenses,
+          showEndOfDayModal: currentState.showEndOfDayModal
         };
         saveGame(gameState);
       }, 100);
@@ -500,7 +550,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
         };
 
         // Calculate new daily customer limit based on level
-        const newDailyCustomerLimit = Math.min(3 + state.level, 10); // Level 1: 3-5, Level 2: 4-6, etc., max 10
+        const newDailyCustomerLimit = getDailyCustomerLimitByLevel(state.level);
         
         return {
           timeLeft: 0, // No timer
@@ -692,12 +742,11 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       
       // Check if day should end
       if (newCustomersServed >= state.dailyCustomerLimit) {
-        // Auto advance to next day
+        // Show end of day modal instead of auto advancing
         return {
-          customersServed: 0,
-          day: state.day + 1,
-          dailyCustomerLimit: Math.min(3 + state.level, 10),
-          currentCustomer: null
+          customersServed: newCustomersServed,
+          currentCustomer: null,
+          showEndOfDayModal: true
         };
       }
       
@@ -708,9 +757,13 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     });
   },
 
+  setShowEndOfDayModal: (show: boolean) => {
+    set({ showEndOfDayModal: show });
+  },
+
   getDailyCustomerLimit: () => {
     const { level } = get();
-    return Math.min(3 + level, 10);
+    return getDailyCustomerLimitByLevel(level);
   },
 
   // Save/Load implementations
@@ -742,7 +795,8 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       dailyStats: state.dailyStats,
       financialRecords: state.financialRecords,
       dailyFinancials: state.dailyFinancials,
-      weeklyExpenses: state.weeklyExpenses
+      weeklyExpenses: state.weeklyExpenses,
+      showEndOfDayModal: state.showEndOfDayModal
     };
     
     return saveGame(gameState);

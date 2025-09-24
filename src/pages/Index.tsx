@@ -4,6 +4,7 @@ import { Shop } from '@/components/game/Shop';
 import { QuickDock } from '@/components/game/QuickDock';
 import { MainMenu } from '@/components/menus/MainMenu';
 import { Settings } from '@/components/menus/Settings';
+import { EndOfDayModal } from '@/components/game/EndOfDayModal';
 import { Card, CardContent } from '@/components/ui/card';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
@@ -27,7 +28,10 @@ const Index = () => {
     dailyCustomerLimit,
     loadGameState,
     hasSavedGame,
-    saveGameState
+    saveGameState,
+    showEndOfDayModal,
+    setShowEndOfDayModal,
+    advanceDay
   } = useGameStore();
   
   const { 
@@ -69,6 +73,11 @@ const Index = () => {
       saveGameState(); // Otomatik kayıt
     }
     setCurrentView('menu');
+  };
+
+  const handleContinueToNextDay = () => {
+    setShowEndOfDayModal(false);
+    advanceDay();
   };
 
   // Show main menu
@@ -253,6 +262,12 @@ const Index = () => {
 
         {/* Main Game Interface - Single Screen */}
         <Shop />
+
+        {/* End of Day Modal */}
+        <EndOfDayModal 
+          isOpen={showEndOfDayModal}
+          onContinue={handleContinueToNextDay}
+        />
 
       </div>
     </div>

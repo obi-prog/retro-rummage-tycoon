@@ -66,7 +66,7 @@ export const GameUI = () => {
               </div>
               <div className="flex items-center gap-2">
                 <Star className="w-4 h-4" />
-                <span className="font-bold">{t('day', language)} {day}</span>
+                <span className="font-bold">Hafta {Math.ceil(day / 7)} Gün {((day - 1) % 7) + 1}</span>
               </div>
             </div>
             
