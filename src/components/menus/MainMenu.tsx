@@ -92,25 +92,6 @@ export const MainMenu = ({
           >
             ❓ Nasıl Oynanır
           </Button>
-          
-          {/* Game Info */}
-          <div className="text-center pt-4 border-t border-border/50">
-            <div className="text-xs text-muted-foreground mb-2">Başlangıç Kaynakları</div>
-            <div className="flex justify-center gap-4 text-sm">
-              <span>💰 $500</span>
-              <span>📦 2 Eşya</span>
-              <span>⭐ Seviye 1</span>
-            </div>
-          </div>
-          
-          {/* Language indicator */}
-          <div className="text-center">
-            <div className="text-xs text-muted-foreground">
-              🌍 {language.toUpperCase()} • 📱 Mobile Optimized 
-              {settings.musicEnabled && <span> • 🎵 Müzik Açık</span>}
-              {settings.sfxEnabled && <span> • 🔊 Ses Açık</span>}
-            </div>
-          </div>
         </CardContent>
       </Card>
     </div>
