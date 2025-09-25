@@ -140,34 +140,6 @@ export const EndOfDayModal = ({ isOpen, onContinue }: EndOfDayModalProps) => {
             </CardContent>
           </Card>
 
-          {/* Financial Records */}
-          {todayRecords.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Günlük İşlemler</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2 max-h-40 overflow-y-auto">
-                  {todayRecords.map((record, index) => (
-                    <div key={index} className="flex items-center justify-between p-2 bg-muted/50 rounded">
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg">{getCategoryIcon(record.category)}</span>
-                        <div>
-                          <p className="text-sm font-medium">{record.description}</p>
-                          <Badge variant={record.type === 'income' ? 'default' : 'secondary'} className="text-xs">
-                            {record.type === 'income' ? 'Gelir' : 'Gider'}
-                          </Badge>
-                        </div>
-                      </div>
-                      <p className={`font-bold ${record.type === 'income' ? 'text-green-600' : 'text-red-600'}`}>
-                        {record.type === 'income' ? '+' : '-'}{formatCurrency(record.amount)}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
 
           {/* Current Cash */}
           <Card className="bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20 border-yellow-200">
@@ -191,7 +163,7 @@ export const EndOfDayModal = ({ isOpen, onContinue }: EndOfDayModalProps) => {
               size="lg"
               className="w-full max-w-md bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold"
             >
-              Sonraki Güne Geç
+              Dükkanı Aç
             </Button>
           </div>
         </div>
