@@ -37,8 +37,6 @@ const Index = () => {
   const { 
     settings, 
     updateSettings, 
-    playMusic, 
-    pauseMusic, 
     playClickSound 
   } = useSoundContext();
   
@@ -181,22 +179,6 @@ const Index = () => {
                         <h4 className="text-sm font-medium flex items-center gap-2">
                           🔊 Ses Ayarları
                         </h4>
-                        
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm">🎵 Müzik</span>
-                          <Switch
-                            checked={settings.musicEnabled}
-                            onCheckedChange={(enabled) => {
-                              updateSettings({ musicEnabled: enabled });
-                              playClickSound();
-                              if (enabled) {
-                                playMusic();
-                              } else {
-                                pauseMusic();
-                              }
-                            }}
-                          />
-                        </div>
                         
                         <div className="flex items-center justify-between">
                           <span className="text-sm">🔔 Ses Efektleri</span>

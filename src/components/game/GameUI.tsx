@@ -27,14 +27,7 @@ export const GameUI = () => {
     experience 
   } = useGameStore();
 
-  const { settings, changeMusicTrack } = useSoundContext();
-
-  // Auto-switch to game music when in game
-  useEffect(() => {
-    if (settings.musicEnabled && settings.currentMusicTrack !== 'game') {
-      changeMusicTrack('game');
-    }
-  }, [settings.musicEnabled, changeMusicTrack]);
+  const { settings } = useSoundContext();
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);

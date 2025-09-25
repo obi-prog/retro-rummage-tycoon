@@ -22,21 +22,10 @@ export const MainMenu = ({
   hasSavedGame = false,
   onContinueGame 
 }: MainMenuProps) => {
-  const { playClickSound, playMusic, settings, changeMusicTrack } = useSoundContext();
-
-  // Auto-switch to ambient music when on main menu
-  useEffect(() => {
-    if (settings.musicEnabled && settings.currentMusicTrack !== 'ambient') {
-      changeMusicTrack('ambient');
-    }
-  }, [settings.musicEnabled, changeMusicTrack]);
+  const { playClickSound } = useSoundContext();
 
   const handleUserInteraction = (callback: () => void) => {
     playClickSound();
-    // Ensure music plays after user interaction
-    if (settings.musicEnabled) {
-      playMusic();
-    }
     callback();
   };
 
