@@ -10,6 +10,7 @@ import { generateCustomer, generateHaggleResponse, calculateItemValue, generateC
 import { toast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Minus, Plus } from 'lucide-react';
+import { SpeechBubble } from '@/components/ui/SpeechBubble';
 
 // Import customer avatars (for reference only)
 import customer1 from '@/assets/avatars/customer-1.jpg';
@@ -134,6 +135,13 @@ export const Shop = () => {
   const [showSuccessEffect, setShowSuccessEffect] = useState(false);
   const [showRejectEffect, setShowRejectEffect] = useState(false);
   const [showSadCustomer, setShowSadCustomer] = useState(false);
+  const [showSpeechBubble, setShowSpeechBubble] = useState(false);
+  const [speechBubbleMessage, setSpeechBubbleMessage] = useState('');
+
+  const showCustomerSpeech = (message: string) => {
+    setSpeechBubbleMessage(message);
+    setShowSpeechBubble(true);
+  };
 
   // Auto-generate customer if none present and daily limit not reached
   useEffect(() => {
@@ -153,13 +161,17 @@ export const Shop = () => {
               const itemValue = calculateItemValue(interestedItem);
               const customerOffer = Math.max(10, generateCustomerInitialOffer(newCustomer, itemValue)); // Ensure minimum $10
               setCurrentOffer(customerOffer);
-              setCustomerResponse(getInitialOfferMessage('buyer', interestedItem, customerOffer, language));
+              const message = getInitialOfferMessage('buyer', interestedItem, customerOffer, language);
+              setCustomerResponse(message);
+              showCustomerSpeech(message);
             } else if (newCustomer.intent === 'sell' && newCustomer.carriedItem) {
               setSelectedItem(newCustomer.carriedItem);
               const itemValue = calculateItemValue(newCustomer.carriedItem);
               const customerAskingPrice = Math.max(10, Math.floor(itemValue * (0.8 + Math.random() * 0.3))); // Ensure minimum $10
               setCurrentOffer(customerAskingPrice);
-              setCustomerResponse(getInitialOfferMessage('seller', newCustomer.carriedItem, customerAskingPrice, language));
+              const message = getInitialOfferMessage('seller', newCustomer.carriedItem, customerAskingPrice, language);
+              setCustomerResponse(message);
+              showCustomerSpeech(message);
             } else if (newCustomer.intent === 'buy' && inventory.length === 0) {
               // This shouldn't happen with the new logic, but just in case
               resetNegotiation();
@@ -181,6 +193,8 @@ export const Shop = () => {
     setShowOfferModal(false);
     setTempOffer(0);
     setCustomerFrustration(0);
+    setShowSpeechBubble(false);
+    setSpeechBubbleMessage('');
     serveCustomer(); // Increment customer counter
   };
 
@@ -315,6 +329,7 @@ export const Shop = () => {
     }
     
     setCustomerResponse(response);
+    showCustomerSpeech(response);
     setShowOfferModal(false);
     
     if (shouldAccept) {
@@ -360,7 +375,9 @@ export const Shop = () => {
     
     // Show success animation first
     setShowSuccessEffect(true);
-    setCustomerResponse(getRandomMessage(currentCustomer.intent === 'buy' ? 'buyer' : 'seller', 'accept', language));
+    const acceptMessage = getRandomMessage(currentCustomer.intent === 'buy' ? 'buyer' : 'seller', 'accept', language);
+    setCustomerResponse(acceptMessage);
+    showCustomerSpeech(acceptMessage);
     
     setTimeout(() => {
       setShowSuccessEffect(false);
@@ -389,7 +406,9 @@ export const Shop = () => {
     // Show rejection effects first
     setShowRejectEffect(true);
     setShowSadCustomer(true);
-    setCustomerResponse(getRandomMessage(currentCustomer.intent === 'buy' ? 'buyer' : 'seller', 'reject', language));
+    const rejectMessage = getRandomMessage(currentCustomer.intent === 'buy' ? 'buyer' : 'seller', 'reject', language);
+    setCustomerResponse(rejectMessage);
+    showCustomerSpeech(rejectMessage);
     
     setTimeout(() => {
       setShowRejectEffect(false);
@@ -502,11 +521,17 @@ export const Shop = () => {
       }`}>
         <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white/20 bg-background">
+              <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white/20 bg-background relative">
                 <img 
                   src={currentCustomer.avatar} 
                   alt={`${currentCustomer.name} avatar`}
                   className="w-full h-full object-cover"
+                />
+                <SpeechBubble
+                  message={speechBubbleMessage}
+                  isVisible={showSpeechBubble}
+                  onComplete={() => setShowSpeechBubble(false)}
+                  className="bottom-16 left-0"
                 />
               </div>
             <div className="flex-1">
