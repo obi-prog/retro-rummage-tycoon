@@ -51,10 +51,17 @@ All colors MUST be HSL.
     /* Gradients */
     --gradient-retro: linear-gradient(135deg, hsl(var(--retro-orange)), hsl(var(--retro-pink)));
     --gradient-vintage: linear-gradient(135deg, hsl(var(--vintage-brown)), hsl(var(--secondary)));
+    --gradient-neon: linear-gradient(90deg, #FF6B6B, #FFD93D);
+    --gradient-neon-alt: linear-gradient(135deg, #FF6B6B, #4ECDC4, #FFD93D);
+    --gradient-continue: linear-gradient(135deg, #32D74B, #FFD700);
+    --gradient-play: linear-gradient(135deg, #FF69B4, #8A2BE2);
     
     /* Shadows */
     --shadow-retro: 0 4px 12px hsl(var(--retro-orange) / 0.3);
     --shadow-vintage: 0 2px 8px hsl(var(--vintage-brown) / 0.2);
+    --shadow-neon: 0 0 20px rgba(255, 107, 107, 0.5), 0 0 40px rgba(255, 217, 61, 0.3);
+    --shadow-card: 0 10px 40px rgba(0, 0, 0, 0.1);
+    --shadow-button: 0 4px 15px rgba(0, 0, 0, 0.15);
 
     --radius: 0.375rem;
 
@@ -113,6 +120,49 @@ All colors MUST be HSL.
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
+}
+
+/* Neon glow animation */
+@keyframes neon-pulse {
+  0%, 100% {
+    text-shadow: 
+      0 0 5px rgba(255, 107, 107, 0.8),
+      0 0 10px rgba(255, 107, 107, 0.6),
+      0 0 15px rgba(255, 107, 107, 0.4);
+  }
+  50% {
+    text-shadow: 
+      0 0 10px rgba(255, 107, 107, 1),
+      0 0 20px rgba(255, 107, 107, 0.8),
+      0 0 30px rgba(255, 107, 107, 0.6);
+  }
+}
+
+@keyframes float-money {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33% { transform: translateY(-10px) rotate(5deg); }
+  66% { transform: translateY(5px) rotate(-3deg); }
+}
+
+@keyframes button-glow {
+  0%, 100% { box-shadow: var(--shadow-button); }
+  50% { box-shadow: var(--shadow-button), 0 0 15px rgba(255, 107, 107, 0.3); }
+}
+
+.neon-title {
+  background: var(--gradient-neon);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: neon-pulse 3s ease-in-out infinite;
+}
+
+.float-money {
+  animation: float-money 4s ease-in-out infinite;
+}
+
+.button-hover-glow:hover {
+  animation: button-glow 1.5s ease-in-out infinite;
 }
 
 @layer base {

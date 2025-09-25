@@ -41,56 +41,85 @@ export const MainMenu = ({
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-secondary/20 to-accent/20">
-      <Card className="w-full max-w-md mx-4 bg-card/95 backdrop-blur-sm shadow-xl border-2 border-primary/20">
-        <CardHeader className="text-center space-y-4">
-          <div className="text-7xl animate-pulse">🕰️</div>
-          <CardTitle className="text-4xl font-bold bg-gradient-to-r from-retro-orange to-retro-pink bg-clip-text text-transparent">
-            Sokak Bitpazarı
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden" 
+         style={{ 
+           background: 'linear-gradient(135deg, #FDF7F0 0%, #F8F4E6 50%, #F0E6FF 100%)'
+         }}>
+      
+      {/* Floating money background elements */}
+      <div className="absolute inset-0 pointer-events-none opacity-10">
+        <div className="absolute top-20 left-10 text-4xl float-money">💵</div>
+        <div className="absolute top-40 right-16 text-3xl float-money" style={{ animationDelay: '1s' }}>💰</div>
+        <div className="absolute bottom-40 left-20 text-3xl float-money" style={{ animationDelay: '2s' }}>💎</div>
+        <div className="absolute bottom-20 right-12 text-4xl float-money" style={{ animationDelay: '0.5s' }}>💵</div>
+        <div className="absolute top-60 left-1/2 text-2xl float-money" style={{ animationDelay: '1.5s' }}>⭐</div>
+      </div>
+
+      <Card className="w-[90%] max-w-md mx-4 bg-white/95 backdrop-blur-sm border-0" 
+            style={{ boxShadow: 'var(--shadow-card)' }}>
+        <CardHeader className="text-center space-y-3 pb-4">
+          <div className="text-6xl mb-2">🤝</div>
+          <CardTitle className="text-4xl font-bold neon-title leading-tight">
+            Deal or Walk
           </CardTitle>
-          <div className="text-xl font-semibold text-retro-purple">
-            Retro Flip Tycoon
+          <div className="text-lg font-bold" style={{ 
+            background: 'var(--gradient-neon-alt)', 
+            backgroundClip: 'text', 
+            WebkitBackgroundClip: 'text', 
+            WebkitTextFillColor: 'transparent' 
+          }}>
+            Buy Low, Sell High!
           </div>
-          <p className="text-sm text-muted-foreground">
-            1980s Street Market • Buy Low, Sell High
+          <p className="text-sm text-muted-foreground font-medium">
+            Retro Street Market Flip Tycoon
           </p>
         </CardHeader>
         
-        <CardContent className="space-y-4 p-6">
+        <CardContent className="space-y-3 px-6 pb-6">
           {/* Continue Game Button - only if saved game exists */}
            {hasSavedGame && onContinueGame && (
             <Button 
               onClick={() => handleUserInteraction(onContinueGame)}
-              className="w-full bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white font-bold py-3 text-lg shadow-lg transition-all duration-200 hover:scale-105"
+              className="w-full h-12 text-white font-bold text-lg button-hover-glow transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+              style={{ 
+                background: 'var(--gradient-continue)',
+                boxShadow: 'var(--shadow-button)'
+              }}
             >
-              💾 Devam Et
+              💾 Continue Game
             </Button>
           )}
           
           {/* New Game Button */}
           <Button 
             onClick={() => handleUserInteraction(onStartGame)}
-            className="w-full bg-gradient-to-r from-retro-orange to-retro-pink hover:from-retro-orange/90 hover:to-retro-pink/90 text-white font-bold py-3 text-lg shadow-lg transition-all duration-200 hover:scale-105"
+            className="w-full h-12 text-white font-bold text-lg button-hover-glow transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+            style={{ 
+              background: 'var(--gradient-play)',
+              boxShadow: 'var(--shadow-button)'
+            }}
           >
-            🎮 {hasSavedGame ? 'Yeni Oyun' : t('play', language)}
+            🎮 {hasSavedGame ? 'New Game' : 'Start Playing'}
           </Button>
           
           {/* Settings Button */}
           <Button 
             onClick={() => handleUserInteraction(onSettings)}
             variant="outline" 
-            className="w-full border-2 border-primary/30 hover:bg-primary/10 font-semibold py-3 text-lg transition-all duration-200 hover:scale-105"
+            className="w-full h-12 border-2 border-gray-300 bg-white hover:bg-gray-50 text-gray-700 font-semibold text-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
+            style={{ boxShadow: 'var(--shadow-button)' }}
           >
-            ⚙️ Ayarlar
+            ⚙️ Settings
           </Button>
           
           {/* How to Play Button */}
           <Button 
             onClick={() => handleUserInteraction(onHowToPlay)}
-            variant="outline" 
-            className="w-full border-2 border-secondary/30 hover:bg-secondary/10 font-semibold py-3 text-lg transition-all duration-200 hover:scale-105"
+            variant="outline"
+            className="w-full h-12 border-2 border-gray-300 bg-white hover:bg-gray-50 text-gray-700 font-semibold text-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
+            style={{ boxShadow: 'var(--shadow-button)' }}
           >
-            ❓ Nasıl Oynanır
+            ❓ How to Play
           </Button>
         </CardContent>
       </Card>
