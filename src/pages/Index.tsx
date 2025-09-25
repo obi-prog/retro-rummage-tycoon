@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useGameStore } from '@/store/gameStore';
 import { Shop } from '@/components/game/Shop';
-import { QuickDock } from '@/components/game/QuickDock';
 import { NavigationMenu } from '@/components/game/NavigationMenu';
 import { MainMenu } from '@/components/menus/MainMenu';
 import { Settings } from '@/components/menus/Settings';
@@ -258,9 +257,6 @@ const Index = () => {
             </div>
           </CardContent>
         </Card>
-
-        {/* Quick Access Dock */}
-        <QuickDock />
 
         {/* Main Game Interface - Single Screen */}
         <Shop />
