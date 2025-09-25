@@ -65,6 +65,15 @@ export default {
 				cash: {
 					green: 'hsl(var(--cash-green))'
 				},
+				professional: {
+					navy: 'hsl(var(--professional-navy))',
+					blue: 'hsl(var(--professional-blue))',
+					emerald: 'hsl(var(--professional-emerald))',
+					red: 'hsl(var(--professional-red))',
+					grey: 'hsl(var(--professional-grey))',
+					'light-grey': 'hsl(var(--professional-light-grey))',
+					'dark-grey': 'hsl(var(--professional-dark-grey))'
+				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',

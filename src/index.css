@@ -48,6 +48,15 @@ All colors MUST be HSL.
     --vintage-brown: 25 45% 35%;
     --cash-green: 120 55% 45%;
     
+    /* Professional trade colors */
+    --professional-navy: 210 25% 20%;
+    --professional-blue: 210 60% 35%;
+    --professional-emerald: 145 65% 40%;
+    --professional-red: 0 65% 45%;
+    --professional-grey: 210 10% 75%;
+    --professional-light-grey: 210 15% 95%;
+    --professional-dark-grey: 210 10% 25%;
+    
     /* Gradients */
     --gradient-retro: linear-gradient(135deg, hsl(var(--retro-orange)), hsl(var(--retro-pink)));
     --gradient-vintage: linear-gradient(135deg, hsl(var(--vintage-brown)), hsl(var(--secondary)));

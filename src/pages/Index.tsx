@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useGameStore } from '@/store/gameStore';
-import { Shop } from '@/components/game/Shop';
+import Shop from '@/components/game/Shop';
 import { NavigationMenu } from '@/components/game/NavigationMenu';
 import { MainMenu } from '@/components/menus/MainMenu';
 import { Settings } from '@/components/menus/Settings';

@@ -6,7 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Clock, Coins, Heart, Trophy, Star, Zap } from 'lucide-react';
 import { Inventory } from './Inventory';
-import { Shop } from './Shop';
+import Shop from './Shop';
 import { AppraisalTool } from './AppraisalTool';
 import { MissionsPanel } from './MissionsPanel';
 import { EventsPanel } from './EventsPanel';
