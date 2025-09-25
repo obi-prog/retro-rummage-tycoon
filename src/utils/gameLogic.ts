@@ -17,8 +17,8 @@ const customerAvatars = [
 ];
 
 const customerNames = [
-  'Ayşe', 'Mehmet', 'Fatma', 'Ali', 'Emine', 'Mustafa', 'Hatice', 'Ahmet', 'Zeynep', 'İbrahim',
-  'Elif', 'Ömer', 'Aynur', 'Hasan', 'Şerife', 'Süleyman', 'Meryem', 'Osman', 'Nurten', 'Recep'
+  'Alex', 'Sarah', 'Mike', 'Emma', 'David', 'Lisa', 'John', 'Amy', 'Chris', 'Kate',
+  'Tom', 'Jane', 'Ben', 'Lucy', 'Mark', 'Anna', 'Jack', 'Zoe', 'Sam', 'Maya'
 ];
 
 const generateRandomItem = (): Item => {
