@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { useSoundContext } from '@/contexts/SoundContext';
-import { Settings as SettingsIcon, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { t } from '@/utils/localization';
 
 const Index = () => {
@@ -151,7 +151,6 @@ const Index = () => {
                       className="px-3 py-1 text-xs font-medium border-primary/30 hover:bg-primary/10"
                       onClick={playClickSound}
                     >
-                      <SettingsIcon className="w-4 h-4" />
                       ⚙️
                     </Button>
                   </PopoverTrigger>

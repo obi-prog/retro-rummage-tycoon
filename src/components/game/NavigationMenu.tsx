@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { NotebookPen } from 'lucide-react';
 import { Inventory } from './Inventory';
 import { MissionsPanel } from './MissionsPanel';
 import { SkillsPanel } from './SkillsPanel';
@@ -20,7 +19,6 @@ export const NavigationMenu = ({ triggerButton }: NotebookMenuProps) => {
       variant="outline"
       className="px-3 py-1 text-xs font-medium border-primary/30 hover:bg-primary/10"
     >
-      <NotebookPen className="w-4 h-4 mr-1" />
       📓
     </Button>
   );
