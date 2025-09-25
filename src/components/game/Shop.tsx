@@ -137,45 +137,138 @@ export const Shop = () => {
   const [showSadCustomer, setShowSadCustomer] = useState(false);
   const [showSpeechBubble, setShowSpeechBubble] = useState(false);
   const [speechBubbleMessage, setSpeechBubbleMessage] = useState('');
+  
+  // New customer loading system
+  const [isLoadingNextCustomer, setIsLoadingNextCustomer] = useState(false);
+  const [nextCustomer, setNextCustomer] = useState<Customer | null>(null);
+  const [timeoutRefs, setTimeoutRefs] = useState<Set<NodeJS.Timeout>>(new Set());
+  const [lastPrefetchTime, setLastPrefetchTime] = useState(0);
+  const [offerCount, setOfferCount] = useState(0);
 
   const showCustomerSpeech = (message: string) => {
     setSpeechBubbleMessage(message);
     setShowSpeechBubble(true);
   };
 
-  // Auto-generate customer if none present and daily limit not reached
+  // Clear all timeouts on unmount
   useEffect(() => {
-    if (!currentCustomer && customersServed < dailyCustomerLimit) {
-      // If no inventory, force seller customer; otherwise random
-      const forceSellerIntent = inventory.length === 0;
-      const newCustomer = generateCustomer(forceSellerIntent);
-      setCurrentCustomer(newCustomer);
-      
-      if (newCustomer.intent === 'buy' && inventory.length > 0) {
-        const interestedItem = inventory[Math.floor(Math.random() * inventory.length)];
-        setSelectedItem(interestedItem);
-        
-        const itemValue = calculateItemValue(interestedItem);
-        const customerOffer = Math.max(10, generateCustomerInitialOffer(newCustomer, itemValue)); // Ensure minimum $10
-        setCurrentOffer(customerOffer);
-        const message = getInitialOfferMessage('buyer', interestedItem, customerOffer, language);
-        setCustomerResponse(message);
-        showCustomerSpeech(message);
-      } else if (newCustomer.intent === 'sell' && newCustomer.carriedItem) {
-        setSelectedItem(newCustomer.carriedItem);
-        const itemValue = calculateItemValue(newCustomer.carriedItem);
-        const customerAskingPrice = Math.max(10, Math.floor(itemValue * (0.8 + Math.random() * 0.3))); // Ensure minimum $10
-        setCurrentOffer(customerAskingPrice);
-        const message = getInitialOfferMessage('seller', newCustomer.carriedItem, customerAskingPrice, language);
-        setCustomerResponse(message);
-        showCustomerSpeech(message);
-      } else if (newCustomer.intent === 'buy' && inventory.length === 0) {
-        // This shouldn't happen with the new logic, but just in case
-        resetNegotiation();
-        return;
+    return () => {
+      timeoutRefs.forEach(timeout => clearTimeout(timeout));
+    };
+  }, [timeoutRefs]);
+
+  // Helper to add timeout with cleanup
+  const addTimeout = (callback: () => void, delay: number) => {
+    const timeout = setTimeout(() => {
+      callback();
+      setTimeoutRefs(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(timeout);
+        return newSet;
+      });
+    }, delay);
+    
+    setTimeoutRefs(prev => new Set(prev).add(timeout));
+    return timeout;
+  };
+
+  // Prefetch next customer in background
+  const prefetchNextCustomer = () => {
+    const now = Date.now();
+    // Debounce to prevent multiple calls within 500ms
+    if (now - lastPrefetchTime < 500) return;
+    
+    setLastPrefetchTime(now);
+    
+    if (!nextCustomer && customersServed < dailyCustomerLimit - 1) {
+      try {
+        const forceSellerIntent = inventory.length === 0;
+        const newCustomer = generateCustomer(forceSellerIntent);
+        setNextCustomer(newCustomer);
+      } catch (error) {
+        console.warn('Failed to prefetch next customer:', error);
       }
     }
-  }, [currentCustomer, customersServed, dailyCustomerLimit, inventory, setCurrentCustomer]);
+  };
+
+  // Show next customer with controlled timing
+  const showNextCustomer = () => {
+    if (isLoadingNextCustomer) return; // Prevent multiple calls
+    
+    setIsLoadingNextCustomer(true);
+    
+    // Random delay between 300-900ms, with 1200ms timeout guard
+    const delay = Math.random() * 600 + 300; // 300-900ms
+    const timeoutGuard = 1200;
+    
+    const delayPromise = new Promise(resolve => addTimeout(resolve as () => void, delay));
+    const timeoutPromise = new Promise(resolve => addTimeout(resolve as () => void, timeoutGuard));
+    
+    Promise.race([delayPromise, timeoutPromise]).then(() => {
+      try {
+        let customerToShow = nextCustomer;
+        
+        // Fallback if no prefetched customer
+        if (!customerToShow && customersServed < dailyCustomerLimit) {
+          const forceSellerIntent = inventory.length === 0;
+          customerToShow = generateCustomer(forceSellerIntent);
+        }
+        
+        if (customerToShow) {
+          setCurrentCustomer(customerToShow);
+          setNextCustomer(null);
+          setOfferCount(0);
+          
+          // Setup new customer's item and offer
+          if (customerToShow.intent === 'buy' && inventory.length > 0) {
+            const interestedItem = inventory[Math.floor(Math.random() * inventory.length)];
+            setSelectedItem(interestedItem);
+            
+            const itemValue = calculateItemValue(interestedItem);
+            const customerOffer = Math.max(10, generateCustomerInitialOffer(customerToShow, itemValue));
+            setCurrentOffer(customerOffer);
+            const message = getInitialOfferMessage('buyer', interestedItem, customerOffer, language);
+            setCustomerResponse(message);
+            showCustomerSpeech(message);
+          } else if (customerToShow.intent === 'sell' && customerToShow.carriedItem) {
+            setSelectedItem(customerToShow.carriedItem);
+            const itemValue = calculateItemValue(customerToShow.carriedItem);
+            const customerAskingPrice = Math.max(10, Math.floor(itemValue * (0.8 + Math.random() * 0.3)));
+            setCurrentOffer(customerAskingPrice);
+            const message = getInitialOfferMessage('seller', customerToShow.carriedItem, customerAskingPrice, language);
+            setCustomerResponse(message);
+            showCustomerSpeech(message);
+          }
+        }
+      } catch (error) {
+        console.error('Error showing next customer:', error);
+        toast({
+          title: "Yeni müşteri hazır.",
+          description: "Bir sonraki müşteri dükkana geldi."
+        });
+      } finally {
+        setIsLoadingNextCustomer(false);
+      }
+    });
+  };
+
+  // Common handler after deal resolution
+  const onDealResolved = (responseMessage: string, delay: number = 1500) => {
+    // Prefetch next customer immediately
+    prefetchNextCustomer();
+    
+    // Show response message for specified time
+    addTimeout(() => {
+      showNextCustomer();
+    }, delay);
+  };
+
+  // Auto-generate customer if none present and daily limit not reached
+  useEffect(() => {
+    if (!currentCustomer && !isLoadingNextCustomer && customersServed < dailyCustomerLimit) {
+      showNextCustomer();
+    }
+  }, [currentCustomer, isLoadingNextCustomer, customersServed, dailyCustomerLimit]);
 
   const resetNegotiation = () => {
     setCurrentCustomer(null);
@@ -187,6 +280,7 @@ export const Shop = () => {
     setCustomerFrustration(0);
     setShowSpeechBubble(false);
     setSpeechBubbleMessage('');
+    setOfferCount(0);
     serveCustomer(); // Increment customer counter
   };
 
@@ -196,6 +290,9 @@ export const Shop = () => {
     const itemValue = calculateItemValue(selectedItem);
     setTempOffer(Math.max(10, Math.floor(itemValue * 0.8))); // Start with 80% of market value, minimum $10
     setShowOfferModal(true);
+    
+    // Prefetch next customer during negotiation
+    prefetchNextCustomer();
   };
 
   const handleSubmitOffer = () => {
@@ -325,62 +422,16 @@ export const Shop = () => {
     setShowOfferModal(false);
     
     if (shouldAccept) {
-      setTimeout(() => {
-        if (currentCustomer.intent === 'buy') {
-          sellItem(item, tempOffer);
+      // Process the transaction immediately
+      if (currentCustomer.intent === 'buy') {
+        sellItem(item, tempOffer);
+        updateReputation(2);
+        updateTrust(1);
+      } else {
+        if (buyItem(item, tempOffer)) {
           updateReputation(2);
           updateTrust(1);
         } else {
-          if (buyItem(item, tempOffer)) {
-            updateReputation(2);
-            updateTrust(1);
-          } else {
-            toast({
-              title: "Yetersiz Para",
-              description: "Bu teklifi karşılayacak paranız yok.",
-              variant: "destructive",
-            });
-          }
-        }
-        toast({
-          title: currentCustomer.intent === 'buy' ? 'Satış Tamamlandı' : 'Satın Alma Tamamlandı',
-          description: currentCustomer.intent === 'buy' 
-            ? `$${tempOffer} karşılığında satıldı.` 
-            : `$${tempOffer} karşılığında satın alındı.`,
-        });
-        resetNegotiation();
-      }, 1500);
-    } else if (customerFrustration >= 3) {
-      setTimeout(() => {
-        toast({
-          title: "Müşteri Çekti Gitti! 😤",
-          description: "Müşteri pazarlığı beğenmedi ve gitti.",
-          variant: "destructive",
-        });
-        resetNegotiation();
-      }, 2000);
-    }
-  };
-
-  const handleAcceptOffer = () => {
-    if (!currentCustomer || !selectedItem) return;
-    
-    // Show success animation first
-    setShowSuccessEffect(true);
-    const acceptMessage = getRandomMessage(currentCustomer.intent === 'buy' ? 'buyer' : 'seller', 'accept', language);
-    setCustomerResponse(acceptMessage);
-    showCustomerSpeech(acceptMessage);
-    
-    setTimeout(() => {
-      setShowSuccessEffect(false);
-      
-      if (currentCustomer.intent === 'buy') {
-        // Müşteri bizden alıyor -> kasaya para girer
-        sellItem(selectedItem, currentOffer);
-        updateReputation(1);
-      } else {
-        // Müşteri bize satıyor -> kasadan para çıkar
-        if (!buyItem(selectedItem, currentOffer)) {
           toast({
             title: "Yetersiz Para",
             description: "Bu teklifi karşılayacak paranız yok.",
@@ -388,13 +439,73 @@ export const Shop = () => {
           });
           return;
         }
-        updateReputation(1);
       }
+      
+      addTimeout(() => {
+        toast({
+          title: currentCustomer.intent === 'buy' ? 'Satış Tamamlandı' : 'Satın Alma Tamamlandı',
+          description: currentCustomer.intent === 'buy' 
+            ? `$${tempOffer} karşılığında satıldı.` 
+            : `$${tempOffer} karşılığında satın alındı.`,
+        });
+        resetNegotiation();
+        onDealResolved(response, 400); // Quick transition after accepted negotiation
+      }, 1500);
+    } else if (customerFrustration >= 3) {
+      addTimeout(() => {
+        toast({
+          title: "Müşteri Çekti Gitti! 😤",
+          description: "Müşteri pazarlığı beğenmedi ve gitti.",
+          variant: "destructive",
+        });
+        resetNegotiation();
+        onDealResolved("😤", 600); // Medium transition after frustration
+      }, 2000);
+    }
+  };
+
+  const handleAcceptOffer = () => {
+    if (!currentCustomer || !selectedItem) return;
+    
+    // Prefetch next customer immediately
+    prefetchNextCustomer();
+    
+    // Show success animation first
+    setShowSuccessEffect(true);
+    const acceptMessage = getRandomMessage(currentCustomer.intent === 'buy' ? 'buyer' : 'seller', 'accept', language);
+    setCustomerResponse(acceptMessage);
+    showCustomerSpeech(acceptMessage);
+    
+    // Process the transaction
+    if (currentCustomer.intent === 'buy') {
+      // Müşteri bizden alıyor -> kasaya para girer
+      sellItem(selectedItem, currentOffer);
+      updateReputation(1);
+    } else {
+      // Müşteri bize satıyor -> kasadan para çıkar
+      if (!buyItem(selectedItem, currentOffer)) {
+        toast({
+          title: "Yetersiz Para",
+          description: "Bu teklifi karşılayacak paranız yok.",
+          variant: "destructive",
+        });
+        setShowSuccessEffect(false);
+        return;
+      }
+      updateReputation(1);
+    }
+    
+    addTimeout(() => {
+      setShowSuccessEffect(false);
       resetNegotiation();
+      onDealResolved(acceptMessage, 300); // Fast transition after successful deal
     }, 1200);
   };
 
   const handleRejectOffer = () => {
+    // Prefetch next customer immediately  
+    prefetchNextCustomer();
+    
     // Show rejection effects first
     setShowRejectEffect(true);
     setShowSadCustomer(true);
@@ -402,7 +513,7 @@ export const Shop = () => {
     setCustomerResponse(rejectMessage);
     showCustomerSpeech(rejectMessage);
     
-    setTimeout(() => {
+    addTimeout(() => {
       setShowRejectEffect(false);
       setShowSadCustomer(false);
       
@@ -411,6 +522,7 @@ export const Shop = () => {
         description: "Müşteri dükkânı terk etti.",
       });
       resetNegotiation();
+      onDealResolved(rejectMessage, 400); // Quick transition after rejection
     }, 1500);
   };
 
@@ -450,6 +562,24 @@ export const Shop = () => {
             >
               🏪 Yeni Güne Başla
             </Button>
+          </CardContent>
+        </Card>
+      );
+    }
+    
+    if (isLoadingNextCustomer) {
+      return (
+        <Card className="w-full max-w-sm mx-auto mt-4 border-2 border-primary/20">
+          <CardContent className="p-6 text-center">
+            <div className="space-y-4">
+              <div className="text-4xl animate-pulse">🤔</div>
+              <p className="text-sm text-muted-foreground font-medium">Müşteri ürün seçiyor...</p>
+              {/* Skeleton animation */}
+              <div className="space-y-2">
+                <div className="h-3 bg-gradient-to-r from-muted/30 via-muted/60 to-muted/30 rounded animate-pulse"></div>
+                <div className="h-3 bg-gradient-to-r from-muted/30 via-muted/60 to-muted/30 rounded animate-pulse w-3/4 mx-auto"></div>
+              </div>
+            </div>
           </CardContent>
         </Card>
       );
