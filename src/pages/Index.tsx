@@ -44,6 +44,14 @@ const Index = () => {
   const [currentView, setCurrentView] = useState<'menu' | 'game' | 'settings' | 'howtoplay'>('menu');
   const [settingsOpen, setSettingsOpen] = useState(false);
 
+  // Auto-load saved game on mount
+  useEffect(() => {
+    if (hasSavedGame()) {
+      // Silently show that there's a saved game available
+      // User can choose to continue or start new
+    }
+  }, []);
+
   const handleStartGame = () => {
     initGame();
     setGameStarted(true);

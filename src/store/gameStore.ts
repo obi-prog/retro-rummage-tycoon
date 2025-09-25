@@ -41,6 +41,7 @@ interface GameStore extends GameState {
   saveGameState: () => boolean;
   loadGameState: () => boolean;
   hasSavedGame: () => boolean;
+  autoSave: () => void;
 }
 
 const getDailyCustomerLimitByLevel = (level: number): number => {
@@ -266,6 +267,9 @@ export const useGameStore = create<GameStore>()((set, get) => ({
         }
       };
     });
+    
+    // Auto-save after selling
+    setTimeout(() => get().autoSave(), 100);
   },
 
   buyItem: (item: Item, price: number) => {
@@ -304,6 +308,9 @@ export const useGameStore = create<GameStore>()((set, get) => ({
           }
         };
       });
+      
+      // Auto-save after buying
+      setTimeout(() => get().autoSave(), 100);
       return true;
     } else {
       // Emit error sound for insufficient funds
@@ -813,5 +820,19 @@ export const useGameStore = create<GameStore>()((set, get) => ({
 
   hasSavedGame: () => {
     return hasSavedGame();
-  }
+  },
+
+  // Auto-save with debouncing to prevent excessive saves
+  autoSave: (() => {
+    let timeoutId: NodeJS.Timeout | null = null;
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        const state = get();
+        if (state.day > 1 || state.cash !== 10000) { // Only auto-save if game has been played
+          state.saveGameState();
+        }
+      }, 1000); // Debounce for 1 second
+    };
+  })()
 }));
