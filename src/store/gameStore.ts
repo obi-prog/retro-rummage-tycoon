@@ -28,6 +28,8 @@ interface GameStore extends GameState {
   claimMissionReward: (missionId: string) => void;
   upgradeSkill: (skillId: string) => void;
   processNegotiation: (success: boolean) => void;
+  updateQuestSuccessStreak: (success: boolean) => void;
+  regenerateQuestsIfNeeded: () => void;
   detectFakeItem: () => void;
   dismissEvent: (eventId: string) => void;
   triggerRandomEvent: () => void;
@@ -123,6 +125,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
   trust: 50,
   day: 1,
   timeLeft: 0, // No timer - use customer counter instead
+  dailySuccessStreak: 0,
   inventory: generateStartingItems(),
   shopItems: [],
   events: [],
@@ -426,17 +429,18 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       // Auto-save after advancing day
       setTimeout(() => {
         const currentState = get();
-        const gameState: GameState = {
-          level: currentState.level,
-          cash: currentState.cash,
-          reputation: currentState.reputation,
-          trust: currentState.trust,
-          day: currentState.day,
-          timeLeft: currentState.timeLeft,
-          inventory: currentState.inventory,
-          shopItems: currentState.shopItems,
-          events: currentState.events,
-          trends: currentState.trends,
+      const gameState: GameState = {
+        level: currentState.level,
+        cash: currentState.cash,
+        reputation: currentState.reputation,
+        trust: currentState.trust,
+        day: currentState.day,
+        timeLeft: currentState.timeLeft,
+        inventory: currentState.inventory,
+        shopItems: currentState.shopItems,
+        events: currentState.events,
+        trends: currentState.trends,
+        dailySuccessStreak: currentState.dailySuccessStreak,
           dailyExpenses: currentState.dailyExpenses,
           language: currentState.language,
           experience: currentState.experience,
@@ -786,6 +790,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       skillPoints: state.skillPoints,
       missions: state.missions,
       completedMissions: state.completedMissions,
+      dailySuccessStreak: state.dailySuccessStreak,
       playerSkills: state.playerSkills,
       lastEventDay: state.lastEventDay,
       negotiationCount: state.negotiationCount,
@@ -812,6 +817,39 @@ export const useGameStore = create<GameStore>()((set, get) => ({
 
   hasSavedGame: () => {
     return hasSavedGame();
+  },
+
+  updateQuestSuccessStreak: (success: boolean) => {
+    set((state) => ({
+      dailySuccessStreak: success 
+        ? Math.max(0, state.dailySuccessStreak + 1)
+        : Math.min(0, state.dailySuccessStreak - 1)
+    }));
+  },
+
+  regenerateQuestsIfNeeded: () => {
+    const state = get();
+    const playerState = {
+      level: state.level,
+      cash: state.cash,
+      reputation: state.reputation,
+      inventorySize: state.inventory.length,
+      unlocks: ['cassette_record', 'walkman_electronics', 'watch', 'toy', 'comic', 'poster', 'camera', 'rarePool'],
+      dailySuccessStreak: state.dailySuccessStreak
+    };
+
+    // Regenerate daily missions
+    const newDailyMissions = generateDailyMissions(state.level, playerState);
+    const newWeeklyMissions = generateWeeklyMissions(state.level, playerState);
+    
+    // Filter out non-daily/weekly missions and add new ones
+    const updatedMissions = [
+      ...state.missions.filter(m => m.type !== 'daily' && m.type !== 'weekly'),
+      ...newDailyMissions,
+      ...newWeeklyMissions
+    ];
+
+    set({ missions: updatedMissions });
   },
 
   // Auto-save with debouncing to prevent excessive saves

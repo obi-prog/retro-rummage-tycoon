@@ -4,23 +4,44 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { t } from '@/utils/localization';
+import { QuestTooltip } from './QuestTooltip';
+import { toast } from 'sonner';
+import { RefreshCw } from 'lucide-react';
 
 export const MissionsPanel = () => {
-  const { missions, completedMissions, claimMissionReward, language } = useGameStore();
+  const { missions, completedMissions, claimMissionReward, language, level, regenerateQuestsIfNeeded } = useGameStore();
 
   const activeMissions = missions.filter(m => !completedMissions.includes(m.id));
   const readyToClaim = missions.filter(m => m.completed && !completedMissions.includes(m.id));
+
+  const handleRegenerateQuests = () => {
+    regenerateQuestsIfNeeded();
+    toast.success("Görevler yeniden belirlendi", {
+      description: "Seviyenize uygun yeni görevler oluşturuldu"
+    });
+  };
 
   return (
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold text-gray-800">Görevler</h2>
-        {readyToClaim.length > 0 && (
-          <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white animate-pulse border-0">
-            {readyToClaim.length} ödül bekliyor! 🎁
-          </Badge>
-        )}
+        <div className="flex items-center gap-2">
+          {readyToClaim.length > 0 && (
+            <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white animate-pulse border-0">
+              {readyToClaim.length} ödül bekliyor! 🎁
+            </Badge>
+          )}
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleRegenerateQuests}
+            className="h-8 px-3 text-xs hover:bg-purple-50"
+          >
+            <RefreshCw className="w-3 h-3 mr-1" />
+            Yenile
+          </Button>
+        </div>
       </div>
 
       {/* Mission Cards */}
@@ -33,10 +54,10 @@ export const MissionsPanel = () => {
           </div>
         ) : (
           activeMissions.map(mission => (
-            <Card 
-              key={mission.id} 
-              className="group hover:shadow-xl transition-all duration-300 bg-gradient-to-r from-white to-purple-50/50 border-purple-200/50 min-h-[44px]"
-            >
+            <QuestTooltip key={mission.id} playerLevel={level}>
+              <Card 
+                className="group hover:shadow-xl transition-all duration-300 bg-gradient-to-r from-white to-purple-50/50 border-purple-200/50 min-h-[44px]"
+              >
               <CardContent className="p-4">
                 <div className="space-y-3">
                   {/* Mission Header */}
@@ -50,10 +71,14 @@ export const MissionsPanel = () => {
                           className={`text-xs font-medium ${
                             mission.type === 'daily' 
                               ? 'bg-gradient-to-r from-green-500 to-teal-500 text-white border-0' 
-                              : 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white border-0'
+                              : mission.type === 'weekly'
+                              ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white border-0'
+                              : mission.type === 'main'
+                              ? 'bg-gradient-to-r from-purple-500 to-violet-500 text-white border-0'
+                              : 'bg-gradient-to-r from-red-500 to-pink-500 text-white border-0'
                           }`}
                         >
-                          {mission.type === 'daily' ? 'Günlük' : 'Haftalık'}
+                          {mission.type === 'daily' ? 'Günlük' : mission.type === 'weekly' ? 'Haftalık' : mission.type === 'main' ? 'Ana' : mission.type === 'challenge' ? 'Meydan Okuma' : 'Başarım'}
                         </Badge>
                       </div>
                       <p className="text-sm text-gray-600">{mission.description}</p>
@@ -103,7 +128,8 @@ export const MissionsPanel = () => {
                   )}
                 </div>
               </CardContent>
-            </Card>
+              </Card>
+            </QuestTooltip>
           ))
         )}
       </div>

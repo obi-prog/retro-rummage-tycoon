@@ -1,22 +1,57 @@
 import { Mission, MissionRequirement } from '@/types/missions';
+import { generateAdaptiveQuest, rerollQuest, LEVEL_CONFIGS } from '@/utils/adaptiveQuests';
 
-export const generateDailyMissions = (level: number): Mission[] => {
+export const generateDailyMissions = (level: number, playerState?: any): Mission[] => {
   const dailyMissions: Mission[] = [];
   
-  // Level 1-3: Basic missions (3 daily missions)
-  if (level <= 3) {
+  // Create default player state if not provided
+  const defaultPlayerState = {
+    level,
+    cash: 10000,
+    reputation: 10,
+    inventorySize: 10,
+    unlocks: ['cassette_record', 'walkman_electronics', 'watch', 'toy', 'comic', 'poster', 'camera'],
+    dailySuccessStreak: 0
+  };
+  
+  const player = playerState || defaultPlayerState;
+  
+  // Generate adaptive quests based on level
+  const questTemplates = ['daily_basic_sales', 'daily_profit'];
+  
+  // Add rare item quest for level 4+
+  if (level >= 4) {
+    questTemplates.push('daily_rare');
+  }
+  
+  // Generate quests
+  for (const template of questTemplates) {
+    const quest = generateAdaptiveQuest('daily', template, player);
+    if (quest) {
+      dailyMissions.push(quest);
+    } else {
+      // Try to reroll
+      const rerolledQuest = rerollQuest('daily', player);
+      if (rerolledQuest) {
+        dailyMissions.push(rerolledQuest);
+      }
+    }
+  }
+  
+  // Fallback: Generate at least one mission
+  if (dailyMissions.length === 0) {
     dailyMissions.push(
       {
-        id: 'daily_sales_basic',
+        id: 'daily_sales_fallback',
         title: 'Günlük Satış',
-        description: `${2 + level} ürün sat`,
+        description: `3 ürün sat`,
         type: 'daily' as const,
-        requirements: [{ type: 'sell_items' as const, target: 2 + level, current: 0 }],
+        requirements: [{ type: 'sell_items' as const, target: 3, current: 0 }],
         rewards: [{ type: 'cash', amount: 50 * level }, { type: 'experience', amount: 25 }],
         progress: 0,
-        maxProgress: 2 + level,
+        maxProgress: 3,
         completed: false,
-        level: 1
+        level
       },
       {
         id: 'daily_cash_basic',
@@ -169,14 +204,43 @@ export const generateDailyMissions = (level: number): Mission[] => {
   return dailyMissions;
 };
 
-export const generateWeeklyMissions = (level: number): Mission[] => {
+export const generateWeeklyMissions = (level: number, playerState?: any): Mission[] => {
   const weeklyMissions: Mission[] = [];
   
-  // Level 1-2: Beginner weekly missions
-  if (level <= 2) {
+  // Create default player state if not provided
+  const defaultPlayerState = {
+    level,
+    cash: 10000,
+    reputation: 10,
+    inventorySize: 10,
+    unlocks: ['cassette_record', 'walkman_electronics', 'watch', 'toy', 'comic', 'poster', 'camera'],
+    dailySuccessStreak: 0
+  };
+  
+  const player = playerState || defaultPlayerState;
+  
+  // Generate adaptive weekly quests
+  const questTemplates = ['weekly_sales', 'weekly_profit'];
+  
+  // Generate quests
+  for (const template of questTemplates) {
+    const quest = generateAdaptiveQuest('weekly', template, player);
+    if (quest) {
+      weeklyMissions.push(quest);
+    } else {
+      // Try to reroll
+      const rerolledQuest = rerollQuest('weekly', player);
+      if (rerolledQuest) {
+        weeklyMissions.push(rerolledQuest);
+      }
+    }
+  }
+  
+  // Fallback: Generate at least one mission
+  if (weeklyMissions.length === 0) {
     weeklyMissions.push(
       {
-        id: 'weekly_sales_beginner',
+        id: 'weekly_sales_fallback',
         title: 'Haftalık Satış Hedefi',
         description: '15 ürün sat',
         type: 'weekly' as const,
@@ -185,7 +249,7 @@ export const generateWeeklyMissions = (level: number): Mission[] => {
         progress: 0,
         maxProgress: 15,
         completed: false,
-        level: 1
+        level
       },
       {
         id: 'weekly_cash_beginner',

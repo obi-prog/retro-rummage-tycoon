@@ -71,6 +71,7 @@ export interface GameState {
   customersServed: number;
   dailyCustomerLimit: number;
   dailyStats: DailyStats;
+  dailySuccessStreak: number;
   // Financial tracking
   financialRecords: FinancialRecord[];
   dailyFinancials: DailyFinancials[];
@@ -130,6 +131,9 @@ export interface LevelConfig {
   reputationTarget: number;
   specialGoal: string;
   unlocks: string[];
+  minCustomers: number;
+  maxCustomers: number;
+  baseProfit: number;
   difficulty: {
     fakeChance: number;
     customerPatience: number;

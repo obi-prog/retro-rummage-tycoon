@@ -2,7 +2,7 @@ export interface Mission {
   id: string;
   title: string;
   description: string;
-  type: 'daily' | 'weekly' | 'achievement';
+  type: 'daily' | 'weekly' | 'achievement' | 'main' | 'challenge';
   requirements: MissionRequirement[];
   rewards: MissionReward[];
   progress: number;
