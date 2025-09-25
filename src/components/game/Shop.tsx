@@ -12,6 +12,7 @@ import { toast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Minus, Plus } from 'lucide-react';
 import { SpeechBubble } from '@/components/ui/SpeechBubble';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 // Comprehensive buyer-seller dialogue system
 const dialoguePools = {
@@ -111,6 +112,21 @@ export const Shop = () => {
   const [lastPrefetchTime, setLastPrefetchTime] = useState(0);
   const [offerCount, setOfferCount] = useState(0);
   const [currentCustomer, setCurrentCustomer] = useState<Customer | null>(null);
+
+  // Get level-based background color
+  const getLevelBgColor = (level: number) => {
+    const colors = [
+      'bg-gradient-to-br from-slate-50 to-blue-50',     // Level 1
+      'bg-gradient-to-br from-blue-50 to-indigo-50',    // Level 2
+      'bg-gradient-to-br from-indigo-50 to-purple-50',  // Level 3
+      'bg-gradient-to-br from-purple-50 to-pink-50',    // Level 4
+      'bg-gradient-to-br from-pink-50 to-rose-50',      // Level 5
+      'bg-gradient-to-br from-rose-50 to-orange-50',    // Level 6
+      'bg-gradient-to-br from-orange-50 to-yellow-50',  // Level 7
+      'bg-gradient-to-br from-yellow-50 to-green-50',   // Level 8+
+    ];
+    return colors[Math.min(level - 1, colors.length - 1)];
+  };
 
   const showCustomerSpeech = (message: string) => {
     setSpeechBubbleMessage(message);
@@ -402,300 +418,405 @@ export const Shop = () => {
     if (currentCustomer.intent === 'buy') {
       // Müşteri bizden alıyor -> kasaya para girer
       sellItem(selectedItem, currentOffer);
-      updateReputation(1);
+      toast({
+        title: "Satış Başarılı! 💰",
+        description: `${selectedItem.name} $${currentOffer}'a satıldı!`,
+      });
     } else {
       // Müşteri bize satıyor -> kasadan para çıkar
-      if (!buyItem(selectedItem, currentOffer)) {
+      if (cash >= currentOffer) {
+        buyItem(selectedItem, currentOffer);
         toast({
-          title: "Yetersiz Para",
-          description: "Bu teklifi karşılayacak paranız yok.",
-          variant: "destructive",
+          title: "Alış Başarılı! 📦",
+          description: `${selectedItem.name} $${currentOffer}'a alındı!`,
         });
-        setShowSuccessEffect(false);
+      } else {
+        toast({
+          title: "Yetersiz Para!",
+          description: "Bu alış için yeterli paranız yok.",
+          variant: "destructive"
+        });
         return;
       }
-      updateReputation(1);
     }
     
+    // Schedule customer reset
     addTimeout(() => {
-      setShowSuccessEffect(false);
-      toast({
-        title: currentCustomer.intent === 'buy' ? 'Satış Tamamlandı! 💵' : 'Satın Alma Tamamlandı! 📦',
-        description: currentCustomer.intent === 'buy' 
-          ? `$${currentOffer} karşılığında satıldı.` 
-          : `$${currentOffer} karşılığında satın alındı.`,
-      });
       resetNegotiation();
-      onDealResolved(acceptMessage, 600); // Quick transition after successful deal
-    }, 1500);
+    }, 2000);
   };
 
   const handleRejectOffer = () => {
     if (!currentCustomer) return;
     
-    const rejectMessage = getRandomMessage(currentCustomer.intent === 'buy' ? 'buyer' : 'seller', 'reject', language);
-    setCustomerResponse(`😞 ${rejectMessage}`);
-    showCustomerSpeech(`😞 ${rejectMessage}`);
-    updateReputation(-1);
+    const rejectMessage = getRandomMessage(
+      currentCustomer.intent === 'buy' ? 'buyer' : 'seller', 
+      'reject', 
+      language
+    );
+    setCustomerResponse(`😔 ${rejectMessage}`);
+    showCustomerSpeech(`😔 ${rejectMessage}`);
+    updateReputation(-0.5);
     
     addTimeout(() => {
-      toast({
-        title: "Anlaşma Olmadı 😞",
-        description: "Müşteri teklifinizi reddetti.",
-        variant: "destructive",
-      });
       resetNegotiation();
-      onDealResolved("😞", 800); // Medium transition after rejection
-    }, 2000);
+    }, 1500);
   };
 
   const adjustOffer = (amount: number) => {
-    setTempOffer(prev => Math.max(1, prev + amount));
+    setTempOffer(Math.max(10, tempOffer + amount));
   };
+
+  // Dükkan kapalı
+  if (customersServed >= dailyCustomerLimit) {
+    return (
+      <div className={`min-h-screen flex items-center justify-center ${getLevelBgColor(level)}`}>
+        <div className="text-center p-8 bg-card rounded-xl shadow-lg max-w-sm mx-4">
+          <h2 className="text-2xl font-bold text-foreground mb-4">
+            🏪 Dükkan Kapalı
+          </h2>
+          <p className="text-muted-foreground">
+            Günlük müşteri limiti ({dailyCustomerLimit}) doldu. Yarın tekrar gelin!
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Loading state
+  if (isLoadingNextCustomer) {
+    return (
+      <div className={`min-h-screen flex items-center justify-center ${getLevelBgColor(level)}`}>
+        <div className="text-center p-8 bg-card rounded-xl shadow-lg max-w-sm mx-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Yeni müşteri geliyor...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Waiting for customer
+  if (!currentCustomer) {
+    return (
+      <div className={`min-h-screen flex items-center justify-center ${getLevelBgColor(level)}`}>
+        <div className="text-center p-8 bg-card rounded-xl shadow-lg max-w-sm mx-4">
+          <h2 className="text-xl font-semibold text-foreground mb-4">
+            ⏳ Müşteri Bekleniyor
+          </h2>
+          <p className="text-muted-foreground">
+            Müşteri: {customersServed} / {dailyCustomerLimit}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const getCustomerTypeDisplay = (type: string) => {
-    const types = {
-      'collector': { tr: 'Koleksiyoner', trait: 'Kaliteli' },
-      'student': { tr: 'Öğrenci', trait: 'Bütçeli' },
-      'trader': { tr: 'Tüccar', trait: 'Pazarlıkçı' },
-      'nostalgic': { tr: 'Nostaljik', trait: 'Duygusal' },
-      'hunter': { tr: 'Avcı', trait: 'Hızlı' },
-      'tourist': { tr: 'Turist', trait: 'Acemi' },
-      'expert': { tr: 'Uzman', trait: 'Çok Bilgili' }
+    const typeMap: Record<string, { label: string; color: string }> = {
+      'Duygusal': { label: '💭 Duygusal', color: 'bg-retro-pink/20 text-retro-pink border-retro-pink/30' },
+      'Nostaljik': { label: '🎭 Nostaljik', color: 'bg-retro-purple/20 text-retro-purple border-retro-purple/30' },
+      'Pratik': { label: '⚡ Pratik', color: 'bg-retro-cyan/20 text-retro-cyan border-retro-cyan/30' },
+      'Koleksiyoncu': { label: '🎯 Koleksiyoncu', color: 'bg-cash-green/20 text-cash-green border-cash-green/30' },
+      'Pazarlıkçı': { label: '💼 Pazarlıkçı', color: 'bg-retro-orange/20 text-retro-orange border-retro-orange/30' },
+      'Aceleyle': { label: '⏰ Aceleyle', color: 'bg-destructive/20 text-destructive border-destructive/30' },
+      'Titiz': { label: '🔍 Titiz', color: 'bg-retro-yellow/20 text-retro-yellow border-retro-yellow/30' }
     };
-    return types[type] || { tr: type, trait: 'Normal' };
+    return typeMap[type] || { label: type, color: 'bg-muted text-muted-foreground' };
   };
 
-  // No customer or day limit reached
-  if (!currentCustomer) {
-    if (customersServed >= dailyCustomerLimit) {
-      return (
-        <Card className="w-full max-w-sm mx-auto mt-4 bg-gradient-to-r from-orange-100 to-pink-100 dark:from-orange-900/20 dark:to-pink-900/20 border-orange-300">
-          <CardHeader>
-            <CardTitle className="text-center">🌅 Dükkan Kapandı!</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 text-center">
-            <p className="text-sm text-muted-foreground">
-              Dükkan kapandı, yarın tekrar açılıyor.
-            </p>
-            <Button onClick={() => window.location.reload()}>
-              🏪 Yeni Güne Başla
-            </Button>
-          </CardContent>
-        </Card>
-      );
-    }
-    
-    if (isLoadingNextCustomer) {
-      return (
-        <Card className="w-full max-w-sm mx-auto mt-4 border-2 border-primary/20">
-          <CardContent className="p-6 text-center">
-            <div className="space-y-4">
-              <div className="text-4xl animate-pulse">🤔</div>
-              <p className="text-sm text-muted-foreground font-medium">Müşteri ürün seçiyor...</p>
-              {/* Skeleton animation */}
-              <div className="space-y-2">
-                <div className="h-3 bg-gradient-to-r from-muted/30 via-muted/60 to-muted/30 rounded animate-pulse"></div>
-                <div className="h-3 bg-gradient-to-r from-muted/30 via-muted/60 to-muted/30 rounded animate-pulse w-3/4 mx-auto"></div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      );
-    }
-    
-    return (
-      <Card className="w-full max-w-sm mx-auto mt-4">
-        <CardContent className="p-6 text-center">
-          <div className="text-4xl mb-2">⏳</div>
-          <p className="text-sm text-muted-foreground">Müşteri bekleniyor...</p>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (!selectedItem) {
-    return (
-      <Card className="w-full max-w-sm mx-auto mt-4">
-        <CardContent className="p-6 text-center">
-          <div className="text-4xl mb-2">🤔</div>
-          <p className="text-sm text-muted-foreground">Müşteri ürün seçiyor...</p>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  const customerTypeInfo = getCustomerTypeDisplay(currentCustomer.type);
-  const itemValue = calculateItemValue(selectedItem);
-
   return (
-    <div className="w-full max-w-sm mx-auto space-y-4 relative">
-      {/* Success Effect - Flying Money */}
+    <div className={`min-h-screen ${getLevelBgColor(level)} p-4`}>
+      {/* Success effect overlay */}
       {showSuccessEffect && (
-        <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
-          <div className="animate-bounce">
-            <div className="text-6xl animate-pulse">💵</div>
-          </div>
-          <div className="absolute animate-[fade-in_0.3s_ease-out,slide-in-right_1s_ease-out] delay-200">
-            <div className="text-4xl">💵</div>
-          </div>
-          <div className="absolute animate-[fade-in_0.3s_ease-out,slide-in-left_1s_ease-out] delay-500">
-            <div className="text-3xl">💰</div>
-          </div>
+        <div className="fixed inset-0 bg-cash-green/20 z-50 flex items-center justify-center animate-pulse">
+          <div className="text-6xl animate-bounce">💰</div>
         </div>
       )}
 
-      {/* Speech Bubble */}
-      {showSpeechBubble && (
+      {/* Top Header Bar */}
+      <div className="max-w-md mx-auto mb-4">
+        <div className="bg-card/80 backdrop-blur-sm rounded-xl p-4 shadow-lg border">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <span className="text-cash-green text-lg">💵</span>
+              <span className="font-bold text-xl text-foreground">${cash.toLocaleString()}</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span className="text-retro-orange">⭐</span>
+              <span className="font-semibold text-lg text-foreground">Lv {level}</span>
+            </div>
+            <div className="text-sm text-muted-foreground">
+              {customersServed}/{dailyCustomerLimit}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-md mx-auto space-y-4">
+        {/* Customer Card */}
+        <div className="bg-card rounded-xl shadow-lg border overflow-hidden">
+          <div className="p-6">
+            <div className="flex items-start space-x-4">
+              {/* Large Customer Avatar */}
+              <div className="flex-shrink-0">
+                <Avatar className="w-24 h-24 border-4 border-border">
+                  <AvatarImage src={currentCustomer.avatar || ''} alt={currentCustomer.name} />
+                  <AvatarFallback className="text-2xl">{currentCustomer.name.charAt(0)}</AvatarFallback>
+                </Avatar>
+                {/* Role Badge */}
+                <div className="mt-2 text-center">
+                  {currentCustomer.intent === 'buy' ? (
+                    <Badge className="bg-cash-green/20 text-cash-green border-cash-green/30 text-sm font-bold px-3 py-1">
+                      🟢 ALICI
+                    </Badge>
+                  ) : (
+                    <Badge className="bg-retro-orange/20 text-retro-orange border-retro-orange/30 text-sm font-bold px-3 py-1">
+                      🟠 SATICI
+                    </Badge>
+                  )}
+                </div>
+              </div>
+              
+              <div className="flex-1 min-w-0">
+                <h3 className="text-xl font-bold text-foreground mb-2">{currentCustomer.name}</h3>
+                <Badge className={`${getCustomerTypeDisplay(currentCustomer.type).color} text-xs border mb-3`}>
+                  {getCustomerTypeDisplay(currentCustomer.type).label}
+                </Badge>
+                
+                {/* Intent Description */}
+                <p className="text-sm text-muted-foreground">
+                  {currentCustomer.intent === 'buy' 
+                    ? "Senden ürün almak istiyor" 
+                    : "Sana ürün satmak istiyor"
+                  }
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Item Card */}
+        {selectedItem && (
+          <div className="bg-card rounded-xl shadow-lg border overflow-hidden">
+            <div className="p-6">
+              <div className="flex items-start space-x-4">
+                {/* Large Item Icon */}
+                <div className="w-24 h-24 bg-muted rounded-lg flex items-center justify-center border-2 border-border flex-shrink-0">
+                  <span className="text-3xl">{selectedItem.image || '📦'}</span>
+                </div>
+                
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-xl font-bold text-foreground mb-1">{selectedItem.name}</h3>
+                  <p className="text-sm text-muted-foreground mb-3">{selectedItem.category}</p>
+                  
+                  {/* Price Information */}
+                  <div className="space-y-2">
+                    {/* Market Value - Always Visible */}
+                    <div className="bg-destructive/10 p-3 rounded-lg border border-destructive/30">
+                      <p className="text-xs text-destructive font-medium mb-1">TAHMİNİ DEĞER</p>
+                      <p className="text-2xl font-bold text-destructive">
+                        ${calculateItemValue(selectedItem).toLocaleString()}
+                      </p>
+                    </div>
+                    
+                    {/* Customer Offer/Price */}
+                    {currentCustomer.intent === 'buy' && (
+                      <div className="bg-retro-orange/10 p-3 rounded-lg border border-retro-orange/30">
+                        <p className="text-xs text-retro-orange font-medium mb-1">TEKLİF ETTİĞİ FİYAT</p>
+                        <p className="text-2xl font-bold text-retro-orange">
+                          ${currentOffer.toLocaleString()}
+                        </p>
+                      </div>
+                    )}
+                    
+                    {currentCustomer.intent === 'sell' && (
+                      <div className="bg-retro-orange/10 p-3 rounded-lg border border-retro-orange/30">
+                        <p className="text-xs text-retro-orange font-medium mb-1">İSTEDİĞİ FİYAT</p>
+                        <p className="text-2xl font-bold text-retro-orange">
+                          ${currentOffer.toLocaleString()}
+                        </p>
+                      </div>
+                    )}
+                    
+                    {/* Show Buy Price if selling from inventory */}
+                    {currentCustomer.intent === 'buy' && selectedItem && (
+                      <div className="text-center">
+                        <p className="text-xs text-muted-foreground">Senin Alış Fiyatın: ${Math.floor(calculateItemValue(selectedItem) * 0.6)}</p>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Condition & Rarity Badges */}
+                  <div className="flex space-x-2 mt-3">
+                    <Badge variant="secondary" className="text-xs">
+                      {selectedItem.condition}
+                    </Badge>
+                    <Badge variant="outline" className="text-xs">
+                      {selectedItem.rarity}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Customer Message */}
         <div className="relative">
           <SpeechBubble 
-            message={speechBubbleMessage} 
+            message={speechBubbleMessage}
             isVisible={showSpeechBubble}
             onComplete={() => setShowSpeechBubble(false)}
+            className="top-0 left-4 z-20"
           />
+          <div className="bg-card rounded-xl p-4 shadow-lg border">
+            <div className="bg-accent/10 rounded-lg p-4 border-l-4 border-accent">
+              <p className="text-lg leading-relaxed text-foreground">{customerResponse}</p>
+            </div>
+          </div>
         </div>
-      )}
 
-      {/* Customer Info Card */}
-      <Card className="border-2 border-primary/20">
-        <CardHeader className="text-center pb-2">
-          <div className="flex items-center justify-center gap-3">
-            <img 
-              src={currentCustomer.avatar} 
-              alt={currentCustomer.name}
-              className="w-12 h-12 rounded-full object-cover border-2 border-primary/20"
-            />
-            <div>
-              <CardTitle className="text-lg">{currentCustomer.name}</CardTitle>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Badge variant="secondary" className="text-xs">
-                  {customerTypeInfo.tr}
-                </Badge>
-                <span>{customerTypeInfo.trait}</span>
+        {/* Action Buttons */}
+        <div className="grid grid-cols-3 gap-3">
+          <Button 
+            variant="destructive" 
+            onClick={handleRejectOffer} 
+            className="h-12 text-base font-semibold"
+            size="lg"
+          >
+            ❌ Reddet
+          </Button>
+          <Button 
+            variant="outline" 
+            onClick={handleMakeOffer} 
+            className="h-12 text-base font-semibold border-2"
+            size="lg"
+          >
+            💬 Teklif Ver
+          </Button>
+          <Button 
+            variant="default" 
+            onClick={handleAcceptOffer} 
+            className="h-12 text-base font-semibold"
+            size="lg"
+          >
+            ✅ Kabul Et
+          </Button>
+        </div>
+
+        {/* Offer Modal - Enhanced for Mobile */}
+        <Dialog open={showOfferModal} onOpenChange={setShowOfferModal}>
+          <DialogContent className="sm:max-w-md mx-4 rounded-xl">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-bold text-center">
+                💰 Teklif Ver
+              </DialogTitle>
+              <DialogDescription className="text-center">
+                {currentCustomer?.intent === 'buy' 
+                  ? "Müşterinin teklif ettiği fiyatı değerlendirin" 
+                  : "Bu ürün için teklifinizi yapın"
+                }
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-6">
+              {/* Large Price Display */}
+              <div className="bg-primary/10 rounded-xl p-6 text-center border border-primary/30">
+                <p className="text-sm text-primary font-medium mb-2">GÜNCEL TEKLİF</p>
+                <p className="text-4xl font-bold text-primary">
+                  ${tempOffer.toLocaleString()}
+                </p>
+              </div>
+              
+              {/* Price Adjustment Controls */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-center space-x-4">
+                  <Button 
+                    variant="outline" 
+                    size="lg"
+                    className="h-12 w-12 rounded-full"
+                    onClick={() => setTempOffer(Math.max(10, tempOffer - 100))}
+                  >
+                    <Minus className="h-6 w-6" />
+                  </Button>
+                  <div className="flex-1">
+                    <Input
+                      type="number"
+                      value={tempOffer}
+                      onChange={(e) => setTempOffer(Math.max(10, parseInt(e.target.value) || 10))}
+                      className="text-center text-xl font-bold h-12 rounded-xl border-2"
+                      min="10"
+                    />
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="lg"
+                    className="h-12 w-12 rounded-full"
+                    onClick={() => setTempOffer(tempOffer + 100)}
+                  >
+                    <Plus className="h-6 w-6" />
+                  </Button>
+                </div>
+                
+                {/* Quick Adjustment Buttons */}
+                <div className="grid grid-cols-4 gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setTempOffer(Math.max(10, tempOffer - 50))}
+                    className="text-xs"
+                  >
+                    -$50
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setTempOffer(Math.max(10, tempOffer - 25))}
+                    className="text-xs"
+                  >
+                    -$25
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setTempOffer(tempOffer + 25)}
+                    className="text-xs"
+                  >
+                    +$25
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setTempOffer(tempOffer + 50)}
+                    className="text-xs"
+                  >
+                    +$50
+                  </Button>
+                </div>
+              </div>
+              
+              {/* Action Buttons */}
+              <div className="grid grid-cols-2 gap-3">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowOfferModal(false)} 
+                  className="h-12 text-base"
+                  size="lg"
+                >
+                  ❌ İptal
+                </Button>
+                <Button 
+                  onClick={handleSubmitOffer} 
+                  className="h-12 text-base font-semibold"
+                  size="lg"
+                >
+                  💸 Teklif Gönder
+                </Button>
               </div>
             </div>
-          </div>
-        </CardHeader>
-        
-        <CardContent className="space-y-3">
-          {/* Item Details */}
-          <div className="text-center space-y-2">
-            <div className="text-2xl">{selectedItem.image}</div>
-            <h3 className="font-medium">{selectedItem.name}</h3>
-            <div className="flex justify-center gap-4 text-xs text-muted-foreground">
-              <span>Durum: {selectedItem.condition}%</span>
-              <span>Nadir: {selectedItem.rarity}</span>
-            </div>
-            <p className="text-sm text-primary">Tahmini Değer: ${itemValue}</p>
-          </div>
-
-          {/* Customer Response */}
-          <div className="bg-muted/50 p-3 rounded-lg text-sm text-center">
-            {customerResponse}
-          </div>
-
-          {/* Action Buttons */}
-          <div className="grid grid-cols-3 gap-2">
-            <Button 
-              variant="destructive" 
-              size="sm"
-              onClick={handleRejectOffer}
-              className="text-xs"
-            >
-              Reddet
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={handleMakeOffer}
-              className="text-xs"
-            >
-              Teklif Ver
-            </Button>
-            <Button 
-              variant="default" 
-              size="sm"
-              onClick={handleAcceptOffer}
-              className="text-xs"
-            >
-              Kabul Et
-            </Button>
-          </div>
-
-          {/* Current Offer Display */}
-          <div className="text-center">
-            <p className="text-lg font-bold text-primary">
-              Güncel Teklif: ${currentOffer}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {currentCustomer.intent === 'buy' ? 'Müşteri vereceği fiyat' : 'Müşteri istediği fiyat'}
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Offer Modal */}
-      <Dialog open={showOfferModal} onOpenChange={setShowOfferModal}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Teklif Ver</DialogTitle>
-            <DialogDescription>
-              {currentCustomer.intent === 'buy' 
-                ? `${selectedItem.name} için satış fiyatı belirleyin`
-                : `${selectedItem.name} için alış fiyatı belirleyin`
-              }
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Fiyat ($)</label>
-              <Input
-                type="number"
-                value={tempOffer}
-                onChange={(e) => setTempOffer(Number(e.target.value))}
-                className="text-center text-lg font-bold"
-                min="1"
-              />
-            </div>
-            
-            <div className="grid grid-cols-4 gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => adjustOffer(-100)}
-              >
-                -$100
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => adjustOffer(-10)}
-              >
-                -$10
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => adjustOffer(100)}
-              >
-                +$100
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => adjustOffer(10)}
-              >
-                +$10
-              </Button>
-            </div>
-            
-            <Button onClick={handleSubmitOffer} className="w-full text-lg font-bold">
-              Teklif Gönder
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
   );
 };
