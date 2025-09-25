@@ -176,11 +176,22 @@ export const generateHaggleResponse = (
     };
   }
   
+  // Varied rejection responses
+  const rejectionMessages = [
+    "Bu fiyat çok düşük, biraz daha yükseltmelisiniz.",
+    "Bu teklif içimi hiç açmadı, daha iyi bir rakam bekliyorum.",
+    "Bu rakamla anlaşamayız, biraz daha cömert olun.",
+    "Hmm… değerinin altında, biraz daha artırın lütfen.",
+    "Bunu kabul edemem, fiyatı biraz yukarı çekmelisiniz."
+  ];
+  
   // Counter offer
   const counterOffer = Math.floor(itemValue * (acceptanceThreshold - 0.1));
+  const randomMessage = rejectionMessages[Math.floor(Math.random() * rejectionMessages.length)];
+  
   return {
     accepted: false,
-    message: `How about $${counterOffer}?`,
+    message: `${randomMessage} $${counterOffer} nasıl?`,
     reputationChange: 0,
     trustChange: 0,
     counter: counterOffer
