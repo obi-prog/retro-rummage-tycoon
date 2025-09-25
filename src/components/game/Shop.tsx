@@ -177,9 +177,9 @@ export const Shop = () => {
               resetNegotiation();
               return;
             }
-          }, 1000);
+          }, 50);
         }
-      }, 2000);
+      }, 100);
       
       return () => clearTimeout(timer);
     }
