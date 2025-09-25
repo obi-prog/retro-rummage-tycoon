@@ -64,7 +64,7 @@ export interface GameState {
   skillPoints: number;
   missions: any[];
   completedMissions: string[];
-  playerSkills: Record<string, number>;
+  playerSkills: Record<string, number>; // skillId -> currentLevel
   lastEventDay: number;
   negotiationCount: number;
   // Customer counting system

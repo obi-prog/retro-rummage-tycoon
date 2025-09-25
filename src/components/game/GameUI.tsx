@@ -151,7 +151,7 @@ export const GameUI = () => {
         </TabsContent>
 
         <TabsContent value="skills">
-          <SkillsPanel />
+          <SkillsPanel isModal={false} />
         </TabsContent>
 
         <TabsContent value="events">

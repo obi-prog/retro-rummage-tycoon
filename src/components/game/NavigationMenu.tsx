@@ -103,7 +103,11 @@ export const NavigationMenu = ({ triggerButton }: NotebookMenuProps) => {
           <div className="flex-1 overflow-hidden">
             <ScrollArea className="h-full">
               <div className="p-6 animate-fade-in">
-                <ActiveComponent />
+                {activeTab === 'skills' ? (
+                  <SkillsPanel onClose={() => setOpen(false)} isModal={false} />
+                ) : (
+                  <ActiveComponent />
+                )}
               </div>
             </ScrollArea>
           </div>

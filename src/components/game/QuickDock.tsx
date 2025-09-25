@@ -47,7 +47,7 @@ export const QuickDock = () => {
             <SheetHeader>
               <SheetTitle>Yetenekler</SheetTitle>
             </SheetHeader>
-            <div className="mt-4"><SkillsPanel /></div>
+            <div className="mt-4"><SkillsPanel isModal={false} /></div>
           </SheetContent>
         </Sheet>
 
