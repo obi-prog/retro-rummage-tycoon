@@ -6,21 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Item, Customer } from '@/types/game';
-import { generateCustomer, generateHaggleResponse, calculateItemValue, generateCustomerInitialOffer, generateInitialMessage } from '@/utils/gameLogic';
+import { generateCustomer, calculateItemValue, generateInitialMessage } from '@/utils/gameLogic';
+import { generateBalancedInitialOffer, generateBalancedCounterOffer } from '@/utils/balancedBargaining';
 import { toast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Minus, Plus } from 'lucide-react';
 import { SpeechBubble } from '@/components/ui/SpeechBubble';
-
-// Import customer avatars (for reference only)
-import customer1 from '@/assets/avatars/customer-1.jpg';
-import customer2 from '@/assets/avatars/customer-2.jpg';
-import customer3 from '@/assets/avatars/customer-3.jpg';
-import customer4 from '@/assets/avatars/customer-4.jpg';
-import customer5 from '@/assets/avatars/customer-5.jpg';
-import customer6 from '@/assets/avatars/customer-6.jpg';
-import customer7 from '@/assets/avatars/customer-7.jpg';
-import customer8 from '@/assets/avatars/customer-8.jpg';
 
 // Comprehensive buyer-seller dialogue system
 const dialoguePools = {
@@ -40,16 +31,6 @@ const dialoguePools = {
       tr: ["Bu çok pahalı, daha düşük olabilir mi?", "Fiyatı biraz indirebilir misin?", "Çok yüksek, pazarlık yapalım.", "Bu kadar vermem, daha makul ol.", "İndirim yapar mısın?"],
       en: ["That's too expensive, can you go lower?", "Can you reduce the price a bit?", "Too high, let's negotiate.", "I won't pay that much, be reasonable.", "Any discount possible?"],
       de: ["Das ist zu teuer, können Sie runter gehen?", "Können Sie den Preis etwas senken?", "Zu hoch, lass uns verhandeln.", "So viel zahle ich nicht, seien Sie vernünftig.", "Gibt es einen Rabatt?"]
-    },
-    counter_angry: {
-      tr: ["Bu ne biçim fiyat böyle?!", "Dalga mı geçiyorsun?!", "Çok abartıyorsun!", "Bu kadar pahalı olmaz!", "Saygısızlık bu!"],
-      en: ["What kind of price is this?!", "Are you kidding me?!", "You're way overcharging!", "This can't be that expensive!", "That's outrageous!"],
-      de: ["Was ist das denn für ein Preis?!", "Machst du Witze?!", "Du verlangst viel zu viel!", "So teuer kann das nicht sein!", "Das ist eine Frechheit!"]
-    },
-    counter_neutral: {
-      tr: ["Hmmm, fena değil ama biraz düşük olabilir.", "Makul ama daha iyi olur.", "Neredeyse tamam, biraz daha inin.", "Yaklaştın ama tam değil.", "İyi ama mükemmel değil."],
-      en: ["Hmm, not bad but could be lower.", "Reasonable but could be better.", "Almost there, come down a bit more.", "You're close but not quite.", "Good but not perfect."],
-      de: ["Hmm, nicht schlecht aber könnte niedriger sein.", "Vernünftig aber könnte besser sein.", "Fast da, gehen Sie noch etwas runter.", "Sie sind nah dran aber nicht ganz.", "Gut aber nicht perfekt."]
     }
   },
   // Seller responses (customer wants to sell to player)
@@ -68,16 +49,6 @@ const dialoguePools = {
       tr: ["Daha fazla ver, bu az.", "Biraz daha artır bakalım.", "Bu fiyata değmez, daha yüksek ol.", "Az teklif ediyorsun, artır.", "Daha cömert olmalısın."],
       en: ["Pay more, this is too little.", "Raise it a bit, please.", "Not worth this price, go higher.", "You're offering too little, increase it.", "You need to be more generous."],
       de: ["Zahlen Sie mehr, das ist zu wenig.", "Erhöhen Sie es etwas, bitte.", "Das ist den Preis nicht wert, gehen Sie höher.", "Sie bieten zu wenig, erhöhen Sie es.", "Sie müssen großzügiger sein."]
-    },
-    counter_angry: {
-      tr: ["Bu ne biçim teklif böyle?!", "Dalga mı geçiyorsun?!", "Çok düşük, saygısızlık!", "Bu kadar ucuza olmaz!", "Ciddiye almıyorsun!"],
-      en: ["What kind of offer is this?!", "Are you joking?!", "Too low, that's insulting!", "It can't be this cheap!", "You're not taking this seriously!"],
-      de: ["Was ist das denn für ein Angebot?!", "Machen Sie Witze?!", "Zu niedrig, das ist beleidigend!", "So billig kann es nicht sein!", "Sie nehmen das nicht ernst!"]
-    },
-    counter_neutral: {
-      tr: ["Fena değil ama biraz daha artırsan iyi olur.", "Yaklaştın, biraz daha üstüne koy.", "Makul ama mükemmel değil.", "İyi başlangıç, biraz daha yüksel.", "Neredeyse tamam, ufak bir artış yeter."],
-      en: ["Not bad but a bit more would be good.", "You're close, add a little more.", "Reasonable but not perfect.", "Good start, go a bit higher.", "Almost there, just a small increase needed."],
-      de: ["Nicht schlecht aber etwas mehr wäre gut.", "Sie sind nah dran, legen Sie etwas drauf.", "Vernünftig aber nicht perfekt.", "Guter Anfang, gehen Sie etwas höher.", "Fast da, nur eine kleine Erhöhung nötig."]
     }
   },
   // Initial offers
@@ -106,7 +77,6 @@ const getInitialOfferMessage = (role: 'buyer' | 'seller', item: Item, price: num
   return template.replace('{item}', item.name).replace('{price}', price.toString());
 };
 
-
 export const Shop = () => {
   const { 
     inventory, 
@@ -121,7 +91,8 @@ export const Shop = () => {
     cash,
     customersServed,
     dailyCustomerLimit,
-    serveCustomer
+    serveCustomer,
+    level
   } = useGameStore();
   
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
@@ -129,10 +100,7 @@ export const Shop = () => {
   const [customerResponse, setCustomerResponse] = useState<string>('');
   const [showOfferModal, setShowOfferModal] = useState(false);
   const [tempOffer, setTempOffer] = useState<number>(0);
-  const [customerFrustration, setCustomerFrustration] = useState(0);
   const [showSuccessEffect, setShowSuccessEffect] = useState(false);
-  const [showRejectEffect, setShowRejectEffect] = useState(false);
-  const [showSadCustomer, setShowSadCustomer] = useState(false);
   const [showSpeechBubble, setShowSpeechBubble] = useState(false);
   const [speechBubbleMessage, setSpeechBubbleMessage] = useState('');
   
@@ -223,8 +191,7 @@ export const Shop = () => {
             const interestedItem = inventory[Math.floor(Math.random() * inventory.length)];
             setSelectedItem(interestedItem);
             
-            const itemValue = calculateItemValue(interestedItem);
-            const customerOffer = Math.max(10, generateCustomerInitialOffer(customerToShow, itemValue));
+            const customerOffer = Math.max(10, generateBalancedInitialOffer(customerToShow, interestedItem, level));
             setCurrentOffer(customerOffer);
             const message = getInitialOfferMessage('buyer', interestedItem, customerOffer, language);
             setCustomerResponse(message);
@@ -276,7 +243,6 @@ export const Shop = () => {
     setCustomerResponse('');
     setShowOfferModal(false);
     setTempOffer(0);
-    setCustomerFrustration(0);
     setShowSpeechBubble(false);
     setSpeechBubbleMessage('');
     setOfferCount(0);
@@ -298,46 +264,69 @@ export const Shop = () => {
     if (!currentCustomer || tempOffer <= 0) return;
     
     const item = selectedItem || currentCustomer.carriedItem!;
-    const itemValue = calculateItemValue(item);
-    const offerRatio = tempOffer / itemValue;
     
-    let response;
-    let shouldAccept = false;
-    
-    if (currentCustomer.intent === 'buy') {
-      // Customer wants to buy from us
-      let acceptanceThreshold = 0.7;
-      let priceToleranceMultiplier = 1.2;
+    // Use the new balanced bargaining system
+    try {
+      const result = generateBalancedCounterOffer(
+        currentCustomer,
+        item,
+        tempOffer,
+        currentOffer,
+        level,
+        offerCount + 1
+      );
       
-      // Apply personality traits
-      switch (currentCustomer.type) {
-        case 'student':
-          acceptanceThreshold = 0.4;
-          priceToleranceMultiplier = 1.1;
-          break;
-        case 'collector':
-          if (item.rarity === 'rare' || item.rarity === 'very_rare' || item.rarity === 'legendary') {
-            acceptanceThreshold = 0.8;
-            priceToleranceMultiplier = 1.5;
-          }
-          break;
-        case 'tourist':
-          if (currentCustomer.knowledge < 5) {
-            acceptanceThreshold = 0.8;
-            priceToleranceMultiplier = 1.4;
-          }
-          break;
-        case 'expert':
-          acceptanceThreshold = 0.5;
-          priceToleranceMultiplier = 1.15;
-          break;
-        case 'hunter':
-          acceptanceThreshold = 0.6;
-          break;
+      if (result.accepted) {
+        // Customer accepts the offer
+        setCustomerResponse(`${result.emoji} ${result.message}`);
+        showCustomerSpeech(`${result.emoji} ${result.message}`);
+        setShowOfferModal(false);
+        setShowSuccessEffect(true);
+        updateReputation(2);
+        updateTrust(1);
+        
+        addTimeout(() => {
+          handleAcceptOffer();
+        }, 1500);
+        return;
+      } else if (result.counterOffer) {
+        // Customer makes a counter-offer
+        setCurrentOffer(result.counterOffer);
+        setCustomerResponse(`${result.emoji} ${result.message}`);
+        showCustomerSpeech(`${result.emoji} ${result.message}`);
+        setOfferCount(prev => prev + 1);
+        
+        toast({
+          title: "Karşı Teklif",
+          description: `Müşteri $${result.counterOffer} teklif ediyor.`,
+        });
+        setShowOfferModal(false);
+        return;
+      } else {
+        // Customer walks away
+        setCustomerResponse(`${result.emoji} ${result.message}`);
+        showCustomerSpeech(`${result.emoji} ${result.message}`);
+        updateReputation(-1);
+        
+        addTimeout(() => {
+          resetNegotiation();
+        }, 2000);
+        setShowOfferModal(false);
+        return;
       }
+    } catch (error) {
+      console.warn('Falling back to original negotiation system:', error);
       
-      if (tempOffer <= currentCustomer.budget && offerRatio <= priceToleranceMultiplier) {
-        if (Math.random() < acceptanceThreshold) {
+      // Fallback to simple logic
+      const itemValue = calculateItemValue(item);
+      const offerRatio = tempOffer / itemValue;
+      
+      let response = "Hmm, bu teklifi düşüneyim...";
+      let shouldAccept = false;
+      
+      // Simple acceptance logic based on offer ratio
+      if (currentCustomer.intent === 'buy' && offerRatio <= 1.2 && tempOffer <= currentCustomer.budget) {
+        if (Math.random() < 0.7) {
           response = getRandomMessage('buyer', 'accept', language);
           shouldAccept = true;
         } else {
@@ -349,48 +338,8 @@ export const Shop = () => {
             description: `Müşteri $${counterOffer} teklif ediyor.`,
           });
         }
-      } else {
-        if (offerRatio > 1.5) {
-          response = getRandomMessage('buyer', 'counter_angry', language);
-          setCustomerFrustration(prev => prev + 2);
-        } else if (offerRatio > 1.2) {
-          response = getRandomMessage('buyer', 'counter_neutral', language);
-          setCustomerFrustration(prev => prev + 1);
-        } else {
-          response = getRandomMessage('buyer', 'counter_low', language);
-          setCustomerFrustration(prev => prev + 1);
-        }
-      }
-    } else {
-      // Customer wants to sell to us
-      let acceptanceThreshold = 0.7;
-      let minPriceRatio = 0.6;
-      
-      switch (currentCustomer.type) {
-        case 'student':
-          acceptanceThreshold = 0.8;
-          minPriceRatio = 0.5;
-          break;
-        case 'collector':
-          acceptanceThreshold = 0.4;
-          minPriceRatio = 0.8;
-          break;
-        case 'expert':
-          acceptanceThreshold = 0.3;
-          minPriceRatio = 0.85;
-          break;
-        case 'hunter':
-          acceptanceThreshold = 0.9;
-          minPriceRatio = 0.55;
-          break;
-        case 'tourist':
-          acceptanceThreshold = 0.8;
-          minPriceRatio = 0.5;
-          break;
-      }
-      
-      if (tempOffer <= cash && offerRatio >= minPriceRatio) {
-        if (Math.random() < acceptanceThreshold) {
+      } else if (currentCustomer.intent === 'sell' && offerRatio >= 0.6 && tempOffer <= cash) {
+        if (Math.random() < 0.7) {
           response = getRandomMessage('seller', 'accept', language);
           shouldAccept = true;
         } else {
@@ -398,69 +347,43 @@ export const Shop = () => {
           response = getRandomMessage('seller', 'counter_high', language);
           setCurrentOffer(counterOffer);
           toast({
-            title: "Karşı Teklif",
-            description: `Müşteri $${counterOffer} istiyor.`,
+            title: "Karşı Teklif", 
+            description: `Müşteri $${counterOffer} istedi.`,
           });
-        }
-      } else {
-        if (offerRatio < 0.4) {
-          response = getRandomMessage('seller', 'counter_angry', language);
-          setCustomerFrustration(prev => prev + 2);
-        } else if (offerRatio < 0.6) {
-          response = getRandomMessage('seller', 'counter_neutral', language);
-          setCustomerFrustration(prev => prev + 1);
-        } else {
-          response = getRandomMessage('seller', 'counter_high', language);
-          setCustomerFrustration(prev => prev + 1);
-        }
-      }
-    }
-    
-    setCustomerResponse(response);
-    showCustomerSpeech(response);
-    setShowOfferModal(false);
-    
-    if (shouldAccept) {
-      // Process the transaction immediately
-      if (currentCustomer.intent === 'buy') {
-        sellItem(item, tempOffer);
-        updateReputation(2);
-        updateTrust(1);
-      } else {
-        if (buyItem(item, tempOffer)) {
-          updateReputation(2);
-          updateTrust(1);
-        } else {
-          toast({
-            title: "Yetersiz Para",
-            description: "Bu teklifi karşılayacak paranız yok.",
-            variant: "destructive",
-          });
-          return;
         }
       }
       
-      addTimeout(() => {
-        toast({
-          title: currentCustomer.intent === 'buy' ? 'Satış Tamamlandı' : 'Satın Alma Tamamlandı',
-          description: currentCustomer.intent === 'buy' 
-            ? `$${tempOffer} karşılığında satıldı.` 
-            : `$${tempOffer} karşılığında satın alındı.`,
-        });
-        resetNegotiation();
-        onDealResolved(response, 400); // Quick transition after accepted negotiation
-      }, 1500);
-    } else if (customerFrustration >= 3) {
-      addTimeout(() => {
-        toast({
-          title: "Müşteri Çekti Gitti! 😤",
-          description: "Müşteri pazarlığı beğenmedi ve gitti.",
-          variant: "destructive",
-        });
-        resetNegotiation();
-        onDealResolved("😤", 600); // Medium transition after frustration
-      }, 2000);
+      // Auto-reject if patience runs out (3+ offers)
+      if (offerCount >= 2) {
+        const autoRejectMessages = [
+          "Sanırım anlaşamayacağız, başka bir zaman görüşürüz.",
+          "Bu fiyatlarla olmaz, iyi günler dilerim.",
+          "Bu iş bugünlük buraya kadar, hoşça kalın."
+        ];
+        const autoRejectMessage = autoRejectMessages[Math.floor(Math.random() * autoRejectMessages.length)];
+        response = `😤 ${autoRejectMessage}`;
+        updateReputation(-1);
+        
+        addTimeout(() => {
+          resetNegotiation();
+        }, 2000);
+      } else if (shouldAccept) {
+        setShowSuccessEffect(true);
+        updateReputation(2);
+        updateTrust(1);
+        
+        addTimeout(() => {
+          handleAcceptOffer();
+        }, 1500);
+      } else {
+        setOfferCount(prev => prev + 1);
+      }
+      
+      setCustomerResponse(response);
+      showCustomerSpeech(response);
     }
+    
+    setShowOfferModal(false);
   };
 
   const handleAcceptOffer = () => {
@@ -496,47 +419,47 @@ export const Shop = () => {
     
     addTimeout(() => {
       setShowSuccessEffect(false);
-      resetNegotiation();
-      onDealResolved(acceptMessage, 300); // Fast transition after successful deal
-    }, 1200);
-  };
-
-  const handleRejectOffer = () => {
-    // Prefetch next customer immediately  
-    prefetchNextCustomer();
-    
-    // Show rejection effects first
-    setShowRejectEffect(true);
-    setShowSadCustomer(true);
-    const rejectMessage = getRandomMessage(currentCustomer.intent === 'buy' ? 'buyer' : 'seller', 'reject', language);
-    setCustomerResponse(rejectMessage);
-    showCustomerSpeech(rejectMessage);
-    
-    addTimeout(() => {
-      setShowRejectEffect(false);
-      setShowSadCustomer(false);
-      
       toast({
-        title: "Müşteri Ayrıldı",
-        description: "Müşteri dükkânı terk etti.",
+        title: currentCustomer.intent === 'buy' ? 'Satış Tamamlandı! 💵' : 'Satın Alma Tamamlandı! 📦',
+        description: currentCustomer.intent === 'buy' 
+          ? `$${currentOffer} karşılığında satıldı.` 
+          : `$${currentOffer} karşılığında satın alındı.`,
       });
       resetNegotiation();
-      onDealResolved(rejectMessage, 400); // Quick transition after rejection
+      onDealResolved(acceptMessage, 600); // Quick transition after successful deal
     }, 1500);
   };
 
-  const adjustOffer = (increment: number) => {
-    setTempOffer(prev => Math.max(1, prev + increment));
+  const handleRejectOffer = () => {
+    if (!currentCustomer) return;
+    
+    const rejectMessage = getRandomMessage(currentCustomer.intent === 'buy' ? 'buyer' : 'seller', 'reject', language);
+    setCustomerResponse(`😞 ${rejectMessage}`);
+    showCustomerSpeech(`😞 ${rejectMessage}`);
+    updateReputation(-1);
+    
+    addTimeout(() => {
+      toast({
+        title: "Anlaşma Olmadı 😞",
+        description: "Müşteri teklifinizi reddetti.",
+        variant: "destructive",
+      });
+      resetNegotiation();
+      onDealResolved("😞", 800); // Medium transition after rejection
+    }, 2000);
   };
 
-  // Customer type translations and traits
+  const adjustOffer = (amount: number) => {
+    setTempOffer(prev => Math.max(1, prev + amount));
+  };
+
   const getCustomerTypeDisplay = (type: string) => {
     const types = {
-      'collector': { tr: 'Koleksiyoncu', trait: 'Bilgili' },
-      'student': { tr: 'Öğrenci', trait: 'Cimri' },
-      'trader': { tr: 'Tüccar', trait: 'Deneyimli' },
+      'collector': { tr: 'Koleksiyoner', trait: 'Kaliteli' },
+      'student': { tr: 'Öğrenci', trait: 'Bütçeli' },
+      'trader': { tr: 'Tüccar', trait: 'Pazarlıkçı' },
       'nostalgic': { tr: 'Nostaljik', trait: 'Duygusal' },
-      'hunter': { tr: 'Avcı', trait: 'Sabırsız' },
+      'hunter': { tr: 'Avcı', trait: 'Hızlı' },
       'tourist': { tr: 'Turist', trait: 'Acemi' },
       'expert': { tr: 'Uzman', trait: 'Çok Bilgili' }
     };
@@ -555,10 +478,7 @@ export const Shop = () => {
             <p className="text-sm text-muted-foreground">
               Dükkan kapandı, yarın tekrar açılıyor.
             </p>
-            <Button 
-              onClick={() => useGameStore.getState().advanceDay()}
-              className="w-full"
-            >
+            <Button onClick={() => window.location.reload()}>
               🏪 Yeni Güne Başla
             </Button>
           </CardContent>
@@ -619,218 +539,140 @@ export const Shop = () => {
           <div className="absolute animate-[fade-in_0.3s_ease-out,slide-in-right_1s_ease-out] delay-200">
             <div className="text-4xl">💵</div>
           </div>
-          <div className="absolute animate-[fade-in_0.5s_ease-out,slide-in-right_1.2s_ease-out] delay-500">
-            <div className="text-3xl">💵</div>
-          </div>
-        </div>
-      )}
-      
-      {/* Reject Effect - Red X */}
-      {showRejectEffect && (
-        <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
-          <div className="text-8xl text-red-500 animate-[scale-in_0.3s_ease-out,fade-out_0.5s_ease-out_0.5s]">
-            ❌
+          <div className="absolute animate-[fade-in_0.3s_ease-out,slide-in-left_1s_ease-out] delay-500">
+            <div className="text-3xl">💰</div>
           </div>
         </div>
       )}
 
-      {/* Role Card */}
-      <Card className={`border-2 ${
-        currentCustomer.intent === 'buy' 
-          ? 'bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/20 border-green-500' 
-          : 'bg-gradient-to-r from-amber-100 to-orange-100 dark:from-amber-900/20 dark:to-orange-900/20 border-amber-500'
-      }`}>
-        <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white/20 bg-background relative">
-                <img 
-                  src={currentCustomer.avatar} 
-                  alt={`${currentCustomer.name} avatar`}
-                  className="w-full h-full object-cover"
-                />
-                <SpeechBubble
-                  message={speechBubbleMessage}
-                  isVisible={showSpeechBubble}
-                  onComplete={() => setShowSpeechBubble(false)}
-                  className="bottom-16 left-0"
-                />
-              </div>
-            <div className="flex-1">
-              <div className={`text-lg font-bold ${
-                currentCustomer.intent === 'buy' ? 'text-green-700 dark:text-green-300' : 'text-amber-700 dark:text-amber-300'
-              }`}>
-                {currentCustomer.intent === 'buy' ? 'ALICI' : 'SATICI'}
-              </div>
-              <div className="text-sm text-muted-foreground">
-                {currentCustomer.intent === 'buy' ? 'Senden ürün almak istiyor' : 'Sana ürün satmak istiyor'}
-              </div>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="text-xs text-muted-foreground">{currentCustomer.name}</span>
+      {/* Speech Bubble */}
+      {showSpeechBubble && (
+        <div className="relative">
+          <SpeechBubble 
+            message={speechBubbleMessage} 
+            isVisible={showSpeechBubble}
+            onComplete={() => setShowSpeechBubble(false)}
+          />
+        </div>
+      )}
+
+      {/* Customer Info Card */}
+      <Card className="border-2 border-primary/20">
+        <CardHeader className="text-center pb-2">
+          <div className="flex items-center justify-center gap-3">
+            <img 
+              src={currentCustomer.avatar} 
+              alt={currentCustomer.name}
+              className="w-12 h-12 rounded-full object-cover border-2 border-primary/20"
+            />
+            <div>
+              <CardTitle className="text-lg">{currentCustomer.name}</CardTitle>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Badge variant="secondary" className="text-xs">
-                  {customerTypeInfo.trait}
+                  {customerTypeInfo.tr}
                 </Badge>
+                <span>{customerTypeInfo.trait}</span>
               </div>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </CardHeader>
+        
+        <CardContent className="space-y-3">
+          {/* Item Details */}
+          <div className="text-center space-y-2">
+            <div className="text-2xl">{selectedItem.image}</div>
+            <h3 className="font-medium">{selectedItem.name}</h3>
+            <div className="flex justify-center gap-4 text-xs text-muted-foreground">
+              <span>Durum: {selectedItem.condition}%</span>
+              <span>Nadir: {selectedItem.rarity}</span>
+            </div>
+            <p className="text-sm text-primary">Tahmini Değer: ${itemValue}</p>
+          </div>
 
-      {/* Product Card */}
-      <Card className="border-2 border-primary/30">
-        <CardContent className="p-4">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="text-3xl w-12 h-12 flex items-center justify-center bg-primary/10 rounded-lg">
-              {selectedItem.image}
-            </div>
-            <div className="flex-1">
-              <h3 className="font-bold text-lg">{selectedItem.name}</h3>
-              <p className="text-sm text-muted-foreground">
-                {t(selectedItem.category as any, language)}
-              </p>
-            </div>
+          {/* Customer Response */}
+          <div className="bg-muted/50 p-3 rounded-lg text-sm text-center">
+            {customerResponse}
           </div>
-          
-          <div className="space-y-2">
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-medium">
-                {currentCustomer.intent === 'buy' ? 'İstediği Fiyat:' : 'İstediği Fiyat:'}
-              </span>
-              <span className="text-lg font-bold text-primary">
-                ${currentOffer}
-              </span>
-            </div>
-            
-            {currentCustomer.intent === 'buy' && selectedItem.purchasePrice && (
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-medium text-red-600">Alış Fiyatım:</span>
-                <span className="text-lg font-bold text-red-600">${selectedItem.purchasePrice}</span>
-              </div>
-            )}
-            
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-medium">Piyasa Değeri:</span>
-              <span className="text-lg font-bold">≈ ${itemValue}</span>
-            </div>
-            
-            <p className="text-xs text-muted-foreground text-center">
-              Duruma, nadirliğe ve trendlere göre
+
+          {/* Action Buttons */}
+          <div className="grid grid-cols-3 gap-2">
+            <Button 
+              variant="destructive" 
+              size="sm"
+              onClick={handleRejectOffer}
+              className="text-xs"
+            >
+              Reddet
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={handleMakeOffer}
+              className="text-xs"
+            >
+              Teklif Ver
+            </Button>
+            <Button 
+              variant="default" 
+              size="sm"
+              onClick={handleAcceptOffer}
+              className="text-xs"
+            >
+              Kabul Et
+            </Button>
+          </div>
+
+          {/* Current Offer Display */}
+          <div className="text-center">
+            <p className="text-lg font-bold text-primary">
+              Güncel Teklif: ${currentOffer}
             </p>
-            
-            <div className="flex gap-2">
-              <Badge variant="outline" className="text-xs">
-                Durum: {selectedItem.condition}%
-              </Badge>
-              <Badge variant="outline" className="text-xs">
-                {selectedItem.rarity === 'rare' ? 'Nadir' : 
-                 selectedItem.rarity === 'very_rare' ? 'Çok Nadir' :
-                 selectedItem.rarity === 'legendary' ? 'Efsanevi' : 'Yaygın'}
-              </Badge>
-              {selectedItem.trendBonus !== 0 && (
-                <Badge variant="outline" className="text-xs">
-                  {selectedItem.trendBonus > 0 ? '↑' : '↓'} Trend
-                </Badge>
-              )}
-            </div>
+            <p className="text-xs text-muted-foreground">
+              {currentCustomer.intent === 'buy' ? 'Müşteri vereceği fiyat' : 'Müşteri istediği fiyat'}
+            </p>
           </div>
         </CardContent>
       </Card>
-
-      {/* Customer Response */}
-      {customerResponse && (
-        <Card className="bg-muted/50">
-          <CardContent className="p-3">
-            <p className="text-sm italic">"{customerResponse}"</p>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Negotiation Buttons */}
-      <div className="grid grid-cols-3 gap-2">
-        <Button
-          variant="destructive"
-          onClick={handleRejectOffer}
-          className="text-sm py-3"
-        >
-          ❌ Reddet
-        </Button>
-        
-        <Button
-          onClick={handleMakeOffer}
-          className="text-sm py-3 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600"
-        >
-          💬 Teklif Ver
-        </Button>
-        
-        <Button
-          variant={currentCustomer.intent === 'buy' ? 'default' : cash >= currentOffer ? 'default' : 'secondary'}
-          onClick={handleAcceptOffer}
-          disabled={currentCustomer.intent === 'sell' && cash < currentOffer}
-          className="text-sm py-3"
-        >
-          ✅ Kabul Et
-        </Button>
-      </div>
 
       {/* Offer Modal */}
       <Dialog open={showOfferModal} onOpenChange={setShowOfferModal}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Teklif Ver</DialogTitle>
             <DialogDescription>
-              Müşteriyle pazarlık yapmak için fiyat belirleyin.
+              {currentCustomer.intent === 'buy' 
+                ? `${selectedItem.name} için satış fiyatı belirleyin`
+                : `${selectedItem.name} için alış fiyatı belirleyin`
+              }
             </DialogDescription>
           </DialogHeader>
+          
           <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => adjustOffer(-50)}
-              >
-                <Minus className="h-4 w-4" />
-              </Button>
-              
-              <div className="flex-1">
-                <Input
-                  type="number"
-                  value={tempOffer === 0 ? '' : tempOffer}
-                  onChange={(e) => {
-                    const value = e.target.value === '' ? 0 : parseInt(e.target.value) || 0;
-                    setTempOffer(Math.max(0, value));
-                  }}
-                  onBlur={(e) => {
-                    if (tempOffer === 0) {
-                      setTempOffer(1);
-                    }
-                  }}
-                  placeholder="Tutar girin"
-                  className="text-center text-lg font-bold"
-                />
-              </div>
-              
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => adjustOffer(50)}
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Fiyat ($)</label>
+              <Input
+                type="number"
+                value={tempOffer}
+                onChange={(e) => setTempOffer(Number(e.target.value))}
+                className="text-center text-lg font-bold"
+                min="1"
+              />
             </div>
             
             <div className="grid grid-cols-4 gap-2">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => adjustOffer(-10)}
+                onClick={() => adjustOffer(-100)}
               >
-                -$10
+                -$100
               </Button>
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => adjustOffer(-100)}
+                onClick={() => adjustOffer(-10)}
               >
-                -$100
+                -$10
               </Button>
               <Button
                 variant="outline"

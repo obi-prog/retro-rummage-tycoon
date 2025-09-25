@@ -161,11 +161,57 @@ export const generateHaggleResponse = (
   item: Item, 
   offeredPrice: number, 
   haggleCount: number,
-  previousOffer?: number
+  previousOffer?: number,
+  playerLevel: number = 1
 ) => {
+  // Try using balanced bargaining system first
+  try {
+    const { generateBalancedCounterOffer } = require('./balancedBargaining');
+    const lastOffer = previousOffer || generateCustomerInitialOffer(customer, calculateItemValue(item), playerLevel);
+    
+    const result = generateBalancedCounterOffer(
+      customer, 
+      item, 
+      offeredPrice, 
+      lastOffer, 
+      playerLevel, 
+      haggleCount
+    );
+    
+    if (result.accepted) {
+      return {
+        accepted: true,
+        message: result.message,
+        reputationChange: 2,
+        trustChange: 1,
+        counter: null
+      };
+    } else if (result.counterOffer) {
+      return {
+        accepted: false,
+        message: `${result.emoji} ${result.message} $${result.counterOffer} nasıl?`,
+        reputationChange: 0,
+        trustChange: 0,
+        counter: result.counterOffer
+      };
+    } else {
+      // Auto-fail case
+      return {
+        accepted: false,
+        message: result.message,
+        reputationChange: -1,
+        trustChange: 0,
+        counter: null
+      };
+    }
+  } catch (error) {
+    console.warn('Falling back to original haggle system:', error);
+  }
+
+  // Fallback to original system
   const itemValue = calculateItemValue(item);
   const basePrice = customer.intent === 'sell' 
-    ? generateCustomerInitialOffer(customer, itemValue)
+    ? generateCustomerInitialOffer(customer, itemValue, playerLevel)
     : itemValue;
   
   const priceRatio = offeredPrice / itemValue;
@@ -333,20 +379,36 @@ export const calculateItemValue = (item: Item): number => {
   return Math.floor(item.baseValue * conditionMultiplier * rarityMultiplier * (1 + item.trendBonus / 100));
 };
 
-export const generateCustomerInitialOffer = (customer: Customer, itemValue: number): number => {
-  // Customer offer based on their type and budget
-  const offerMultiplier = {
-    collector: 0.7 + Math.random() * 0.2, // 70-90% of value
-    student: 0.5 + Math.random() * 0.2, // 50-70% of value  
-    trader: 0.6 + Math.random() * 0.2, // 60-80% of value
-    nostalgic: 0.8 + Math.random() * 0.15, // 80-95% of value
-    hunter: 0.4 + Math.random() * 0.2, // 40-60% of value
-    tourist: 0.7 + Math.random() * 0.2, // 70-90% of value
-    expert: 0.8 + Math.random() * 0.15 // 80-95% of value
-  }[customer.type];
+export const generateCustomerInitialOffer = (customer: Customer, itemValue: number, playerLevel: number = 1): number => {
+  // Import the balanced bargaining system
+  const { generateBalancedInitialOffer } = require('./balancedBargaining');
+  
+  // Create a mock item for the calculation if we only have itemValue
+  const mockItem = {
+    baseValue: itemValue,
+    condition: 80,
+    rarity: 'common',
+    trendBonus: 0,
+    purchasePrice: itemValue * 0.7
+  } as any;
+  
+  try {
+    return generateBalancedInitialOffer(customer, mockItem, playerLevel);
+  } catch (error) {
+    // Fallback to original logic if new system fails
+    const offerMultiplier = {
+      collector: 0.7 + Math.random() * 0.2,
+      student: 0.5 + Math.random() * 0.2, 
+      trader: 0.6 + Math.random() * 0.2,
+      nostalgic: 0.8 + Math.random() * 0.15,
+      hunter: 0.4 + Math.random() * 0.2,
+      tourist: 0.7 + Math.random() * 0.2,
+      expert: 0.8 + Math.random() * 0.15
+    }[customer.type];
 
-  const budgetConstrainedOffer = Math.min(customer.budget * 0.8, itemValue * offerMultiplier);
-  return Math.floor(budgetConstrainedOffer);
+    const budgetConstrainedOffer = Math.min(customer.budget * 0.8, itemValue * offerMultiplier);
+    return Math.floor(budgetConstrainedOffer);
+  }
 };
 
 export const generateInitialMessage = (customer: Customer, item: Item, offer: number): string => {
