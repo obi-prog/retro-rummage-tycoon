@@ -6,6 +6,8 @@ import { generateDailyMissions, generateWeeklyMissions, generateAchievementMissi
 import { generateRandomEvent, generateTrendBurst, processEventEffects } from '@/utils/eventSystem';
 import { saveGame, loadGame, hasSavedGame } from '@/utils/saveGame';
 import { soundEventEmitter } from '@/utils/soundEvents';
+import { getLevelConfig, getRandomCustomerLimit, checkLevelUpConditions, getNextLevelUnlocks, getRandomDayClosingMessage } from '@/utils/levelSystem';
+import { generateCustomer } from '@/utils/gameLogic';
 
 interface GameStore extends GameState {
   // Actions
@@ -43,6 +45,18 @@ interface GameStore extends GameState {
   loadGameState: () => boolean;
   hasSavedGame: () => boolean;
   autoSave: () => void;
+  // Level system actions
+  startNewDay: () => void;
+  onCustomerFinished: () => void;
+  endOfDay: () => void;
+  checkLevelUp: () => void;
+  prefetchNextCustomer: () => void;
+  showNextCustomer: () => void;
+  onDealResolved: () => void;
+  incrementOfferCount: () => void;
+  setShowLevelUpModal: (show: boolean) => void;
+  setCurrentCustomer: (customer: Customer | null) => void;
+  setIsLoadingNextCustomer: (loading: boolean) => void;
 }
 
 const getDailyCustomerLimitByLevel = (level: number): number => {
@@ -120,7 +134,7 @@ const generateStartingItems = (): Item[] => {
 export const useGameStore = create<GameStore>()((set, get) => ({
   // Initial state
   level: 1,
-  cash: 10000,
+  cash: 1000,
   reputation: 10,
   trust: 50,
   day: 1,
@@ -158,6 +172,14 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     utilities: 30
   },
   showEndOfDayModal: false,
+  // Level system state
+  unlocks: [],
+  dayCustomerCount: 0,
+  offerCount: 0,
+  isLoadingNextCustomer: false,
+  currentCustomer: null,
+  nextCustomer: null,
+  showLevelUpModal: false,
 
   // Actions
   initGame: () => {
@@ -429,18 +451,18 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       // Auto-save after advancing day
       setTimeout(() => {
         const currentState = get();
-      const gameState: GameState = {
-        level: currentState.level,
-        cash: currentState.cash,
-        reputation: currentState.reputation,
-        trust: currentState.trust,
-        day: currentState.day,
-        timeLeft: currentState.timeLeft,
-        inventory: currentState.inventory,
-        shopItems: currentState.shopItems,
-        events: currentState.events,
-        trends: currentState.trends,
-        dailySuccessStreak: currentState.dailySuccessStreak,
+        const gameState: GameState = {
+          level: currentState.level,
+          cash: currentState.cash,
+          reputation: currentState.reputation,
+          trust: currentState.trust,
+          day: currentState.day,
+          timeLeft: currentState.timeLeft,
+          inventory: currentState.inventory,
+          shopItems: currentState.shopItems,
+          events: currentState.events,
+          trends: currentState.trends,
+          dailySuccessStreak: currentState.dailySuccessStreak,
           dailyExpenses: currentState.dailyExpenses,
           language: currentState.language,
           experience: currentState.experience,
@@ -456,7 +478,14 @@ export const useGameStore = create<GameStore>()((set, get) => ({
           financialRecords: currentState.financialRecords,
           dailyFinancials: currentState.dailyFinancials,
           weeklyExpenses: currentState.weeklyExpenses,
-          showEndOfDayModal: currentState.showEndOfDayModal
+          showEndOfDayModal: currentState.showEndOfDayModal,
+          unlocks: currentState.unlocks,
+          dayCustomerCount: currentState.dayCustomerCount,
+          offerCount: currentState.offerCount,
+          isLoadingNextCustomer: currentState.isLoadingNextCustomer,
+          currentCustomer: currentState.currentCustomer,
+          nextCustomer: currentState.nextCustomer,
+          showLevelUpModal: currentState.showLevelUpModal
         };
         saveGame(gameState);
       }, 100);
@@ -800,7 +829,14 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       financialRecords: state.financialRecords,
       dailyFinancials: state.dailyFinancials,
       weeklyExpenses: state.weeklyExpenses,
-      showEndOfDayModal: state.showEndOfDayModal
+      showEndOfDayModal: state.showEndOfDayModal,
+      unlocks: state.unlocks,
+      dayCustomerCount: state.dayCustomerCount,
+      offerCount: state.offerCount,
+      isLoadingNextCustomer: state.isLoadingNextCustomer,
+      currentCustomer: state.currentCustomer,
+      nextCustomer: state.nextCustomer,
+      showLevelUpModal: state.showLevelUpModal
     };
     
     return saveGame(gameState);
@@ -852,6 +888,165 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     set({ missions: updatedMissions });
   },
 
+  // Level system actions
+  startNewDay: () => {
+    set(state => {
+      const config = getLevelConfig(state.level);
+      const newDayCustomerLimit = getRandomCustomerLimit(state.level);
+      
+      return {
+        dayCustomerCount: 0,
+        offerCount: 0,
+        dailyCustomerLimit: newDayCustomerLimit,
+        showEndOfDayModal: false,
+        isLoadingNextCustomer: false,
+        currentCustomer: null,
+        nextCustomer: null
+      };
+    });
+  },
+
+  onCustomerFinished: () => {
+    set(state => {
+      const newDayCustomerCount = state.dayCustomerCount + 1;
+      
+      if (newDayCustomerCount >= state.dailyCustomerLimit) {
+        get().endOfDay();
+      }
+      
+      return {
+        dayCustomerCount: newDayCustomerCount,
+        offerCount: 0
+      };
+    });
+  },
+
+  endOfDay: () => {
+    set(state => {
+      // Show closing message briefly
+      const closingMessage = getRandomDayClosingMessage(state.language);
+      
+      // Check for level up first
+      setTimeout(() => {
+        get().checkLevelUp();
+      }, 2000);
+      
+      return {
+        showEndOfDayModal: true
+      };
+    });
+  },
+
+  checkLevelUp: () => {
+    set(state => {
+      const canLevelUp = checkLevelUpConditions(state.cash, state.reputation, state.level);
+      
+      if (canLevelUp && state.level < 8) {
+        const newLevel = state.level + 1;
+        const newUnlocks = getNextLevelUnlocks(state.level);
+        const skillPointsEarned = 1;
+        
+        // Update unlocks array
+        const updatedUnlocks = [...new Set([...state.unlocks, ...newUnlocks])];
+        
+        return {
+          level: newLevel,
+          unlocks: updatedUnlocks,
+          skillPoints: state.skillPoints + skillPointsEarned,
+          showLevelUpModal: true,
+          showEndOfDayModal: false
+        };
+      } else {
+        // No level up, just start new day
+        setTimeout(() => {
+          get().startNewDay();
+        }, 1000);
+        
+        return state;
+      }
+    });
+  },
+
+  prefetchNextCustomer: () => {
+    set(state => {
+      if (state.nextCustomer === null) {
+        const newCustomer = generateCustomer();
+        return { nextCustomer: newCustomer };
+      }
+      return state;
+    });
+  },
+
+  showNextCustomer: () => {
+    set(state => {
+      if (state.isLoadingNextCustomer) return state;
+      
+      set({ isLoadingNextCustomer: true });
+      
+      // Simulate loading delay
+      setTimeout(() => {
+        const state = get();
+        const customer = state.nextCustomer || generateCustomer();
+        
+        set({
+          currentCustomer: customer,
+          nextCustomer: null,
+          offerCount: 0,
+          isLoadingNextCustomer: false
+        });
+        
+        // Prefetch next customer
+        get().prefetchNextCustomer();
+      }, Math.random() * 600 + 300); // 300-900ms delay
+      
+      return state;
+    });
+  },
+
+  onDealResolved: () => {
+    // Prefetch next customer and show after delay
+    get().prefetchNextCustomer();
+    
+    setTimeout(() => {
+      get().showNextCustomer();
+    }, 1500);
+  },
+
+  incrementOfferCount: () => {
+    set(state => {
+      const newOfferCount = state.offerCount + 1;
+      
+      if (newOfferCount >= 3) {
+        // Auto-reject after 3 offers
+        setTimeout(() => {
+          get().onCustomerFinished();
+          get().onDealResolved();
+        }, 2000);
+      }
+      
+      return { offerCount: newOfferCount };
+    });
+  },
+
+  setShowLevelUpModal: (show: boolean) => {
+    set({ showLevelUpModal: show });
+    
+    if (!show) {
+      // Start new day when level up modal is closed
+      setTimeout(() => {
+        get().startNewDay();
+      }, 500);
+    }
+  },
+
+  setCurrentCustomer: (customer: Customer | null) => {
+    set({ currentCustomer: customer });
+  },
+
+  setIsLoadingNextCustomer: (loading: boolean) => {
+    set({ isLoadingNextCustomer: loading });
+  },
+
   // Auto-save with debouncing to prevent excessive saves
   autoSave: (() => {
     let timeoutId: NodeJS.Timeout | null = null;
@@ -859,7 +1054,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       if (timeoutId) clearTimeout(timeoutId);
       timeoutId = setTimeout(() => {
         const state = get();
-        if (state.day > 1 || state.cash !== 10000) { // Only auto-save if game has been played
+        if (state.day > 1 || state.cash !== 1000) { // Only auto-save if game has been played
           state.saveGameState();
         }
       }, 1000); // Debounce for 1 second

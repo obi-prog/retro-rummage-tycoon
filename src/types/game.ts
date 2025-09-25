@@ -82,6 +82,14 @@ export interface GameState {
   };
   // End of day modal
   showEndOfDayModal: boolean;
+  // Level system additions
+  unlocks: string[];
+  dayCustomerCount: number;
+  offerCount: number;
+  isLoadingNextCustomer: boolean;
+  currentCustomer: Customer | null;
+  nextCustomer: Customer | null;
+  showLevelUpModal: boolean;
 }
 
 

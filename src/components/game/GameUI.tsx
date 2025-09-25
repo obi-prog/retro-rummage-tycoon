@@ -12,8 +12,10 @@ import { MissionsPanel } from './MissionsPanel';
 import { EventsPanel } from './EventsPanel';
 import { SkillsPanel } from './SkillsPanel';
 import { FinancialLedger } from './FinancialLedger';
+import { LevelUpModal } from '@/components/ui/LevelUpModal';
 import { useSoundContext } from '@/contexts/SoundContext';
 import { useEffect } from 'react';
+import { getLevelConfig } from '@/utils/levelSystem';
 
 export const GameUI = () => {
   const { 
@@ -24,7 +26,11 @@ export const GameUI = () => {
     day, 
     timeLeft, 
     language,
-    experience 
+    experience,
+    unlocks,
+    showLevelUpModal,
+    setShowLevelUpModal,
+    skillPoints
   } = useGameStore();
 
   const { settings } = useSoundContext();
@@ -44,6 +50,17 @@ export const GameUI = () => {
     const nextLevelXP = level * 100;
     return ((experience - currentLevelXP) / (nextLevelXP - currentLevelXP)) * 100;
   };
+
+  const levelConfig = getLevelConfig(level);
+  const nextLevelConfig = getLevelConfig(level + 1);
+
+  // Apply level background color dynamically
+  useEffect(() => {
+    document.body.style.backgroundColor = levelConfig.bgColor;
+    return () => {
+      document.body.style.backgroundColor = '';
+    };
+  }, [levelConfig.bgColor]);
 
   return (
     <div className="w-full mx-auto space-y-4">
@@ -90,14 +107,19 @@ export const GameUI = () => {
           </CardContent>
         </Card>
 
-        {/* Cash */}
+        {/* Cash & Progress */}
         <Card className="bg-card/90 backdrop-blur-sm">
           <CardContent className="p-3">
             <div className="flex items-center gap-2">
               <Coins className="w-4 h-4 text-cash-green" />
-              <div>
+              <div className="flex-1">
                 <div className="text-xs text-muted-foreground">{t('cash', language)}</div>
-                <div className="font-bold text-lg text-cash-green">${cash}</div>
+                <div className="font-bold text-lg text-cash-green">${cash.toLocaleString()}</div>
+                {nextLevelConfig && (
+                  <div className="text-xs text-muted-foreground mt-1">
+                    Hedef: ${nextLevelConfig.targetCash.toLocaleString()}
+                  </div>
+                )}
               </div>
             </div>
           </CardContent>
@@ -130,6 +152,16 @@ export const GameUI = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Level Up Modal */}
+      <LevelUpModal
+        isOpen={showLevelUpModal}
+        onClose={() => setShowLevelUpModal(false)}
+        newLevel={level}
+        newUnlocks={unlocks}
+        skillPointsEarned={1}
+        language={language}
+      />
 
       {/* Game Tabs */}
       <Tabs defaultValue="inventory" className="w-full">
