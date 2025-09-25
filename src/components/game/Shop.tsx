@@ -146,42 +146,34 @@ export const Shop = () => {
   // Auto-generate customer if none present and daily limit not reached
   useEffect(() => {
     if (!currentCustomer && customersServed < dailyCustomerLimit) {
-      const timer = setTimeout(() => {
-        if (!currentCustomer && customersServed < dailyCustomerLimit) {
-          // If no inventory, force seller customer; otherwise random
-          const forceSellerIntent = inventory.length === 0;
-          const newCustomer = generateCustomer(forceSellerIntent);
-          setCurrentCustomer(newCustomer);
-          
-          setTimeout(() => {
-            if (newCustomer.intent === 'buy' && inventory.length > 0) {
-              const interestedItem = inventory[Math.floor(Math.random() * inventory.length)];
-              setSelectedItem(interestedItem);
-              
-              const itemValue = calculateItemValue(interestedItem);
-              const customerOffer = Math.max(10, generateCustomerInitialOffer(newCustomer, itemValue)); // Ensure minimum $10
-              setCurrentOffer(customerOffer);
-              const message = getInitialOfferMessage('buyer', interestedItem, customerOffer, language);
-              setCustomerResponse(message);
-              showCustomerSpeech(message);
-            } else if (newCustomer.intent === 'sell' && newCustomer.carriedItem) {
-              setSelectedItem(newCustomer.carriedItem);
-              const itemValue = calculateItemValue(newCustomer.carriedItem);
-              const customerAskingPrice = Math.max(10, Math.floor(itemValue * (0.8 + Math.random() * 0.3))); // Ensure minimum $10
-              setCurrentOffer(customerAskingPrice);
-              const message = getInitialOfferMessage('seller', newCustomer.carriedItem, customerAskingPrice, language);
-              setCustomerResponse(message);
-              showCustomerSpeech(message);
-            } else if (newCustomer.intent === 'buy' && inventory.length === 0) {
-              // This shouldn't happen with the new logic, but just in case
-              resetNegotiation();
-              return;
-            }
-          }, 50);
-        }
-      }, 100);
+      // If no inventory, force seller customer; otherwise random
+      const forceSellerIntent = inventory.length === 0;
+      const newCustomer = generateCustomer(forceSellerIntent);
+      setCurrentCustomer(newCustomer);
       
-      return () => clearTimeout(timer);
+      if (newCustomer.intent === 'buy' && inventory.length > 0) {
+        const interestedItem = inventory[Math.floor(Math.random() * inventory.length)];
+        setSelectedItem(interestedItem);
+        
+        const itemValue = calculateItemValue(interestedItem);
+        const customerOffer = Math.max(10, generateCustomerInitialOffer(newCustomer, itemValue)); // Ensure minimum $10
+        setCurrentOffer(customerOffer);
+        const message = getInitialOfferMessage('buyer', interestedItem, customerOffer, language);
+        setCustomerResponse(message);
+        showCustomerSpeech(message);
+      } else if (newCustomer.intent === 'sell' && newCustomer.carriedItem) {
+        setSelectedItem(newCustomer.carriedItem);
+        const itemValue = calculateItemValue(newCustomer.carriedItem);
+        const customerAskingPrice = Math.max(10, Math.floor(itemValue * (0.8 + Math.random() * 0.3))); // Ensure minimum $10
+        setCurrentOffer(customerAskingPrice);
+        const message = getInitialOfferMessage('seller', newCustomer.carriedItem, customerAskingPrice, language);
+        setCustomerResponse(message);
+        showCustomerSpeech(message);
+      } else if (newCustomer.intent === 'buy' && inventory.length === 0) {
+        // This shouldn't happen with the new logic, but just in case
+        resetNegotiation();
+        return;
+      }
     }
   }, [currentCustomer, customersServed, dailyCustomerLimit, inventory, setCurrentCustomer]);
 
