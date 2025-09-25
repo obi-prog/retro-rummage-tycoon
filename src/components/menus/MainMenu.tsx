@@ -94,9 +94,11 @@ export const MainMenu = ({
           {/* Settings Button */}
           <Button 
             onClick={() => handleUserInteraction(onSettings)}
-            variant="outline" 
-            className="w-full h-12 border-2 border-gray-300 bg-white hover:bg-gray-50 text-gray-700 font-semibold text-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
-            style={{ boxShadow: 'var(--shadow-button)' }}
+            className="w-full h-12 text-white font-semibold text-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
+            style={{ 
+              background: 'linear-gradient(135deg, hsl(var(--retro-cyan)), hsl(var(--retro-purple)))',
+              boxShadow: 'var(--shadow-button)'
+            }}
           >
             ⚙️ Settings
           </Button>
@@ -104,9 +106,11 @@ export const MainMenu = ({
           {/* How to Play Button */}
           <Button 
             onClick={() => handleUserInteraction(onHowToPlay)}
-            variant="outline"
-            className="w-full h-12 border-2 border-gray-300 bg-white hover:bg-gray-50 text-gray-700 font-semibold text-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
-            style={{ boxShadow: 'var(--shadow-button)' }}
+            className="w-full h-12 text-white font-semibold text-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
+            style={{ 
+              background: 'linear-gradient(135deg, hsl(var(--retro-yellow)), hsl(var(--retro-orange)))',
+              boxShadow: 'var(--shadow-button)'
+            }}
           >
             ❓ How to Play
           </Button>
