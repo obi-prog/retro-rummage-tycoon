@@ -157,9 +157,17 @@ export const generateHaggleResponse = (
   }
   
   if (newPatience <= 10) {
+    const farewellMessages = [
+      "Sanırım anlaşamayacağız, başka bir zaman görüşürüz.",
+      "Bu fiyatlarla olmaz, iyi günler dilerim.",
+      "Bu iş bugünlük buraya kadar, hoşça kalın.",
+      "Fikirlerimiz uyuşmuyor, şimdilik vazgeçiyorum.",
+      "Belki başka bir üründe anlaşırız, şimdilik hoşça kal."
+    ];
+    
     return {
       accepted: false,
-      message: "I'm done negotiating. Too expensive.",
+      message: farewellMessages[Math.floor(Math.random() * farewellMessages.length)],
       reputationChange: -1,
       trustChange: 0,
       counter: null
