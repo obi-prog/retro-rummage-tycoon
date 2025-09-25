@@ -95,14 +95,127 @@ export const generateCustomer = (forceSellerIntent?: boolean): Customer => {
   };
 };
 
+// Dynamic haggling responses based on price direction and customer role
+const haggleResponses = {
+  // Price decreased (player lowered offer)
+  priceDecreased: {
+    seller: [
+      { TR: "Bu daha da düştü, böyle olmaz.", EN: "You lowered it, that won't work.", DE: "Du hast den Preis gesenkt, das funktioniert nicht." },
+      { TR: "Fiyatı indirdin, bu yanlış yön.", EN: "You lowered the price, wrong direction.", DE: "Du hast den Preis reduziert, falsche Richtung." },
+      { TR: "Böyle pazarlık olmaz, yukarı çıkar.", EN: "That's not how you negotiate, go up.", DE: "So verhandelt man nicht, geh nach oben." }
+    ],
+    buyer: [
+      { TR: "Sen fiyatı yükseltmelisin, düşürme.", EN: "You should raise the price, don't lower it.", DE: "Du solltest den Preis erhöhen, nicht senken." },
+      { TR: "Yanlış yöne gidiyorsun, artırmalısın.", EN: "You're going the wrong way, increase it.", DE: "Du gehst in die falsche Richtung, erhöhe es." },
+      { TR: "Düşürme, ben alıcıyım artırmalısın.", EN: "Don't lower it, I'm a buyer, you should increase.", DE: "Senke es nicht, ich bin Käufer, du solltest erhöhen." }
+    ]
+  },
+  // Price increased (player raised offer)
+  priceIncreased: {
+    seller: [
+      { TR: "İşte böyle, yaklaşıyorsun.", EN: "That's it, you're getting closer.", DE: "Das ist es, du kommst näher." },
+      { TR: "Şimdi konuşmaya başlıyoruz.", EN: "Now we're starting to talk.", DE: "Jetzt fangen wir an zu reden." },
+      { TR: "Doğru yöne gidiyorsun, devam et.", EN: "You're going the right direction, continue.", DE: "Du gehst in die richtige Richtung, mach weiter." }
+    ],
+    buyer: [
+      { TR: "Artırıyorsun ama hâlâ az.", EN: "You're increasing but it's still low.", DE: "Du erhöhst, aber es ist immer noch wenig." },
+      { TR: "Yükseltiyor ama yeterli değil.", EN: "Going up but not enough.", DE: "Es geht nach oben, aber nicht genug." },
+      { TR: "Doğru yön ama daha cesur ol.", EN: "Right direction but be bolder.", DE: "Richtige Richtung, aber sei mutiger." }
+    ]
+  },
+  // Price unchanged
+  priceUnchanged: {
+    seller: [
+      { TR: "Aynı teklifte kaldın, biraz daha oynayalım.", EN: "You stayed with the same offer, let's play more.", DE: "Du bist bei demselben Angebot geblieben, lass uns mehr spielen." },
+      { TR: "Değiştirmediğin için ısrarcısın demek.", EN: "Since you didn't change, you must be persistent.", DE: "Da du nicht geändert hast, musst du hartnäckig sein." },
+      { TR: "Aynı rakam, başka bir şey dene.", EN: "Same number, try something else.", DE: "Gleiche Zahl, versuche etwas anderes." }
+    ],
+    buyer: [
+      { TR: "Aynı fiyat, hareket et artık.", EN: "Same price, make a move already.", DE: "Gleicher Preis, mach endlich einen Zug." },
+      { TR: "Tekrarladın, yeni bir teklif ver.", EN: "You repeated, give a new offer.", DE: "Du hast wiederholt, mache ein neues Angebot." },
+      { TR: "Değişiklik yok, cesur ol.", EN: "No change, be brave.", DE: "Keine Änderung, sei mutig." }
+    ]
+  },
+  // Very close to base price (90%+)
+  veryClose: [
+    { TR: "Neredeyse anlaşıyoruz, az kaldı.", EN: "We're almost there, just a bit more.", DE: "Wir sind fast da, nur noch ein bisschen." },
+    { TR: "Çok yaklaştık, son bir hamle.", EN: "Very close now, one last move.", DE: "Sehr nah jetzt, ein letzter Zug." },
+    { TR: "İşte şimdi ciddi konuşuyoruz.", EN: "Now we're talking seriously.", DE: "Jetzt reden wir ernsthaft." }
+  ],
+  // Very low offer (under 50%)
+  veryLow: [
+    { TR: "Bu çok düşük, ciddi değil.", EN: "This is too low, not serious.", DE: "Das ist zu niedrig, nicht ernst." },
+    { TR: "Şaka mı bu? Çok az.", EN: "Is this a joke? Too little.", DE: "Ist das ein Scherz? Zu wenig." },
+    { TR: "Bu rakamla ciddiye alamam.", EN: "I can't take this amount seriously.", DE: "Ich kann diesen Betrag nicht ernst nehmen." }
+  ],
+  // Very high offer (over 120% - good for customer)
+  veryHigh: [
+    { TR: "Bu beklediğimden bile iyi, hemen kabul edebilirim.", EN: "This is even better than expected, I can accept right away.", DE: "Das ist sogar besser als erwartet, ich kann sofort akzeptieren." },
+    { TR: "Vay canına, bu harika bir teklif!", EN: "Wow, this is a great offer!", DE: "Wow, das ist ein tolles Angebot!" },
+    { TR: "Bu kadar cömert olacağını beklemiyordum.", EN: "I didn't expect you to be this generous.", DE: "Ich hatte nicht erwartet, dass du so großzügig bist." }
+  ]
+};
+
 export const generateHaggleResponse = (
   customer: Customer, 
   item: Item, 
   offeredPrice: number, 
-  haggleCount: number
+  haggleCount: number,
+  previousOffer?: number
 ) => {
   const itemValue = calculateItemValue(item);
+  const basePrice = customer.intent === 'sell' 
+    ? generateCustomerInitialOffer(customer, itemValue)
+    : itemValue;
+  
   const priceRatio = offeredPrice / itemValue;
+  
+  // Determine price direction if previous offer exists
+  let priceDirection: 'increased' | 'decreased' | 'unchanged' | 'first' = 'first';
+  if (previousOffer !== undefined) {
+    if (offeredPrice > previousOffer) priceDirection = 'increased';
+    else if (offeredPrice < previousOffer) priceDirection = 'decreased';
+    else priceDirection = 'unchanged';
+  }
+  
+  // Determine price category relative to base price
+  const priceToBaseRatio = offeredPrice / basePrice;
+  let priceCategory: 'veryLow' | 'low' | 'close' | 'veryHigh' | 'normal' = 'normal';
+  
+  if (priceToBaseRatio < 0.5) priceCategory = 'veryLow';
+  else if (priceToBaseRatio >= 0.9 && priceToBaseRatio <= 1.1) priceCategory = 'close';
+  else if (priceToBaseRatio > 1.2) priceCategory = 'veryHigh';
+  else if (priceToBaseRatio < 0.8) priceCategory = 'low';
+  
+  // Generate dynamic response message
+  let responseMessage = "";
+  const language = 'TR'; // Can be made configurable later
+  
+  // Priority: Special price categories first, then direction-based responses
+  if (priceCategory === 'close' && haggleResponses.veryClose) {
+    const messages = haggleResponses.veryClose;
+    responseMessage = messages[Math.floor(Math.random() * messages.length)][language];
+  } else if (priceCategory === 'veryLow' && haggleResponses.veryLow) {
+    const messages = haggleResponses.veryLow;
+    responseMessage = messages[Math.floor(Math.random() * messages.length)][language];
+  } else if (priceCategory === 'veryHigh' && haggleResponses.veryHigh) {
+    const messages = haggleResponses.veryHigh;
+    responseMessage = messages[Math.floor(Math.random() * messages.length)][language];
+  } else if (priceDirection !== 'first') {
+    // Use direction-based responses
+    const roleKey = customer.intent === 'sell' ? 'seller' : 'buyer';
+    
+    if (priceDirection === 'decreased' && haggleResponses.priceDecreased[roleKey]) {
+      const messages = haggleResponses.priceDecreased[roleKey];
+      responseMessage = messages[Math.floor(Math.random() * messages.length)][language];
+    } else if (priceDirection === 'increased' && haggleResponses.priceIncreased[roleKey]) {
+      const messages = haggleResponses.priceIncreased[roleKey];
+      responseMessage = messages[Math.floor(Math.random() * messages.length)][language];
+    } else if (priceDirection === 'unchanged' && haggleResponses.priceUnchanged[roleKey]) {
+      const messages = haggleResponses.priceUnchanged[roleKey];
+      responseMessage = messages[Math.floor(Math.random() * messages.length)][language];
+    }
+  }
   
   // Customer-specific behavior
   let acceptanceThreshold = 0.8; // Base threshold
@@ -184,22 +297,24 @@ export const generateHaggleResponse = (
     };
   }
   
-  // Varied rejection responses
-  const rejectionMessages = [
-    "Bu fiyat çok düşük, biraz daha yükseltmelisiniz.",
-    "Bu teklif içimi hiç açmadı, daha iyi bir rakam bekliyorum.",
-    "Bu rakamla anlaşamayız, biraz daha cömert olun.",
-    "Hmm… değerinin altında, biraz daha artırın lütfen.",
-    "Bunu kabul edemem, fiyatı biraz yukarı çekmelisiniz."
-  ];
+  // Use dynamic response if available, otherwise fall back to default
+  if (!responseMessage) {
+    const rejectionMessages = [
+      "Bu fiyat çok düşük, biraz daha yükseltmelisiniz.",
+      "Bu teklif içimi hiç açmadı, daha iyi bir rakam bekliyorum.",
+      "Bu rakamla anlaşamayız, biraz daha cömert olun.",
+      "Hmm… değerinin altında, biraz daha artırın lütfen.",
+      "Bunu kabul edemem, fiyatı biraz yukarı çekmelisiniz."
+    ];
+    responseMessage = rejectionMessages[Math.floor(Math.random() * rejectionMessages.length)];
+  }
   
   // Counter offer
   const counterOffer = Math.floor(itemValue * (acceptanceThreshold - 0.1));
-  const randomMessage = rejectionMessages[Math.floor(Math.random() * rejectionMessages.length)];
   
   return {
     accepted: false,
-    message: `${randomMessage} $${counterOffer} nasıl?`,
+    message: `${responseMessage} $${counterOffer} nasıl?`,
     reputationChange: 0,
     trustChange: 0,
     counter: counterOffer
