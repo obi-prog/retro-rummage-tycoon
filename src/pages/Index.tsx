@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useGameStore } from '@/store/gameStore';
 import { Shop } from '@/components/game/Shop';
 import { QuickDock } from '@/components/game/QuickDock';
+import { NavigationMenu } from '@/components/game/NavigationMenu';
 import { MainMenu } from '@/components/menus/MainMenu';
 import { Settings } from '@/components/menus/Settings';
 import { EndOfDayModal } from '@/components/game/EndOfDayModal';
@@ -142,6 +143,7 @@ const Index = () => {
                 </div>
               </div>
               <div className="flex items-center gap-2">
+                <NavigationMenu />
                 <Popover open={settingsOpen} onOpenChange={setSettingsOpen}>
                   <PopoverTrigger asChild>
                     <Button
