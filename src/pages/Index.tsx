@@ -94,7 +94,7 @@ const Index = () => {
 
   // Show settings
   if (currentView === 'settings') {
-    return <Settings onBack={handleBackToMenu} />;
+    return <Settings onBack={handleBackToMenu} isInGame={gameStarted} onBackToGame={() => setCurrentView('game')} />;
   }
 
   // Show how to play (placeholder for now)

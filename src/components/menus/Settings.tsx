@@ -12,9 +12,11 @@ import { t } from '@/utils/localization';
 
 interface SettingsProps {
   onBack: () => void;
+  isInGame?: boolean;
+  onBackToGame?: () => void;
 }
 
-export const Settings = ({ onBack }: SettingsProps) => {
+export const Settings = ({ onBack, isInGame, onBackToGame }: SettingsProps) => {
   const { language, setLanguage, initGame, saveGameState } = useGameStore();
   const { 
     settings, 
@@ -224,6 +226,18 @@ export const Settings = ({ onBack }: SettingsProps) => {
 
           {/* Action Buttons */}
           <div className="space-y-3 pt-4">
+            {isInGame && onBackToGame && (
+              <Button 
+                onClick={() => {
+                  playClickSound();
+                  saveGameState();
+                  onBackToGame();
+                }}
+                className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold py-3 text-lg shadow-lg transition-all duration-200 hover:scale-105"
+              >
+                🎮 Oyuna Devam Et
+              </Button>
+            )}
             <Button 
               onClick={handleSaveAndBack}
               className="w-full bg-gradient-to-r from-retro-orange to-retro-pink hover:from-retro-orange/90 hover:to-retro-pink/90 text-white font-bold py-3 text-lg shadow-lg transition-all duration-200 hover:scale-105"
