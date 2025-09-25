@@ -1,6 +1,6 @@
 import { useGameStore } from '@/store/gameStore';
 import { t } from '@/utils/localization';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Item } from '@/types/game';
@@ -14,11 +14,11 @@ export const Inventory = ({ onItemSelect }: InventoryProps) => {
 
   const getRarityColor = (rarity: string) => {
     switch (rarity) {
-      case 'common': return 'bg-muted';
-      case 'rare': return 'bg-retro-cyan';
-      case 'very_rare': return 'bg-retro-purple';
-      case 'legendary': return 'bg-retro-orange';
-      default: return 'bg-muted';
+      case 'common': return 'bg-gray-100 text-gray-700 border-gray-200';
+      case 'rare': return 'bg-blue-100 text-blue-700 border-blue-200';
+      case 'very_rare': return 'bg-purple-100 text-purple-700 border-purple-200';
+      case 'legendary': return 'bg-gradient-to-r from-yellow-400 to-orange-400 text-white border-orange-300';
+      default: return 'bg-gray-100 text-gray-700 border-gray-200';
     }
   };
 
@@ -27,6 +27,13 @@ export const Inventory = ({ onItemSelect }: InventoryProps) => {
     if (condition < 50) return t('damaged', language);
     if (condition < 75) return t('good', language);
     return t('excellent', language);
+  };
+
+  const getConditionColor = (condition: number) => {
+    if (condition < 25) return 'bg-red-500';
+    if (condition < 50) return 'bg-orange-500';
+    if (condition < 75) return 'bg-yellow-500';
+    return 'bg-green-500';
   };
 
   const calculateSellPrice = (item: Item) => {
@@ -42,71 +49,91 @@ export const Inventory = ({ onItemSelect }: InventoryProps) => {
   };
 
   return (
-    <div className="w-full max-w-sm mx-auto p-4">
-      <Card className="bg-card/90 backdrop-blur-sm">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg flex items-center gap-2">
-            📦 {t('inventory', language)}
-            <Badge variant="secondary">{inventory.length}/10</Badge>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {inventory.length === 0 ? (
-            <div className="text-center text-muted-foreground py-8">
-              No items in inventory
-            </div>
-          ) : (
-            inventory.map((item) => (
-              <Card 
-                key={item.id} 
-                className="cursor-pointer hover:shadow-md transition-shadow bg-background border-border"
-                onClick={() => onItemSelect?.(item)}
-              >
-                <CardContent className="p-3">
-                  <div className="flex items-start gap-3">
-                    <div className="text-2xl">{item.image}</div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h4 className="font-medium text-sm truncate">{item.name}</h4>
-                        <Badge 
-                          className={`text-xs ${getRarityColor(item.rarity)}`}
-                        >
-                          {t(item.rarity as any, language)}
-                        </Badge>
+    <div className="space-y-4">
+      {/* Header with capacity */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <h2 className="text-lg font-semibold text-gray-800">Envanter</h2>
+          <Badge className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white border-0">
+            {inventory.length} / 10
+          </Badge>
+        </div>
+      </div>
+
+      {/* Inventory Items */}
+      <div className="space-y-3">
+        {inventory.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="text-4xl mb-4">📦</div>
+            <div className="text-gray-500 font-medium">Envanter boş</div>
+            <div className="text-sm text-gray-400 mt-1">Müşterilerden ürün satın al</div>
+          </div>
+        ) : (
+          inventory.map((item) => (
+            <Card 
+              key={item.id} 
+              className="group cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-[1.02] bg-white/90 backdrop-blur-sm border-orange-200/50 min-h-[44px]"
+              onClick={() => onItemSelect?.(item)}
+            >
+              <CardContent className="p-4">
+                <div className="flex items-center gap-4">
+                  {/* Item Image */}
+                  <div className="text-3xl flex-shrink-0 group-hover:scale-110 transition-transform duration-200">
+                    {item.image}
+                  </div>
+                  
+                  {/* Item Details */}
+                  <div className="flex-1 min-w-0 space-y-2">
+                    {/* Name and Rarity */}
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h4 className="font-semibold text-gray-800 truncate">{item.name}</h4>
+                      <Badge className={`text-xs font-medium border ${getRarityColor(item.rarity)}`}>
+                        {t(item.rarity as any, language)}
+                      </Badge>
+                    </div>
+                    
+                    {/* Category */}
+                    <div className="text-sm text-gray-600">
+                      {t(item.category as any, language)}
+                    </div>
+                    
+                    {/* Condition Bar */}
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-xs">
+                        <span className="text-gray-600">{getConditionText(item.condition)}</span>
+                        <span className="font-medium">{item.condition}%</span>
                       </div>
-                      
-                      <div className="space-y-2">
-                        <div>
-                          <div className="flex justify-between text-xs mb-1">
-                            <span>{getConditionText(item.condition)}</span>
-                            <span>{item.condition}%</span>
-                          </div>
-                          <Progress value={item.condition} className="h-1" />
+                      <div className="relative">
+                        <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                          <div 
+                            className={`h-full rounded-full transition-all duration-500 ${getConditionColor(item.condition)}`}
+                            style={{ width: `${item.condition}%` }}
+                          />
                         </div>
-                        
-                        <div className="flex justify-between items-center">
-                          <span className="text-xs text-muted-foreground">
-                            {t(item.category as any, language)}
-                          </span>
-                          <span className="font-bold text-cash-green text-sm">
-                            ${calculateSellPrice(item)}
-                          </span>
-                        </div>
-                        
-                        {item.authenticity !== 'authentic' && (
-                          <Badge variant="destructive" className="text-xs">
-                            {item.authenticity === 'fake' ? '⚠️ Fake' : '❓ Suspicious'}
-                          </Badge>
-                        )}
                       </div>
                     </div>
+                    
+                    {/* Authenticity Warning */}
+                    {item.authenticity !== 'authentic' && (
+                      <Badge variant="destructive" className="text-xs bg-red-100 text-red-700 border-red-200">
+                        {item.authenticity === 'fake' ? '⚠️ Sahte' : '❓ Şüpheli'}
+                      </Badge>
+                    )}
                   </div>
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </CardContent>
-      </Card>
+                  
+                  {/* Price */}
+                  <div className="flex-shrink-0 text-right">
+                    <div className="flex items-center gap-1 text-lg font-bold text-green-600">
+                      <span>💵</span>
+                      <span>${calculateSellPrice(item)}</span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        )}
+      </div>
     </div>
   );
 };
