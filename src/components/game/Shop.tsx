@@ -110,14 +110,12 @@ const getInitialOfferMessage = (role: 'buyer' | 'seller', item: Item, price: num
 export const Shop = () => {
   const { 
     inventory, 
-    currentCustomer, 
-    setCurrentCustomer, 
     sellItem, 
     buyItem,
     addToInventory,
     spendCash,
     addCash,
-    updateReputation, 
+    updateReputation,
     updateTrust,
     language,
     cash,
@@ -144,6 +142,7 @@ export const Shop = () => {
   const [timeoutRefs, setTimeoutRefs] = useState<Set<NodeJS.Timeout>>(new Set());
   const [lastPrefetchTime, setLastPrefetchTime] = useState(0);
   const [offerCount, setOfferCount] = useState(0);
+  const [currentCustomer, setCurrentCustomer] = useState<Customer | null>(null);
 
   const showCustomerSpeech = (message: string) => {
     setSpeechBubbleMessage(message);

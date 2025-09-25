@@ -17,7 +17,6 @@ interface GameStore extends GameState {
   removeFromInventory: (itemId: string) => void;
   sellItem: (item: Item, price: number) => void;
   buyItem: (item: Item, price: number) => boolean;
-  setCurrentCustomer: (customer: Customer | null) => void;
   advanceDay: () => void;
   updateReputation: (amount: number) => void;
   updateTrust: (amount: number) => void;
@@ -126,7 +125,6 @@ export const useGameStore = create<GameStore>()((set, get) => ({
   timeLeft: 0, // No timer - use customer counter instead
   inventory: generateStartingItems(),
   shopItems: [],
-  currentCustomer: null,
   events: [],
   trends: [],
   dailyExpenses: 50,
@@ -174,7 +172,6 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       timeLeft: 0, // No timer
       inventory: generateStartingItems(),
       shopItems: [],
-      currentCustomer: null,
       events: [],
       trends: [],
       dailyExpenses: 50,
@@ -319,9 +316,6 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     return false;
   },
 
-  setCurrentCustomer: (customer: Customer | null) => {
-    set({ currentCustomer: customer });
-  },
 
   advanceDay: () => {
     set(state => {
@@ -441,7 +435,6 @@ export const useGameStore = create<GameStore>()((set, get) => ({
           timeLeft: currentState.timeLeft,
           inventory: currentState.inventory,
           shopItems: currentState.shopItems,
-          currentCustomer: currentState.currentCustomer,
           events: currentState.events,
           trends: currentState.trends,
           dailyExpenses: currentState.dailyExpenses,
@@ -785,7 +778,6 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       timeLeft: state.timeLeft,
       inventory: state.inventory,
       shopItems: state.shopItems,
-      currentCustomer: state.currentCustomer,
       events: state.events,
       trends: state.trends,
       dailyExpenses: state.dailyExpenses,

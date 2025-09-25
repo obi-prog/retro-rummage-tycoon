@@ -55,7 +55,6 @@ export interface GameState {
   timeLeft: number; // seconds
   inventory: Item[];
   shopItems: Item[];
-  currentCustomer: Customer | null;
   events: GameEvent[];
   trends: TrendData[];
   dailyExpenses: number;
