@@ -121,7 +121,7 @@ const resources: Record<SupportedLocale, Record<string, any>> = {
       }
     },
     endOfDay: {
-      title: "Week {week} Day {day} - Daily Summary",
+      dailySummary: "Daily Summary",
       dailyIncome: "Daily Income",
       dailyExpenses: "Daily Expenses", 
       netProfitLoss: "Net Profit/Loss",
@@ -236,7 +236,7 @@ const resources: Record<SupportedLocale, Record<string, any>> = {
       }
     },
     endOfDay: {
-      title: "Hafta {week} Gün {day} - Günlük Özet",
+      dailySummary: "Günlük Özet",
       dailyIncome: "Günlük Gelir",
       dailyExpenses: "Günlük Gider", 
       netProfitLoss: "Net Kar/Zarar",
@@ -351,7 +351,7 @@ const resources: Record<SupportedLocale, Record<string, any>> = {
       }
     },
     endOfDay: {
-      title: "Woche {week} Tag {day} - Tagesübersicht",
+      dailySummary: "Tagesübersicht",
       dailyIncome: "Tägliches Einkommen",
       dailyExpenses: "Tägliche Ausgaben", 
       netProfitLoss: "Netto Gewinn/Verlust",

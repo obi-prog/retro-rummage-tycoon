@@ -66,10 +66,7 @@ export const EndOfDayModal = ({ isOpen, onContinue }: EndOfDayModalProps) => {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-xl">
             <Calendar className="w-6 h-6" />
-            {t('endOfDay.title', 'Week {week} Day {day} - Daily Summary', {
-              week: Math.ceil(day / 7).toString(),
-              day: (((day - 1) % 7) + 1).toString()
-            })}
+            Week {Math.ceil(day / 7)} Day {((day - 1) % 7) + 1} - {t('endOfDay.dailySummary', 'Daily Summary')}
           </DialogTitle>
         </DialogHeader>
 
