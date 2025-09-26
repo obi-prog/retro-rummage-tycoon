@@ -121,16 +121,16 @@ const resources: Record<SupportedLocale, Record<string, any>> = {
       }
     },
     endOfDay: {
-      dailySummary: "Daily Summary",
-      dailyIncome: "Daily Income",
-      dailyExpenses: "Daily Expenses", 
-      netProfitLoss: "Net Profit/Loss",
-      dailyStats: "Daily Statistics",
-      itemsSold: "Items Sold",
-      itemsBought: "Items Bought", 
-      successfulNegotiations: "Successful Negotiations",
-      fakeItemsDetected: "Fake Items Detected",
-      currentCash: "Current Cash",
+      title: "Daily Summary",
+      income: "Income",
+      expenses: "Expenses",
+      net: "Net Profit / Loss",
+      stats: "Daily Stats",
+      sold: "Items Sold",
+      bought: "Items Bought",
+      successful: "Successful Negotiations",
+      fakeDetected: "Fake Items Detected",
+      cashAfter: "Cash After Day",
       openShop: "Open Shop"
     }
   },
@@ -236,16 +236,16 @@ const resources: Record<SupportedLocale, Record<string, any>> = {
       }
     },
     endOfDay: {
-      dailySummary: "Günlük Özet",
-      dailyIncome: "Günlük Gelir",
-      dailyExpenses: "Günlük Gider", 
-      netProfitLoss: "Net Kar/Zarar",
-      dailyStats: "Günlük İstatistikler",
-      itemsSold: "Satılan Eşya",
-      itemsBought: "Alınan Eşya", 
-      successfulNegotiations: "Başarılı Pazarlık",
-      fakeItemsDetected: "Sahte Eşya Tespit",
-      currentCash: "Güncel Nakit",
+      title: "Gün Özeti",
+      income: "Gelir",
+      expenses: "Gider",
+      net: "Net Kâr / Zarar",
+      stats: "Günlük İstatistikler",
+      sold: "Satılan Ürün",
+      bought: "Alınan Ürün",
+      successful: "Başarılı Pazarlık",
+      fakeDetected: "Sahte Ürün Yakalandı",
+      cashAfter: "Gün Sonu Nakit",
       openShop: "Dükkanı Aç"
     }
   },
@@ -351,17 +351,17 @@ const resources: Record<SupportedLocale, Record<string, any>> = {
       }
     },
     endOfDay: {
-      dailySummary: "Tagesübersicht",
-      dailyIncome: "Tägliches Einkommen",
-      dailyExpenses: "Tägliche Ausgaben", 
-      netProfitLoss: "Netto Gewinn/Verlust",
-      dailyStats: "Tagesstatistiken",
-      itemsSold: "Verkaufte Artikel",
-      itemsBought: "Gekaufte Artikel", 
-      successfulNegotiations: "Erfolgreiche Verhandlungen",
-      fakeItemsDetected: "Gefälschte Artikel Erkannt",
-      currentCash: "Aktuelles Bargeld",
-      openShop: "Geschäft Öffnen"
+      title: "Tagesübersicht",
+      income: "Einnahmen",
+      expenses: "Ausgaben",
+      net: "Netto Gewinn / Verlust",
+      stats: "Tagesstatistik",
+      sold: "Verkaufte Artikel",
+      bought: "Gekaufte Artikel",
+      successful: "Erfolgreiche Verhandlungen",
+      fakeDetected: "Gefälschte Artikel erkannt",
+      cashAfter: "Bargeld nach dem Tag",
+      openShop: "Laden öffnen"
     }
   }
 };
