@@ -92,41 +92,52 @@ export const MainMenu = ({
         <div className="absolute top-1/3 right-1/3 text-2xl float-money" style={{ animationDelay: '2.5s' }}>🔥</div>
       </div>
 
-      <Card className="w-[90%] max-w-md mx-4 border-0 relative" 
+      <Card className="w-[90%] max-w-md mx-4 border-0 relative overflow-hidden" 
             style={{ 
-              background: 'rgba(255, 255, 255, 0.65)',
-              backdropFilter: 'blur(8px)',
+              background: 'linear-gradient(145deg, #FFB347 0%, #FFCC33 30%, #FF6B6B 100%)',
               borderRadius: '20px',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.2)',
-              border: '1px solid transparent',
-              backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65)), linear-gradient(135deg, #FFE5B4, #FFD1DC, #B4FFE5)',
-              backgroundOrigin: 'border-box',
-              backgroundClip: 'content-box, border-box'
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2), inset 0 0 20px rgba(255, 255, 255, 0.15)',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+              backdropFilter: 'blur(4px)'
             }}>
-        <CardHeader className="text-center space-y-3 pb-4">
+        
+        {/* Decorative overlay pattern */}
+        <div className="absolute inset-0 pointer-events-none opacity-10" 
+             style={{
+               backgroundImage: `
+                 url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.3'%3E%3Cpath d='M30 15c8.284 0 15 6.716 15 15s-6.716 15-15 15-15-6.716-15-15 6.716-15 15-15zm0 2c-7.18 0-13 5.82-13 13s5.82 13 13 13 13-5.82 13-13-5.82-13-13-13z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")
+               `,
+               backgroundSize: '40px 40px'
+             }}>
+        </div>
+        
+        {/* Retro icons overlay */}
+        <div className="absolute inset-0 pointer-events-none opacity-8">
+          <div className="absolute top-4 right-4 text-2xl" style={{ color: 'rgba(255, 255, 255, 0.4)' }}>💰</div>
+          <div className="absolute bottom-6 left-6 text-xl" style={{ color: 'rgba(255, 255, 255, 0.3)' }}>📻</div>
+          <div className="absolute top-1/2 left-4 text-lg" style={{ color: 'rgba(255, 255, 255, 0.35)' }}>💵</div>
+          <div className="absolute bottom-4 right-8 text-lg" style={{ color: 'rgba(255, 255, 255, 0.3)' }}>🎧</div>
+        </div>
+        <CardHeader className="text-center space-y-3 pb-4 relative z-10">
           <div className="text-6xl mb-2">🤝</div>
-          <CardTitle className="text-4xl font-bold neon-title leading-tight" style={{
-            textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+          <CardTitle className="text-4xl font-bold leading-tight text-white" style={{
+            textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5), 0 0 8px rgba(0, 0, 0, 0.3)'
           }}>
             Deal or Walk
           </CardTitle>
-          <div className="text-lg font-bold" style={{ 
-            background: 'var(--gradient-neon-alt)', 
-            backgroundClip: 'text', 
-            WebkitBackgroundClip: 'text', 
-            WebkitTextFillColor: 'transparent',
-            textShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
+          <div className="text-lg font-bold text-white" style={{ 
+            textShadow: '1px 1px 3px rgba(0, 0, 0, 0.6)'
           }}>
             Buy Low, Sell High!
           </div>
-          <p className="text-sm text-muted-foreground font-medium" style={{
-            textShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
+          <p className="text-sm font-medium text-white/90" style={{
+            textShadow: '1px 1px 2px rgba(0, 0, 0, 0.5)'
           }}>
             Retro Street Market Flip Tycoon
           </p>
         </CardHeader>
         
-        <CardContent className="space-y-3 px-6 pb-6">
+        <CardContent className="space-y-3 px-6 pb-6 relative z-10">
           {/* Continue Game Button - only if saved game exists */}
            {hasSavedGame && onContinueGame && (
             <Button 
