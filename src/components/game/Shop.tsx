@@ -25,10 +25,12 @@ const Shop: React.FC = () => {
     spendCash,
     customersServed,
     dailyCustomerLimit,
-    serveCustomer
+    serveCustomer,
+    onDealResolved,
+    currentCustomer: storeCurrentCustomer,
+    isLoadingNextCustomer
   } = useGameStore();
   
-  const [currentCustomer, setCurrentCustomer] = useState<Customer | null>(null);
   const [dealItem, setDealItem] = useState<Item | null>(null);
   const [offerModalOpen, setOfferModalOpen] = useState(false);
   const [currentOffer, setCurrentOffer] = useState<number>(0);
@@ -38,60 +40,30 @@ const Shop: React.FC = () => {
   const [showSuccessEffect, setShowSuccessEffect] = useState(false);
   
   const { playSound } = useSound();
+  
+  // Use the store's current customer
+  const currentCustomer = storeCurrentCustomer;
 
-  // Generate a simple customer
-  const generateSimpleCustomer = (): Customer | null => {
-    try {
-      if (customersServed >= dailyCustomerLimit) {
-        return null;
-      }
-      
-      const customer = generateCustomer();
-      
-      // Assign an item based on customer intent
-      if (customer.intent === 'buy' && inventory.length > 0) {
-        // Customer wants to buy from our inventory
-        const randomItem = inventory[Math.floor(Math.random() * inventory.length)];
-        return {
-          ...customer,
-          carriedItem: randomItem
-        };
-      } else if (customer.intent === 'sell') {
-        // Customer wants to sell us an item (they already have carriedItem)
-        return customer;
-      }
-      
-      return customer;
-    } catch (error) {
-      console.error('Failed to generate customer:', error);
-      return null;
-    }
-  };
-
-  // Initialize customer
+  // Set deal item when customer changes
   useEffect(() => {
-    if (!currentCustomer && customersServed < dailyCustomerLimit) {
-      const newCustomer = generateSimpleCustomer();
-      if (newCustomer) {
-        setCurrentCustomer(newCustomer);
-        if (newCustomer.carriedItem) {
-          setDealItem(newCustomer.carriedItem);
-          
-          // Set initial offer based on intent
-          const itemValue = calculateItemValue(newCustomer.carriedItem);
-          if (newCustomer.intent === 'buy') {
-            const offer = Math.floor(itemValue * (0.7 + Math.random() * 0.3));
-            setCurrentOffer(offer);
-            showSpeech(`I'd like to buy this ${newCustomer.carriedItem.name} for $${offer}`, 3000);
-          } else {
-            const askPrice = Math.floor(itemValue * (0.8 + Math.random() * 0.4));
-            setCurrentOffer(askPrice);
-            showSpeech(`I want to sell this ${newCustomer.carriedItem.name} for $${askPrice}`, 3000);
-          }
-        }
+    if (currentCustomer?.carriedItem) {
+      setDealItem(currentCustomer.carriedItem);
+      
+      // Set initial offer based on intent
+      const itemValue = calculateItemValue(currentCustomer.carriedItem);
+      if (currentCustomer.intent === 'buy') {
+        const offer = Math.floor(itemValue * (0.7 + Math.random() * 0.3));
+        setCurrentOffer(offer);
+        showSpeech(`I'd like to buy this ${currentCustomer.carriedItem.name} for $${offer}`, 3000);
+      } else {
+        const askPrice = Math.floor(itemValue * (0.8 + Math.random() * 0.4));
+        setCurrentOffer(askPrice);
+        showSpeech(`I want to sell this ${currentCustomer.carriedItem.name} for $${askPrice}`, 3000);
       }
+    } else {
+      setDealItem(null);
     }
-  }, [currentCustomer, customersServed, dailyCustomerLimit, inventory]);
+  }, [currentCustomer]);
 
   // Handle customer actions
   const handleAccept = () => {
@@ -122,13 +94,13 @@ const Shop: React.FC = () => {
       }
     }
     
-    moveToNextCustomer();
+    onDealResolved();
   };
 
   const handleReject = () => {
     playSound('click');
     showSpeech("Maybe next time!", 1500);
-    setTimeout(moveToNextCustomer, 1500);
+    setTimeout(() => onDealResolved(), 1500);
   };
 
   const handleCounterOffer = (amount: number) => {
@@ -162,7 +134,7 @@ const Shop: React.FC = () => {
           return;
         }
       }
-      moveToNextCustomer();
+      onDealResolved();
     } else {
       // Reject the counter offer
       playSound('error');
@@ -173,33 +145,15 @@ const Shop: React.FC = () => {
         "That doesn't work for me, sorry."
       ];
       showSpeech(responses[Math.floor(Math.random() * responses.length)], 2000);
-      setTimeout(moveToNextCustomer, 2000);
+      setTimeout(() => onDealResolved(), 2000);
     }
-  };
-
-  const moveToNextCustomer = () => {
-    console.log('🛒 Moving to next customer - serving customer, current count:', customersServed);
-    serveCustomer();
-    setCurrentCustomer(null);
-    setDealItem(null);
-    setSpeechVisible(false);
-    
-    // Generate next customer after a delay
-    setTimeout(() => {
-      console.log('🛒 Trying to generate next customer, served:', customersServed + 1, 'limit:', dailyCustomerLimit);
-      const newCustomer = generateSimpleCustomer();
-      if (newCustomer) {
-        console.log('🛒 New customer generated:', newCustomer.name);
-        setCurrentCustomer(newCustomer);
-      } else {
-        console.log('🛒 No new customer generated - day should be ending');
-      }
-    }, 1000);
   };
 
   const showSpeech = (text: string, duration: number = 3000) => {
     setSpeechText(text);
     setSpeechVisible(true);
+    setTimeout(() => setSpeechVisible(false), duration);
+  };
     setTimeout(() => setSpeechVisible(false), duration);
   };
 

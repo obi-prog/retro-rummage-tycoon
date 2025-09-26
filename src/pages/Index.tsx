@@ -31,7 +31,8 @@ const Index = () => {
     saveGameState,
     showEndOfDayModal,
     setShowEndOfDayModal,
-    advanceDay
+    advanceDay,
+    proceedToNextDay
   } = useGameStore();
   
   const { 
@@ -83,7 +84,7 @@ const Index = () => {
 
   const handleContinueToNextDay = () => {
     setShowEndOfDayModal(false);
-    advanceDay();
+    proceedToNextDay();
   };
 
   // Show main menu

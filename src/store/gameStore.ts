@@ -48,6 +48,17 @@ interface GameStore extends GameState {
   // Level system actions
   startNewDay: () => void;
   onCustomerFinished: () => void;
+  // New robust day progression system
+  clearTimers: () => void;
+  proceedToNextDay: () => void;
+  loadGameSafe: () => void;
+  // Non-persisted state
+  isLoadingNextCustomer: boolean;
+  currentCustomer: Customer | null;
+  nextCustomer: Customer | null;
+  nextDelayTimer: NodeJS.Timeout | null;
+  nextGuardTimer: NodeJS.Timeout | null;
+  lastDayAdvanceTime: number;
   endOfDay: () => void;
   checkLevelUp: () => void;
   prefetchNextCustomer: () => void;
@@ -179,6 +190,9 @@ export const useGameStore = create<GameStore>()((set, get) => ({
   isLoadingNextCustomer: false,
   currentCustomer: null,
   nextCustomer: null,
+  nextDelayTimer: null,
+  nextGuardTimer: null,
+  lastDayAdvanceTime: 0,
   showLevelUpModal: false,
 
   // Actions
@@ -892,50 +906,56 @@ export const useGameStore = create<GameStore>()((set, get) => ({
 
   // Level system actions
   startNewDay: () => {
-    set(state => {
-      const config = getLevelConfig(state.level);
-      const newDayCustomerLimit = getRandomCustomerLimit(state.level);
-      
-      return {
-        dayCustomerCount: 0,
-        offerCount: 0,
-        dailyCustomerLimit: newDayCustomerLimit,
-        showEndOfDayModal: false,
-        isLoadingNextCustomer: false,
-        currentCustomer: null,
-        nextCustomer: null
-      };
+    console.log('🎮 StartNewDay called');
+    const state = get();
+    state.clearTimers();
+    
+    const config = getLevelConfig(state.level);
+    const newDayCustomerLimit = getRandomCustomerLimit(state.level);
+    
+    set({
+      dayCustomerCount: 0,
+      offerCount: 0,
+      dailyCustomerLimit: newDayCustomerLimit,
+      showEndOfDayModal: false,
+      isLoadingNextCustomer: false,
+      currentCustomer: null,
+      nextCustomer: null,
+      nextDelayTimer: null,
+      nextGuardTimer: null
     });
+    
+    // Prefetch first customer and show
+    const newState = get();
+    newState.prefetchNextCustomer();
+    setTimeout(() => {
+      newState.showNextCustomer();
+    }, 300);
   },
 
   onCustomerFinished: () => {
-    set(state => {
-      const newDayCustomerCount = state.dayCustomerCount + 1;
-      
-      if (newDayCustomerCount >= state.dailyCustomerLimit) {
-        get().endOfDay();
-      }
-      
-      return {
-        dayCustomerCount: newDayCustomerCount,
-        offerCount: 0
-      };
-    });
+    // This method is kept for backward compatibility but doesn't handle day progression
+    // Day progression is now handled in onDealResolved
+    set(state => ({
+      offerCount: 0
+    }));
   },
 
   endOfDay: () => {
-    set(state => {
-      // Show closing message briefly
-      const closingMessage = getRandomDayClosingMessage(state.language);
-      
-      // Check for level up first
-      setTimeout(() => {
-        get().checkLevelUp();
-      }, 2000);
-      
-      return {
-        showEndOfDayModal: true
-      };
+    console.log('🎮 EndOfDay called');
+    const state = get();
+    state.clearTimers();
+    
+    // Check for level up first
+    setTimeout(() => {
+      get().checkLevelUp();
+    }, 1000);
+    
+    set({
+      showEndOfDayModal: true,
+      isLoadingNextCustomer: false,
+      currentCustomer: null,
+      nextCustomer: null
     });
   },
 
@@ -959,58 +979,134 @@ export const useGameStore = create<GameStore>()((set, get) => ({
           showEndOfDayModal: false
         };
       } else {
-        // No level up, just start new day
-        setTimeout(() => {
-          get().startNewDay();
-        }, 1000);
-        
-        return state;
+        // No level up, show end of day modal if not already shown
+        return {
+          showEndOfDayModal: true
+        };
       }
     });
   },
 
   prefetchNextCustomer: () => {
-    set(state => {
-      if (state.nextCustomer === null) {
+    const state = get();
+    if (state.nextCustomer === null) {
+      try {
         const newCustomer = generateCustomer();
-        return { nextCustomer: newCustomer };
+        set({ nextCustomer: newCustomer });
+        console.log('🎯 Prefetched customer:', newCustomer.name);
+      } catch (error) {
+        console.error('Error generating customer:', error);
+        // Create fallback customer
+        const fallbackCustomer: Customer = {
+          id: 'fallback_' + Date.now(),
+          name: 'Alex',
+          type: 'student',
+          patience: 50,
+          budget: 200,
+          knowledge: 40,
+          preferences: [],
+          avatar: '/src/assets/avatars/customer-1.jpg',
+          intent: 'buy',
+          carriedItem: {
+            id: 'fallback_item',
+            name: 'Vintage Item',
+            category: 'toy',
+            baseValue: 100,
+            condition: 70,
+            authenticity: 'authentic',
+            rarity: 'common',
+            trendBonus: 0,
+            image: '📦'
+          }
+        };
+        set({ nextCustomer: fallbackCustomer });
       }
-      return state;
-    });
+    }
   },
 
   showNextCustomer: () => {
-    set(state => {
-      if (state.isLoadingNextCustomer) return state;
+    const state = get();
+    console.log('🎯 ShowNextCustomer called, isLoading:', state.isLoadingNextCustomer);
+    
+    if (state.isLoadingNextCustomer) {
+      console.log('🎯 Already loading, skipping');
+      return;
+    }
+    
+    state.clearTimers();
+    set({ isLoadingNextCustomer: true });
+    
+    // Random delay for aesthetics (300-800ms)
+    const randomDelay = Math.floor(Math.random() * 500) + 300;
+    
+    const nextDelayTimer = setTimeout(() => {
+      const currentState = get();
+      let customer = currentState.nextCustomer;
       
-      set({ isLoadingNextCustomer: true });
+      if (!customer) {
+        console.log('🎯 No prefetched customer, generating fallback');
+        currentState.prefetchNextCustomer();
+        customer = get().nextCustomer;
+      }
       
-      // Simulate loading delay
-      setTimeout(() => {
-        const state = get();
-        const customer = state.nextCustomer || generateCustomer();
+      if (customer) {
+        console.log('🎯 Setting current customer:', customer.name);
+        set({
+          currentCustomer: customer,
+          nextCustomer: null,
+          offerCount: 0,
+          isLoadingNextCustomer: false,
+          nextDelayTimer: null
+        });
+      }
+    }, randomDelay);
+    
+    // Guard timer - hard timeout to ensure customer always appears
+    const nextGuardTimer = setTimeout(() => {
+      const currentState = get();
+      if (currentState.isLoadingNextCustomer) {
+        console.log('🎯 Guard timer triggered - forcing customer display');
+        currentState.prefetchNextCustomer();
+        const customer = get().nextCustomer;
         
         set({
           currentCustomer: customer,
           nextCustomer: null,
           offerCount: 0,
-          isLoadingNextCustomer: false
+          isLoadingNextCustomer: false,
+          nextDelayTimer: null,
+          nextGuardTimer: null
         });
-        
-        // Prefetch next customer
-        get().prefetchNextCustomer();
-      }, Math.random() * 600 + 300); // 300-900ms delay
-      
-      return state;
-    });
+      }
+    }, 1200);
+    
+    set({ nextDelayTimer, nextGuardTimer });
   },
 
   onDealResolved: () => {
-    // Prefetch next customer and show after delay
-    get().prefetchNextCustomer();
+    console.log('🎯 Deal resolved');
+    const state = get();
     
+    // Prefetch next customer immediately
+    state.prefetchNextCustomer();
+    
+    // Show reaction delay (1.5-2s)
     setTimeout(() => {
-      get().showNextCustomer();
+      const currentState = get();
+      currentState.showNextCustomer();
+      
+      // Update customer count and check for end of day
+      set(prevState => {
+        const newCount = prevState.dayCustomerCount + 1;
+        console.log('🎯 Customer count:', newCount, '/', prevState.dailyCustomerLimit);
+        
+        if (newCount >= prevState.dailyCustomerLimit) {
+          console.log('🎯 Day limit reached, ending day');
+          setTimeout(() => currentState.endOfDay(), 500);
+        }
+        
+        return { dayCustomerCount: newCount };
+      });
     }, 1500);
   },
 
@@ -1061,5 +1157,70 @@ export const useGameStore = create<GameStore>()((set, get) => ({
         }
       }, 1000); // Debounce for 1 second
     };
-  })()
+  })(),
+
+  // Robust day progression system
+  clearTimers: () => {
+    const state = get();
+    if (state.nextDelayTimer) {
+      clearTimeout(state.nextDelayTimer);
+    }
+    if (state.nextGuardTimer) {
+      clearTimeout(state.nextGuardTimer);
+    }
+    set({ nextDelayTimer: null, nextGuardTimer: null });
+  },
+
+  proceedToNextDay: () => {
+    console.log('🎮 ProceedToNextDay called');
+    const now = Date.now();
+    const state = get();
+    
+    // Debounce to prevent multiple calls
+    if (now - state.lastDayAdvanceTime < 500) {
+      console.log('🎮 ProceedToNextDay debounced - too soon');
+      return;
+    }
+    
+    set({ lastDayAdvanceTime: now });
+    state.clearTimers();
+    state.advanceDay();
+    
+    // Start the new day after a brief delay
+    setTimeout(() => {
+      const newState = get();
+      newState.startNewDay();
+    }, 100);
+  },
+
+  loadGameSafe: () => {
+    console.log('🎮 LoadGameSafe called');
+    const state = get();
+    state.clearTimers();
+    
+    try {
+      const success = state.loadGameState();
+      if (success) {
+        const currentState = get();
+        set({ 
+          isLoadingNextCustomer: false,
+          nextCustomer: null,
+          nextDelayTimer: null,
+          nextGuardTimer: null
+        });
+        
+        // Check if we need to start a new day or continue current day
+        if (currentState.dayCustomerCount >= currentState.dailyCustomerLimit) {
+          currentState.startNewDay();
+        } else {
+          currentState.prefetchNextCustomer();
+          setTimeout(() => currentState.showNextCustomer(), 300);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading game:', error);
+      // Fall back to current state
+      state.startNewDay();
+    }
+  }
 }));
