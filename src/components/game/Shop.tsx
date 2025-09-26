@@ -242,27 +242,6 @@ const Shop: React.FC = () => {
 
   return (
     <div className="flex flex-col h-full overflow-y-auto bg-professional-light-grey">
-      {/* Professional Header Bar */}
-      <div className="bg-white border-b border-gray-200 p-4 flex items-center justify-between shadow-sm">
-        <div className="flex items-center gap-3">
-          <DollarSign className="w-5 h-5 text-professional-emerald" />
-          <span className="text-lg font-semibold text-professional-dark-grey">
-            ${cash.toLocaleString()}
-          </span>
-        </div>
-        
-        <div className="flex items-center gap-2">
-          <Star className="w-4 h-4 text-amber-500" />
-          <span className="text-sm font-medium text-professional-grey">
-            Lv {level}
-          </span>
-        </div>
-        
-        <Button variant="ghost" size="sm" className="text-professional-grey hover:text-professional-dark-grey">
-          <Settings className="w-4 h-4" />
-        </Button>
-      </div>
-
       <div className="flex-1 p-4 space-y-4 max-w-md mx-auto w-full">
         {/* Customer Info Card */}
         <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
