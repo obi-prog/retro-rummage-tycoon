@@ -28,6 +28,7 @@ const Shop: React.FC = () => {
   const [dealItem, setDealItem] = useState<Item | null>(null);
   const [offerModalOpen, setOfferModalOpen] = useState(false);
   const [currentOffer, setCurrentOffer] = useState<number>(0);
+  const [offerInputValue, setOfferInputValue] = useState<string>('');
   const [speechText, setSpeechText] = useState<string>('');
   const [speechVisible, setSpeechVisible] = useState(false);
   const [showSuccessEffect, setShowSuccessEffect] = useState(false);
@@ -204,15 +205,19 @@ const Shop: React.FC = () => {
 
   const openOfferModal = () => {
     if (!currentCustomer || !dealItem) return;
+    setOfferInputValue(currentOffer.toString());
     setOfferModalOpen(true);
   };
 
   const adjustOffer = (delta: number) => {
-    setCurrentOffer(prev => Math.max(1, prev + delta));
+    const newValue = Math.max(1, currentOffer + delta);
+    setCurrentOffer(newValue);
+    setOfferInputValue(newValue.toString());
   };
 
   const submitOffer = () => {
-    handleCounterOffer(currentOffer);
+    const finalOffer = parseInt(offerInputValue) || currentOffer;
+    handleCounterOffer(finalOffer);
     setOfferModalOpen(false);
   };
 
@@ -465,8 +470,14 @@ const Shop: React.FC = () => {
               
               <Input
                 type="number"
-                value={currentOffer}
-                onChange={(e) => setCurrentOffer(parseInt(e.target.value) || 0)}
+                value={offerInputValue}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setOfferInputValue(value);
+                  const numValue = parseInt(value) || 0;
+                  setCurrentOffer(numValue);
+                }}
+                onFocus={(e) => e.target.select()}
                 className="text-center text-lg font-semibold w-28 h-12 border-gray-300 focus:border-professional-blue"
               />
               
