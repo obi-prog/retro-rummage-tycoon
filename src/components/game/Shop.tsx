@@ -194,7 +194,7 @@ const Shop: React.FC = () => {
     );
   }
 
-  if (!currentCustomer || !dealItem) {
+  if (!currentCustomer || !dealItem || isLoadingNextCustomer) {
     return (
       <div className="flex items-center justify-center h-full bg-professional-light-grey">
         <div className="text-center">

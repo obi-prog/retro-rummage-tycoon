@@ -26,7 +26,7 @@ const Index = () => {
     missions,
     customersServed,
     dailyCustomerLimit,
-    loadGameState,
+    loadGameSafe,
     hasSavedGame,
     saveGameState,
     showEndOfDayModal,
@@ -60,11 +60,9 @@ const Index = () => {
   };
 
   const handleContinueGame = () => {
-    const loaded = loadGameState();
-    if (loaded) {
-      setGameStarted(true);
-      setCurrentView('game');
-    }
+    loadGameSafe();
+    setGameStarted(true);
+    setCurrentView('game');
   };
 
   const handleSettings = () => {

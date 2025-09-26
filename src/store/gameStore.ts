@@ -202,6 +202,10 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       ...generateWeeklyMissions(1),
       ...generateAchievementMissions(1)
     ];
+    
+    const state = get();
+    state.clearTimers();
+    
     set({
       level: 1,
       cash: 10000,
@@ -239,7 +243,19 @@ export const useGameStore = create<GameStore>()((set, get) => ({
         utilities: 30
       },
       showEndOfDayModal: false,
+      // Clear customer states
+      currentCustomer: null,
+      nextCustomer: null,
+      isLoadingNextCustomer: false,
+      dayCustomerCount: 0,
+      offerCount: 0
     });
+    
+    // Start the new day flow
+    setTimeout(() => {
+      const newState = get();
+      newState.startNewDay();
+    }, 100);
   },
 
   setLanguage: (lang: Language) => {
@@ -1172,13 +1188,11 @@ export const useGameStore = create<GameStore>()((set, get) => ({
   },
 
   proceedToNextDay: () => {
-    console.log('🎮 ProceedToNextDay called');
     const now = Date.now();
     const state = get();
     
     // Debounce to prevent multiple calls
     if (now - state.lastDayAdvanceTime < 500) {
-      console.log('🎮 ProceedToNextDay debounced - too soon');
       return;
     }
     
@@ -1194,7 +1208,6 @@ export const useGameStore = create<GameStore>()((set, get) => ({
   },
 
   loadGameSafe: () => {
-    console.log('🎮 LoadGameSafe called');
     const state = get();
     state.clearTimers();
     
@@ -1216,10 +1229,12 @@ export const useGameStore = create<GameStore>()((set, get) => ({
           currentState.prefetchNextCustomer();
           setTimeout(() => currentState.showNextCustomer(), 300);
         }
+      } else {
+        // Fall back to starting new day if load failed
+        state.startNewDay();
       }
     } catch (error) {
-      console.error('Error loading game:', error);
-      // Fall back to current state
+      // Fall back to starting new day on error
       state.startNewDay();
     }
   }
