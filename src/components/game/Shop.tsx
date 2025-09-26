@@ -312,33 +312,93 @@ const Shop: React.FC = () => {
           </div>
           
           <div className="space-y-3 pt-3 border-t border-gray-100">
+            {/* Market Price - Always shown as reference */}
             <div className="flex justify-between items-center">
-              <span className="text-xs text-professional-grey uppercase tracking-wider font-medium">
-                Market Value
-              </span>
+              <div className="flex flex-col">
+                <span className="text-sm font-medium text-professional-dark-grey">
+                  Tahmini Piyasa Değeri
+                </span>
+                <span className="text-xs text-professional-grey">
+                  referans bilgi
+                </span>
+              </div>
               <span className="text-lg font-bold text-professional-blue">
                 ${calculateItemValue(dealItem)}
               </span>
             </div>
             
-            <div className="flex justify-between items-center">
-              <span className="text-xs text-professional-grey uppercase tracking-wider font-medium">
-                {currentCustomer.intent === 'buy' ? 'Their Offer' : 'Asking Price'}
-              </span>
-              <span className="text-lg font-bold text-professional-red">
-                ${currentOffer}
-              </span>
-            </div>
-            
-            {dealItem.purchasePrice && (
+            {/* Customer is SELLER (wants to sell to player) */}
+            {currentCustomer.intent === 'sell' && (
               <div className="flex justify-between items-center">
-                <span className="text-xs text-gray-400 uppercase tracking-wider font-medium">
-                  Your Cost
-                </span>
-                <span className="text-sm text-gray-500 font-medium">
-                  ${dealItem.purchasePrice}
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium text-professional-dark-grey">
+                    Satıcının İstediği Fiyat
+                  </span>
+                  <span className="text-xs text-professional-grey">
+                    müşterinin istediği rakam
+                  </span>
+                </div>
+                <span className="text-lg font-bold text-professional-red">
+                  ${currentOffer}
                 </span>
               </div>
+            )}
+            
+            {/* Customer is BUYER (wants to buy from player) */}
+            {currentCustomer.intent === 'buy' && (
+              <>
+                {dealItem.purchasePrice && (
+                  <div className="flex justify-between items-center">
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium text-professional-dark-grey">
+                        Senin Alış Fiyatın
+                      </span>
+                      <span className="text-xs text-professional-grey">
+                        bu ürünün sana maliyeti
+                      </span>
+                    </div>
+                    <span className="text-sm font-medium text-gray-600">
+                      ${dealItem.purchasePrice}
+                    </span>
+                  </div>
+                )}
+                
+                <div className="flex justify-between items-center">
+                  <div className="flex flex-col">
+                    <span className="text-sm font-medium text-professional-dark-grey">
+                      Alıcının Teklif Ettiği Fiyat
+                    </span>
+                    <span className="text-xs text-professional-grey">
+                      müşterinin ödemek istediği rakam
+                    </span>
+                  </div>
+                  <span className="text-lg font-bold text-professional-red">
+                    ${currentOffer}
+                  </span>
+                </div>
+                
+                {/* Profit/Loss calculation for buyer scenario */}
+                {dealItem.purchasePrice && (
+                  <div className="flex justify-between items-center pt-2 border-t border-gray-100">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-professional-dark-grey">
+                        Kar/Zarar
+                      </span>
+                      {(currentOffer - dealItem.purchasePrice) < 0 && (
+                        <span className="text-red-500 text-sm">⚠️</span>
+                      )}
+                    </div>
+                    <span className={`text-lg font-bold ${
+                      (currentOffer - dealItem.purchasePrice) >= 0 
+                        ? 'text-emerald-600' 
+                        : 'text-red-600'
+                    }`}>
+                      ${(currentOffer - dealItem.purchasePrice) >= 0 ? '+' : ''}
+                      {currentOffer - dealItem.purchasePrice}
+                    </span>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
