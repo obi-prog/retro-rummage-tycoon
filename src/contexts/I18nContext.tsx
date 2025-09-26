@@ -119,6 +119,19 @@ const resources: Record<SupportedLocale, Record<string, any>> = {
         fake: "Fake",
         suspicious: "Suspicious"
       }
+    },
+    endOfDay: {
+      title: "Week {week} Day {day} - Daily Summary",
+      dailyIncome: "Daily Income",
+      dailyExpenses: "Daily Expenses", 
+      netProfitLoss: "Net Profit/Loss",
+      dailyStats: "Daily Statistics",
+      itemsSold: "Items Sold",
+      itemsBought: "Items Bought", 
+      successfulNegotiations: "Successful Negotiations",
+      fakeItemsDetected: "Fake Items Detected",
+      currentCash: "Current Cash",
+      openShop: "Open Shop"
     }
   },
   tr: {
@@ -221,6 +234,19 @@ const resources: Record<SupportedLocale, Record<string, any>> = {
         fake: "Sahte",
         suspicious: "Şüpheli"
       }
+    },
+    endOfDay: {
+      title: "Hafta {week} Gün {day} - Günlük Özet",
+      dailyIncome: "Günlük Gelir",
+      dailyExpenses: "Günlük Gider", 
+      netProfitLoss: "Net Kar/Zarar",
+      dailyStats: "Günlük İstatistikler",
+      itemsSold: "Satılan Eşya",
+      itemsBought: "Alınan Eşya", 
+      successfulNegotiations: "Başarılı Pazarlık",
+      fakeItemsDetected: "Sahte Eşya Tespit",
+      currentCash: "Güncel Nakit",
+      openShop: "Dükkanı Aç"
     }
   },
   de: {
@@ -323,6 +349,19 @@ const resources: Record<SupportedLocale, Record<string, any>> = {
         fake: "Gefälscht",
         suspicious: "Verdächtig"
       }
+    },
+    endOfDay: {
+      title: "Woche {week} Tag {day} - Tagesübersicht",
+      dailyIncome: "Tägliches Einkommen",
+      dailyExpenses: "Tägliche Ausgaben", 
+      netProfitLoss: "Netto Gewinn/Verlust",
+      dailyStats: "Tagesstatistiken",
+      itemsSold: "Verkaufte Artikel",
+      itemsBought: "Gekaufte Artikel", 
+      successfulNegotiations: "Erfolgreiche Verhandlungen",
+      fakeItemsDetected: "Gefälschte Artikel Erkannt",
+      currentCash: "Aktuelles Bargeld",
+      openShop: "Geschäft Öffnen"
     }
   }
 };
@@ -382,9 +421,10 @@ export const I18nProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     let result = typeof value === 'string' ? value : (fallback || key);
     
     // Replace parameters in the string
-    if (params) {
+    if (params && typeof result === 'string') {
       Object.keys(params).forEach(paramKey => {
-        result = result.replace(`{${paramKey}}`, params[paramKey]);
+        const regex = new RegExp(`\\{${paramKey}\\}`, 'g');
+        result = result.replace(regex, params[paramKey]);
       });
     }
     

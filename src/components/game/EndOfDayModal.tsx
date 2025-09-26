@@ -1,4 +1,5 @@
 import { useGameStore } from '@/store/gameStore';
+import { useI18n } from '@/contexts/I18nContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,6 +13,7 @@ interface EndOfDayModalProps {
 }
 
 export const EndOfDayModal = ({ isOpen, onContinue }: EndOfDayModalProps) => {
+  const { t } = useI18n();
   const { 
     day, 
     dailyFinancials, 
@@ -64,7 +66,10 @@ export const EndOfDayModal = ({ isOpen, onContinue }: EndOfDayModalProps) => {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-xl">
             <Calendar className="w-6 h-6" />
-            Hafta {Math.ceil(day / 7)} Gün {((day - 1) % 7) + 1} - Günlük Özet
+            {t('endOfDay.title', 'Week {week} Day {day} - Daily Summary', {
+              week: Math.ceil(day / 7).toString(),
+              day: (((day - 1) % 7) + 1).toString()
+            })}
           </DialogTitle>
         </DialogHeader>
 
@@ -76,7 +81,7 @@ export const EndOfDayModal = ({ isOpen, onContinue }: EndOfDayModalProps) => {
                 <div className="flex items-center gap-2">
                   <TrendingUp className="w-5 h-5 text-green-600" />
                   <div>
-                    <p className="text-sm text-muted-foreground">Günlük Gelir</p>
+                    <p className="text-sm text-muted-foreground">{t('endOfDay.dailyIncome')}</p>
                     <p className="text-xl font-bold text-green-600">{formatCurrency(todayIncome)}</p>
                   </div>
                 </div>
@@ -88,7 +93,7 @@ export const EndOfDayModal = ({ isOpen, onContinue }: EndOfDayModalProps) => {
                 <div className="flex items-center gap-2">
                   <TrendingDown className="w-5 h-5 text-red-600" />
                   <div>
-                    <p className="text-sm text-muted-foreground">Günlük Gider</p>
+                    <p className="text-sm text-muted-foreground">{t('endOfDay.dailyExpenses')}</p>
                     <p className="text-xl font-bold text-red-600">{formatCurrency(todayExpenses)}</p>
                   </div>
                 </div>
@@ -103,7 +108,7 @@ export const EndOfDayModal = ({ isOpen, onContinue }: EndOfDayModalProps) => {
                 <div className="flex items-center gap-2">
                   <Coins className={`w-5 h-5 ${netProfit >= 0 ? 'text-blue-600' : 'text-orange-600'}`} />
                   <div>
-                    <p className="text-sm text-muted-foreground">Net Kar/Zarar</p>
+                    <p className="text-sm text-muted-foreground">{t('endOfDay.netProfitLoss')}</p>
                     <p className={`text-xl font-bold ${netProfit >= 0 ? 'text-blue-600' : 'text-orange-600'}`}>
                       {formatCurrency(netProfit)}
                     </p>
@@ -116,25 +121,25 @@ export const EndOfDayModal = ({ isOpen, onContinue }: EndOfDayModalProps) => {
           {/* Daily Stats */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Günlük İstatistikler</CardTitle>
+              <CardTitle className="text-lg">{t('endOfDay.dailyStats')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="text-center">
                   <p className="text-2xl font-bold text-green-600">{dailyStats.itemsSold}</p>
-                  <p className="text-sm text-muted-foreground">Satılan Eşya</p>
+                  <p className="text-sm text-muted-foreground">{t('endOfDay.itemsSold')}</p>
                 </div>
                 <div className="text-center">
                   <p className="text-2xl font-bold text-blue-600">{dailyStats.itemsBought}</p>
-                  <p className="text-sm text-muted-foreground">Alınan Eşya</p>
+                  <p className="text-sm text-muted-foreground">{t('endOfDay.itemsBought')}</p>
                 </div>
                 <div className="text-center">
                   <p className="text-2xl font-bold text-purple-600">{dailyStats.negotiationsWon}</p>
-                  <p className="text-sm text-muted-foreground">Başarılı Pazarlık</p>
+                  <p className="text-sm text-muted-foreground">{t('endOfDay.successfulNegotiations')}</p>
                 </div>
                 <div className="text-center">
                   <p className="text-2xl font-bold text-orange-600">{dailyStats.fakeItemsDetected}</p>
-                  <p className="text-sm text-muted-foreground">Sahte Eşya Tespit</p>
+                  <p className="text-sm text-muted-foreground">{t('endOfDay.fakeItemsDetected')}</p>
                 </div>
               </div>
             </CardContent>
@@ -147,7 +152,7 @@ export const EndOfDayModal = ({ isOpen, onContinue }: EndOfDayModalProps) => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Coins className="w-6 h-6 text-yellow-600" />
-                  <p className="text-lg font-semibold">Güncel Nakit</p>
+                  <p className="text-lg font-semibold">{t('endOfDay.currentCash')}</p>
                 </div>
                 <p className="text-2xl font-bold text-yellow-600">{formatCurrency(cash)}</p>
               </div>
@@ -163,7 +168,7 @@ export const EndOfDayModal = ({ isOpen, onContinue }: EndOfDayModalProps) => {
               size="lg"
               className="w-full max-w-md bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold"
             >
-              Dükkanı Aç
+              {t('endOfDay.openShop')}
             </Button>
           </div>
         </div>

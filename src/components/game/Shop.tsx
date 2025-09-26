@@ -178,6 +178,7 @@ const Shop: React.FC = () => {
   };
 
   const moveToNextCustomer = () => {
+    console.log('🛒 Moving to next customer - serving customer, current count:', customersServed);
     serveCustomer();
     setCurrentCustomer(null);
     setDealItem(null);
@@ -185,9 +186,13 @@ const Shop: React.FC = () => {
     
     // Generate next customer after a delay
     setTimeout(() => {
+      console.log('🛒 Trying to generate next customer, served:', customersServed + 1, 'limit:', dailyCustomerLimit);
       const newCustomer = generateSimpleCustomer();
       if (newCustomer) {
+        console.log('🛒 New customer generated:', newCustomer.name);
         setCurrentCustomer(newCustomer);
+      } else {
+        console.log('🛒 No new customer generated - day should be ending');
       }
     }, 1000);
   };

@@ -343,6 +343,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
 
 
   advanceDay: () => {
+    console.log('🎮 AdvanceDay called - starting new day');
     set(state => {
       // Calculate daily expenses with level scaling
       const baseRent = 100 + (state.level - 1) * 25; // Rent increases with level
@@ -490,6 +491,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
         saveGame(gameState);
       }, 100);
       
+      console.log('🎮 AdvanceDay completed - new day:', newState.day, 'customers served reset to:', newState.customersServed);
       return newState;
     });
   },
