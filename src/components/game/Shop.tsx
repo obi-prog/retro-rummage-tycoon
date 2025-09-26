@@ -46,8 +46,6 @@ const Shop: React.FC = () => {
   // Set initial offer when customer changes
   useEffect(() => {
     if (currentCustomer?.carriedItem) {
-      console.log('🔄 Setting initial offer for customer:', currentCustomer.name);
-      
       // Set initial offer based on intent
       const itemValue = calculateItemValue(currentCustomer.carriedItem);
       if (currentCustomer.intent === 'buy') {
@@ -191,9 +189,6 @@ const Shop: React.FC = () => {
     );
   }
 
-  // Debug logs for customer transitions
-  console.log('🔄 Shop render - currentCustomer:', !!currentCustomer, 'isLoadingNextCustomer:', isLoadingNextCustomer, 'carriedItem:', !!currentCustomer?.carriedItem);
-
   if (!currentCustomer || isLoadingNextCustomer) {
     return (
       <div className="flex items-center justify-center h-full bg-professional-light-grey">
@@ -205,19 +200,7 @@ const Shop: React.FC = () => {
     );
   }
 
-  // Safety check - if no carried item, something is wrong
-  if (!currentCustomer.carriedItem) {
-    console.error('❌ Customer has no carried item:', currentCustomer);
-    return (
-      <div className="flex items-center justify-center h-full bg-professional-light-grey">
-        <div className="text-center">
-          <h2 className="text-2xl font-semibold mb-4 text-professional-dark-grey">Error: Invalid customer</h2>
-        </div>
-      </div>
-    );
-  }
-
-  // Use currentCustomer.carriedItem directly instead of dealItem
+  // Use currentCustomer.carriedItem directly instead of derived state
   const dealItem = currentCustomer.carriedItem;
 
   return (

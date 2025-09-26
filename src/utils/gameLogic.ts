@@ -112,7 +112,7 @@ export const generateCustomer = (forceSellerIntent?: boolean): Customer => {
     preferences: [],
     avatar: customerAvatars[Math.floor(Math.random() * customerAvatars.length)],
     intent,
-    carriedItem: intent === 'sell' ? generateRandomItem() : undefined
+    carriedItem: generateRandomItem() // All customers have an item to negotiate
   };
 };
 
