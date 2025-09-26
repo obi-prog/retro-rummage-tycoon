@@ -158,6 +158,12 @@ All colors MUST be HSL.
   50% { box-shadow: var(--shadow-button), 0 0 15px rgba(255, 107, 107, 0.3); }
 }
 
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
 .neon-title {
   background: var(--gradient-neon);
   background-clip: text;

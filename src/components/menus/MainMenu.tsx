@@ -32,16 +32,64 @@ export const MainMenu = ({
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden" 
          style={{ 
-           background: 'linear-gradient(135deg, #FDF7F0 0%, #F8F4E6 50%, #F0E6FF 100%)'
+           background: 'linear-gradient(160deg, #FFE5B4 0%, #FFD1DC 30%, #B4FFE5 60%, #E5B4FF 100%)',
+           backgroundSize: '400% 400%',
+           animation: 'gradientShift 15s ease infinite'
          }}>
       
-      {/* Floating money background elements */}
-      <div className="absolute inset-0 pointer-events-none opacity-10">
-        <div className="absolute top-20 left-10 text-4xl float-money">💵</div>
-        <div className="absolute top-40 right-16 text-3xl float-money" style={{ animationDelay: '1s' }}>💰</div>
+      {/* Retro pattern overlay */}
+      <div className="absolute inset-0 pointer-events-none opacity-[0.08]" 
+           style={{
+             backgroundImage: `
+               radial-gradient(circle at 20% 30%, hsl(45, 100%, 70%) 2px, transparent 2px),
+               radial-gradient(circle at 70% 20%, hsl(15, 80%, 75%) 2px, transparent 2px),
+               radial-gradient(circle at 40% 70%, hsl(120, 60%, 80%) 2px, transparent 2px),
+               radial-gradient(circle at 80% 80%, hsl(280, 70%, 85%) 2px, transparent 2px)
+             `,
+             backgroundSize: '80px 80px, 120px 120px, 100px 100px, 90px 90px',
+             backgroundPosition: '0 0, 30px 30px, 60px 10px, 10px 60px'
+           }}>
+      </div>
+
+      {/* Large decorative elements */}
+      <div className="absolute inset-0 pointer-events-none opacity-[0.12]">
+        {/* Handshake silhouette */}
+        <div className="absolute top-1/4 left-1/4 text-8xl" style={{ 
+          filter: 'blur(1px)', 
+          transform: 'rotate(-15deg)',
+          color: 'hsl(45, 80%, 60%)'
+        }}>🤝</div>
+        
+        {/* Money bag */}
+        <div className="absolute bottom-1/4 right-1/4 text-7xl" style={{ 
+          filter: 'blur(1px)', 
+          transform: 'rotate(20deg)',
+          color: 'hsl(120, 60%, 70%)'
+        }}>💰</div>
+        
+        {/* Dollar sign */}
+        <div className="absolute top-1/2 right-1/5 text-6xl" style={{ 
+          filter: 'blur(1px)', 
+          transform: 'rotate(-25deg)',
+          color: 'hsl(280, 70%, 75%)'
+        }}>💵</div>
+        
+        {/* Vintage radio */}
+        <div className="absolute bottom-1/3 left-1/6 text-5xl" style={{ 
+          filter: 'blur(1px)', 
+          transform: 'rotate(30deg)',
+          color: 'hsl(15, 80%, 65%)'
+        }}>📻</div>
+      </div>
+
+      {/* Floating animated elements */}
+      <div className="absolute inset-0 pointer-events-none opacity-15">
+        <div className="absolute top-20 left-10 text-3xl float-money">🛍️</div>
+        <div className="absolute top-40 right-16 text-2xl float-money" style={{ animationDelay: '1s' }}>🏪</div>
         <div className="absolute bottom-40 left-20 text-3xl float-money" style={{ animationDelay: '2s' }}>💎</div>
-        <div className="absolute bottom-20 right-12 text-4xl float-money" style={{ animationDelay: '0.5s' }}>💵</div>
+        <div className="absolute bottom-20 right-12 text-2xl float-money" style={{ animationDelay: '0.5s' }}>🎯</div>
         <div className="absolute top-60 left-1/2 text-2xl float-money" style={{ animationDelay: '1.5s' }}>⭐</div>
+        <div className="absolute top-1/3 right-1/3 text-2xl float-money" style={{ animationDelay: '2.5s' }}>🔥</div>
       </div>
 
       <Card className="w-[90%] max-w-md mx-4 bg-white/95 backdrop-blur-sm border-0" 
