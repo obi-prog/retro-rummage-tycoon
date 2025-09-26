@@ -154,8 +154,6 @@ const Shop: React.FC = () => {
     setSpeechVisible(true);
     setTimeout(() => setSpeechVisible(false), duration);
   };
-    setTimeout(() => setSpeechVisible(false), duration);
-  };
 
   const showSuccess = (message: string) => {
     setShowSuccessEffect(true);
