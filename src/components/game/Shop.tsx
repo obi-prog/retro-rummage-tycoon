@@ -31,7 +31,6 @@ const Shop: React.FC = () => {
     isLoadingNextCustomer
   } = useGameStore();
   
-  const [dealItem, setDealItem] = useState<Item | null>(null);
   const [offerModalOpen, setOfferModalOpen] = useState(false);
   const [currentOffer, setCurrentOffer] = useState<number>(0);
   const [offerInputValue, setOfferInputValue] = useState<string>('');
@@ -44,10 +43,10 @@ const Shop: React.FC = () => {
   // Use the store's current customer
   const currentCustomer = storeCurrentCustomer;
 
-  // Set deal item when customer changes
+  // Set initial offer when customer changes
   useEffect(() => {
     if (currentCustomer?.carriedItem) {
-      setDealItem(currentCustomer.carriedItem);
+      console.log('🔄 Setting initial offer for customer:', currentCustomer.name);
       
       // Set initial offer based on intent
       const itemValue = calculateItemValue(currentCustomer.carriedItem);
@@ -60,8 +59,6 @@ const Shop: React.FC = () => {
         setCurrentOffer(askPrice);
         showSpeech(`I want to sell this ${currentCustomer.carriedItem.name} for $${askPrice}`, 3000);
       }
-    } else {
-      setDealItem(null);
     }
   }, [currentCustomer]);
 
@@ -194,7 +191,10 @@ const Shop: React.FC = () => {
     );
   }
 
-  if (!currentCustomer || !dealItem || isLoadingNextCustomer) {
+  // Debug logs for customer transitions
+  console.log('🔄 Shop render - currentCustomer:', !!currentCustomer, 'isLoadingNextCustomer:', isLoadingNextCustomer, 'carriedItem:', !!currentCustomer?.carriedItem);
+
+  if (!currentCustomer || isLoadingNextCustomer) {
     return (
       <div className="flex items-center justify-center h-full bg-professional-light-grey">
         <div className="text-center">
@@ -204,6 +204,21 @@ const Shop: React.FC = () => {
       </div>
     );
   }
+
+  // Safety check - if no carried item, something is wrong
+  if (!currentCustomer.carriedItem) {
+    console.error('❌ Customer has no carried item:', currentCustomer);
+    return (
+      <div className="flex items-center justify-center h-full bg-professional-light-grey">
+        <div className="text-center">
+          <h2 className="text-2xl font-semibold mb-4 text-professional-dark-grey">Error: Invalid customer</h2>
+        </div>
+      </div>
+    );
+  }
+
+  // Use currentCustomer.carriedItem directly instead of dealItem
+  const dealItem = currentCustomer.carriedItem;
 
   return (
     <div className="flex flex-col h-full overflow-y-auto bg-professional-light-grey">
