@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SoundProvider } from "@/contexts/SoundContext";
+import { I18nProvider } from "@/contexts/I18nContext";
 import { useEffect } from "react";
 import { useGameStore } from "@/store/gameStore";
 import Index from "./pages/Index";
@@ -55,21 +56,23 @@ const AutoSaveWrapper = ({ children }: { children: React.ReactNode }) => {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <SoundProvider>
-      <TooltipProvider>
-        <AutoSaveWrapper>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </AutoSaveWrapper>
-      </TooltipProvider>
-    </SoundProvider>
+    <I18nProvider>
+      <SoundProvider>
+        <TooltipProvider>
+          <AutoSaveWrapper>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </AutoSaveWrapper>
+        </TooltipProvider>
+      </SoundProvider>
+    </I18nProvider>
   </QueryClientProvider>
 );
 

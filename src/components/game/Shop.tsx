@@ -8,9 +8,11 @@ import { Plus, Minus, Settings, Star, DollarSign } from 'lucide-react';
 import { toast } from "@/hooks/use-toast";
 import { useSound } from '@/hooks/useSound';
 import { generateCustomer, calculateItemValue } from '@/utils/gameLogic';
+import { useI18n } from '@/contexts/I18nContext';
 import type { Item, Customer } from '@/types/game';
 
 const Shop: React.FC = () => {
+  const { t } = useI18n();
   const { 
     cash, 
     level, 
@@ -98,7 +100,7 @@ const Shop: React.FC = () => {
       const price = currentOffer;
       sellItem(dealItem, price);
       playSound('coin');
-      showSuccess(`Sold ${dealItem.name} for $${price}!`);
+      showSuccess(`${t('shop.soldFor').replace('{}', dealItem.name).replace('${}', `$${price}`)}`);
     } else {
       // Customer selling to us
       const price = currentOffer;
@@ -226,9 +228,8 @@ const Shop: React.FC = () => {
     return (
       <div className="flex items-center justify-center h-full bg-professional-light-grey">
         <div className="text-center p-8">
-          <h2 className="text-2xl font-semibold mb-4 text-professional-dark-grey">Day Complete!</h2>
-          <p className="text-professional-grey">You've served all customers for today.</p>
-          <p className="text-sm text-professional-grey mt-2">Customers served: {customersServed}/{dailyCustomerLimit}</p>
+          <h2 className="text-2xl font-semibold mb-4 text-professional-dark-grey">{t('game.dayComplete')}</h2>
+          <p className="text-professional-grey">{t('game.customersServed')}: {customersServed}/{dailyCustomerLimit}</p>
         </div>
       </div>
     );
@@ -238,7 +239,7 @@ const Shop: React.FC = () => {
     return (
       <div className="flex items-center justify-center h-full bg-professional-light-grey">
         <div className="text-center">
-          <h2 className="text-2xl font-semibold mb-4 text-professional-dark-grey">Looking for customers...</h2>
+          <h2 className="text-2xl font-semibold mb-4 text-professional-dark-grey">{t('game.lookingForCustomers')}</h2>
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-professional-blue mx-auto"></div>
         </div>
       </div>
@@ -272,7 +273,7 @@ const Shop: React.FC = () => {
                     : 'border-orange-500 text-orange-700 bg-orange-50'
                   }`}
                 >
-                  {currentCustomer.intent === 'buy' ? 'BUYER' : 'SELLER'}
+                  {currentCustomer.intent === 'buy' ? t('shop.buyer') : t('shop.seller')}
                 </Badge>
                 
                 <Badge variant="secondary" className="text-xs bg-gray-100 text-professional-grey border-gray-200">
@@ -282,8 +283,8 @@ const Shop: React.FC = () => {
               
               <p className="text-sm text-professional-grey leading-relaxed">
                 {currentCustomer.intent === 'buy'
-                  ? 'Wants to purchase from you' 
-                  : 'Wants to sell to you'
+                  ? t('shop.wantsToPurchase') 
+                  : t('shop.wantsToSell')
                 }
               </p>
             </div>
@@ -319,30 +320,30 @@ const Shop: React.FC = () => {
           <div className="space-y-3 pt-3 border-t border-gray-100">
             {/* Market Price - Always shown as reference */}
             <div className="flex justify-between items-center">
-              <div className="flex flex-col">
-                <span className="text-sm font-medium text-professional-dark-grey">
-                  Tahmini Piyasa Değeri
-                </span>
-                <span className="text-xs text-professional-grey">
-                  referans bilgi
-                </span>
-              </div>
-              <span className="text-lg font-bold text-professional-blue">
-                ${calculateItemValue(dealItem)}
-              </span>
-            </div>
-            
-            {/* Customer is SELLER (wants to sell to player) */}
-            {currentCustomer.intent === 'sell' && (
-              <div className="flex justify-between items-center">
                 <div className="flex flex-col">
                   <span className="text-sm font-medium text-professional-dark-grey">
-                    Satıcının İstediği Fiyat
+                    {t('shop.estimatedMarketValue')}
                   </span>
                   <span className="text-xs text-professional-grey">
-                    müşterinin istediği rakam
+                    {t('shop.referenceInfo')}
                   </span>
                 </div>
+                <span className="text-lg font-bold text-professional-blue">
+                  ${calculateItemValue(dealItem)}
+                </span>
+              </div>
+              
+              {/* Customer is SELLER (wants to sell to player) */}
+              {currentCustomer.intent === 'sell' && (
+                <div className="flex justify-between items-center">
+                  <div className="flex flex-col">
+                    <span className="text-sm font-medium text-professional-dark-grey">
+                      {t('shop.sellerAskingPrice')}
+                    </span>
+                    <span className="text-xs text-professional-grey">
+                      {t('shop.customerRequestedAmount')}
+                    </span>
+                  </div>
                 <span className="text-lg font-bold text-professional-red">
                   ${currentOffer}
                 </span>
@@ -356,25 +357,25 @@ const Shop: React.FC = () => {
                   <div className="flex justify-between items-center">
                     <div className="flex flex-col">
                       <span className="text-sm font-medium text-professional-dark-grey">
-                        Senin Alış Fiyatın
-                      </span>
-                      <span className="text-xs text-professional-grey">
-                        bu ürünün sana maliyeti
-                      </span>
-                    </div>
-                    <span className="text-sm font-medium text-gray-600">
-                      ${dealItem.purchasePrice}
+                      {t('shop.yourPurchasePrice')}
+                    </span>
+                    <span className="text-xs text-professional-grey">
+                      {t('shop.yourCostForItem')}
                     </span>
                   </div>
+                  <span className="text-sm font-medium text-gray-600">
+                    ${dealItem.purchasePrice}
+                  </span>
+                </div>
                 )}
                 
                 <div className="flex justify-between items-center">
                   <div className="flex flex-col">
                     <span className="text-sm font-medium text-professional-dark-grey">
-                      Alıcının Teklif Ettiği Fiyat
+                      {t('shop.buyerOfferPrice')}
                     </span>
                     <span className="text-xs text-professional-grey">
-                      müşterinin ödemek istediği rakam
+                      {t('shop.customerWillingToPay')}
                     </span>
                   </div>
                   <span className="text-lg font-bold text-professional-red">
@@ -387,7 +388,7 @@ const Shop: React.FC = () => {
                   <div className="flex justify-between items-center pt-2 border-t border-gray-100">
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-medium text-professional-dark-grey">
-                        Kar/Zarar
+                        {t('shop.profitLoss')}
                       </span>
                       {(currentOffer - dealItem.purchasePrice) < 0 && (
                         <span className="text-red-500 text-sm">⚠️</span>
@@ -422,21 +423,21 @@ const Shop: React.FC = () => {
             onClick={handleReject}
             className="h-12 border-professional-red text-professional-red hover:bg-red-50 hover:border-red-400 font-medium"
           >
-            Decline
+            {t('common.decline')}
           </Button>
           
           <Button
             onClick={openOfferModal}
             className="h-12 bg-professional-navy hover:bg-professional-blue text-white font-medium"
           >
-            Counter
+            {t('common.counter')}
           </Button>
           
           <Button
             onClick={handleAccept}
             className="h-12 bg-professional-emerald hover:bg-emerald-600 text-white font-medium"
           >
-            Accept
+            {t('common.accept')}
           </Button>
         </div>
       </div>
@@ -445,7 +446,7 @@ const Shop: React.FC = () => {
       <Dialog open={offerModalOpen} onOpenChange={setOfferModalOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-professional-dark-grey">Make Counter Offer</DialogTitle>
+            <DialogTitle className="text-professional-dark-grey">{t('shop.makeCounterOffer')}</DialogTitle>
           </DialogHeader>
           
           <div className="space-y-6 py-4">
@@ -454,7 +455,7 @@ const Shop: React.FC = () => {
                 ${currentOffer.toLocaleString()}
               </div>
               <div className="text-sm text-professional-blue font-medium uppercase tracking-wide">
-                Current Offer
+                {t('shop.currentOffer')}
               </div>
             </div>
             
@@ -495,7 +496,7 @@ const Shop: React.FC = () => {
               onClick={submitOffer}
               className="w-full h-12 bg-professional-navy hover:bg-professional-blue font-medium"
             >
-              Submit Offer
+              {t('common.submit')}
             </Button>
           </div>
         </DialogContent>
