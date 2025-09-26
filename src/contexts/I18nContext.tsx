@@ -10,9 +10,9 @@ interface I18nState {
 
 interface I18nContextType {
   locale: SupportedLocale;
-  t: (key: string, fallback?: string, params?: Record<string, string>) => string;
+  t: (key: string, fallback?: string, params?: Record<string, string>) => string | any;
   setLocale: (locale: SupportedLocale | null) => void;
-  getNestedTranslation: (key: string, fallback?: string, params?: Record<string, string>) => string;
+  getNestedTranslation: (key: string, fallback?: string, params?: Record<string, string>) => string | any;
 }
 
 const I18nContext = createContext<I18nContextType | undefined>(undefined);
@@ -88,6 +88,37 @@ const resources: Record<SupportedLocale, Record<string, any>> = {
       inventory: "Inventory",
       missions: "Missions",
       skills: "Skills"
+    },
+    items: {
+      categories: {
+        cassette_record: "Vinyl Records",
+        walkman_electronics: "Electronics",
+        watch: "Watches",
+        toy: "Toys",
+        comic: "Comics",
+        poster: "Posters",
+        camera: "Cameras"
+      },
+      names: {
+        cassette_record: ["Vintage LP", "Rock Album", "Jazz Collection", "Classical Set"],
+        walkman_electronics: ["Retro Walkman", "Vintage Radio", "Old Headphones", "Cassette Player"],
+        watch: ["Pocket Watch", "Vintage Rolex", "Antique Timepiece", "Classic Watch"],
+        toy: ["Action Figure", "Vintage Doll", "Model Car", "Board Game"],
+        comic: ["First Edition Comic", "Vintage Magazine", "Rare Issue", "Collector Comic"],
+        poster: ["Movie Poster", "Concert Poster", "Vintage Ad", "Art Print"],
+        camera: ["Film Camera", "Vintage Polaroid", "Old Lens", "Photo Equipment"]
+      },
+      rarities: {
+        common: "Common",
+        rare: "Rare",
+        very_rare: "Very Rare",
+        legendary: "Legendary"
+      },
+      authenticity: {
+        authentic: "Authentic",
+        fake: "Fake",
+        suspicious: "Suspicious"
+      }
     }
   },
   tr: {
@@ -159,6 +190,37 @@ const resources: Record<SupportedLocale, Record<string, any>> = {
       inventory: "Envanter",
       missions: "Görevler",
       skills: "Yetenekler"
+    },
+    items: {
+      categories: {
+        cassette_record: "Plak Kayıtları",
+        walkman_electronics: "Elektronik",
+        watch: "Saatler",
+        toy: "Oyuncaklar",
+        comic: "Çizgi Romanlar",
+        poster: "Posterler",
+        camera: "Kameralar"
+      },
+      names: {
+        cassette_record: ["Vintage LP", "Rock Albümü", "Jazz Koleksiyonu", "Klasik Set"],
+        walkman_electronics: ["Retro Walkman", "Vintage Radyo", "Eski Kulaklık", "Kaset Çalar"],
+        watch: ["Cep Saati", "Vintage Rolex", "Antika Saat", "Klasik Saat"],
+        toy: ["Aksiyon Figürü", "Vintage Bebek", "Model Araba", "Masa Oyunu"],
+        comic: ["İlk Baskı Çizgi Roman", "Vintage Dergi", "Nadir Sayı", "Koleksiyoncu Çizgi Romanı"],
+        poster: ["Film Posteri", "Konser Posteri", "Vintage Reklam", "Sanat Baskısı"],
+        camera: ["Film Kamerası", "Vintage Polaroid", "Eski Lens", "Fotoğraf Ekipmanı"]
+      },
+      rarities: {
+        common: "Yaygın",
+        rare: "Nadir",
+        very_rare: "Çok Nadir",
+        legendary: "Efsanevi"
+      },
+      authenticity: {
+        authentic: "Orijinal",
+        fake: "Sahte",
+        suspicious: "Şüpheli"
+      }
     }
   },
   de: {
@@ -230,6 +292,37 @@ const resources: Record<SupportedLocale, Record<string, any>> = {
       inventory: "Inventar",
       missions: "Missionen",
       skills: "Fähigkeiten"
+    },
+    items: {
+      categories: {
+        cassette_record: "Schallplatten",
+        walkman_electronics: "Elektronik",
+        watch: "Uhren",
+        toy: "Spielzeug",
+        comic: "Comics",
+        poster: "Poster",
+        camera: "Kameras"
+      },
+      names: {
+        cassette_record: ["Vintage LP", "Rock Album", "Jazz Sammlung", "Klassik Set"],
+        walkman_electronics: ["Retro Walkman", "Vintage Radio", "Alte Kopfhörer", "Kassettenspieler"],
+        watch: ["Taschenuhr", "Vintage Rolex", "Antike Uhr", "Klassische Uhr"],
+        toy: ["Actionfigur", "Vintage Puppe", "Modellauto", "Brettspiel"],
+        comic: ["Erstausgabe Comic", "Vintage Magazin", "Seltene Ausgabe", "Sammler Comic"],
+        poster: ["Film Poster", "Konzert Poster", "Vintage Werbung", "Kunstdruck"],
+        camera: ["Filmkamera", "Vintage Polaroid", "Alte Linse", "Foto Ausrüstung"]
+      },
+      rarities: {
+        common: "Häufig",
+        rare: "Selten",
+        very_rare: "Sehr Selten",
+        legendary: "Legendär"
+      },
+      authenticity: {
+        authentic: "Echt",
+        fake: "Gefälscht",
+        suspicious: "Verdächtig"
+      }
     }
   }
 };
@@ -259,7 +352,7 @@ export const I18nProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
   });
 
-  const getNestedTranslation = (key: string, fallback?: string, params?: Record<string, string>): string => {
+  const getNestedTranslation = (key: string, fallback?: string, params?: Record<string, string>): string | any => {
     const keys = key.split('.');
     let value: any = i18nState.resources[i18nState.currentLocale];
     
@@ -279,6 +372,11 @@ export const I18nProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
         break;
       }
+    }
+    
+    // If it's an array or object, return as-is for item names/categories
+    if (Array.isArray(value) || (typeof value === 'object' && value !== null && typeof value !== 'string')) {
+      return value;
     }
     
     let result = typeof value === 'string' ? value : (fallback || key);

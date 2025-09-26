@@ -9,10 +9,12 @@ import { toast } from "@/hooks/use-toast";
 import { useSound } from '@/hooks/useSound';
 import { generateCustomer, calculateItemValue } from '@/utils/gameLogic';
 import { useI18n } from '@/contexts/I18nContext';
+import { useTranslatedItems } from '@/hooks/useTranslatedItems';
 import type { Item, Customer } from '@/types/game';
 
 const Shop: React.FC = () => {
   const { t } = useI18n();
+  useTranslatedItems(); // Initialize translation context for item generation
   const { 
     cash, 
     level, 
@@ -303,15 +305,15 @@ const Shop: React.FC = () => {
                 {dealItem.name}
               </h4>
               <p className="text-sm text-professional-grey mb-3">
-                {dealItem.category.replace('_', ' ')}
+                {t(`items.categories.${dealItem.category}`)}
               </p>
               
               <div className="flex gap-2">
                 <Badge variant="outline" className="text-xs bg-gray-50 border-gray-200 text-professional-grey">
-                  {dealItem.condition}% condition
+                  {dealItem.condition}% {t('shop.condition')}
                 </Badge>
                 <Badge variant="outline" className="text-xs bg-gray-50 border-gray-200 text-professional-grey">
-                  {dealItem.rarity}
+                  {t(`items.rarities.${dealItem.rarity}`)}
                 </Badge>
               </div>
             </div>

@@ -21,6 +21,13 @@ const customerNames = [
   'Tom', 'Jane', 'Ben', 'Lucy', 'Mark', 'Anna', 'Jack', 'Zoe', 'Sam', 'Maya'
 ];
 
+// Global translation context - will be set by useTranslatedItems hook
+let currentI18nContext: any = null;
+
+export const setI18nContext = (context: any) => {
+  currentI18nContext = context;
+};
+
 const generateRandomItem = (): Item => {
   const categories: ItemCategory[] = ['cassette_record', 'walkman_electronics', 'watch', 'toy', 'comic', 'poster', 'camera'];
   const rarities: Array<'common' | 'rare' | 'very_rare' | 'legendary'> = ['common', 'rare', 'very_rare', 'legendary'];
@@ -30,14 +37,26 @@ const generateRandomItem = (): Item => {
   const rarity = rarities[Math.floor(Math.random() * rarities.length)];
   const authenticity = authenticities[Math.floor(Math.random() * authenticities.length)];
   
-  const itemNames = {
-    cassette_record: ['Vintage LP', 'Rock Album', 'Jazz Collection', 'Classical Set'],
-    walkman_electronics: ['Retro Walkman', 'Vintage Radio', 'Old Headphones', 'Cassette Player'],
-    watch: ['Pocket Watch', 'Vintage Rolex', 'Antique Timepiece', 'Classic Watch'],
-    toy: ['Action Figure', 'Vintage Doll', 'Model Car', 'Board Game'],
-    comic: ['First Edition Comic', 'Vintage Magazine', 'Rare Issue', 'Collector Comic'],
-    poster: ['Movie Poster', 'Concert Poster', 'Vintage Ad', 'Art Print'],
-    camera: ['Film Camera', 'Vintage Polaroid', 'Old Lens', 'Photo Equipment']
+  // Get translated item names
+  const getItemNames = () => {
+    if (currentI18nContext) {
+      const names = currentI18nContext.t(`items.names.${category}`, '');
+      if (names && Array.isArray(names)) {
+        return names;
+      }
+    }
+    
+    // Fallback to English names
+    const itemNames = {
+      cassette_record: ['Vintage LP', 'Rock Album', 'Jazz Collection', 'Classical Set'],
+      walkman_electronics: ['Retro Walkman', 'Vintage Radio', 'Old Headphones', 'Cassette Player'],
+      watch: ['Pocket Watch', 'Vintage Rolex', 'Antique Timepiece', 'Classic Watch'],
+      toy: ['Action Figure', 'Vintage Doll', 'Model Car', 'Board Game'],
+      comic: ['First Edition Comic', 'Vintage Magazine', 'Rare Issue', 'Collector Comic'],
+      poster: ['Movie Poster', 'Concert Poster', 'Vintage Ad', 'Art Print'],
+      camera: ['Film Camera', 'Vintage Polaroid', 'Old Lens', 'Photo Equipment']
+    };
+    return itemNames[category];
   };
   
   const images = {
@@ -50,9 +69,11 @@ const generateRandomItem = (): Item => {
     camera: '📷'
   };
   
+  const itemNames = getItemNames();
+  
   return {
     id: Math.random().toString(36).substring(7),
-    name: itemNames[category][Math.floor(Math.random() * itemNames[category].length)],
+    name: itemNames[Math.floor(Math.random() * itemNames.length)],
     category,
     baseValue: Math.floor(Math.random() * 500) + 50,
     condition: Math.floor(Math.random() * 40) + 60,
@@ -95,361 +116,323 @@ export const generateCustomer = (forceSellerIntent?: boolean): Customer => {
   };
 };
 
+// Function to determine the customer's reaction to a counter offer
+const getCustomerReaction = (customer: Customer, offer: number, itemValue: number): string => {
+  const priceDifference = Math.abs(offer - itemValue);
+  const isClose = priceDifference < itemValue * 0.1; // Within 10%
+  const isFair = offer >= itemValue * 0.9 && offer <= itemValue * 1.1; // Between 90% and 110% of itemValue
+
+  if (customer.type === 'expert' && !isFair) {
+    return "I know the value of this item, and your offer isn't fair.";
+  }
+
+  if (customer.patience < 50 && !isClose) {
+    return "I don't have time for games. Make a serious offer.";
+  }
+
+  return "Let me think about that...";
+};
+
+// Function to generate a counter offer from the customer
+const generateCounterOffer = (customer: Customer, itemValue: number): number => {
+  const minOffer = Math.max(10, Math.floor(itemValue * 0.6)); // Ensure offer is at least 10
+  const maxOffer = Math.floor(itemValue * 1.2);
+  const offerRange = maxOffer - minOffer;
+  let counterOffer = Math.floor(minOffer + Math.random() * offerRange);
+
+  // Adjust counter offer based on customer type
+  if (customer.type === 'collector') {
+    counterOffer = Math.max(counterOffer, Math.floor(itemValue * 0.8));
+  } else if (customer.type === 'hunter') {
+    counterOffer = Math.min(counterOffer, Math.floor(itemValue * 0.9));
+  }
+
+  return counterOffer;
+};
+
+// Function to simulate customer acceptance
+const willCustomerAccept = (customer: Customer, offer: number, itemValue: number): boolean => {
+  const priceDifference = Math.abs(offer - itemValue);
+  const isClose = priceDifference < itemValue * 0.15; // Within 15%
+
+  if (customer.type === 'expert' && offer < itemValue) {
+    return false;
+  }
+
+  if (customer.patience > 70 && isClose) {
+    return true;
+  }
+
+  return Math.random() < 0.3; // 30% chance of acceptance
+};
+
 // Dynamic haggling responses based on price direction and customer role
 const haggleResponses = {
   // Price decreased (player lowered offer)
-  priceDecreased: {
-    seller: [
-      { TR: "Bu daha da düştü, böyle olmaz.", EN: "You lowered it, that won't work.", DE: "Du hast den Preis gesenkt, das funktioniert nicht." },
-      { TR: "Fiyatı indirdin, bu yanlış yön.", EN: "You lowered the price, wrong direction.", DE: "Du hast den Preis reduziert, falsche Richtung." },
-      { TR: "Böyle pazarlık olmaz, yukarı çıkar.", EN: "That's not how you negotiate, go up.", DE: "So verhandelt man nicht, geh nach oben." }
+  priceDown: {
+    en: [
+      "That's getting closer to what I had in mind!",
+      "Now we're talking!",
+      "Better, but I think we can do even better.",
+      "I appreciate the adjustment, but...",
+      "You're moving in the right direction."
     ],
-    buyer: [
-      { TR: "Sen fiyatı yükseltmelisin, düşürme.", EN: "You should raise the price, don't lower it.", DE: "Du solltest den Preis erhöhen, nicht senken." },
-      { TR: "Yanlış yöne gidiyorsun, artırmalısın.", EN: "You're going the wrong way, increase it.", DE: "Du gehst in die falsche Richtung, erhöhe es." },
-      { TR: "Düşürme, ben alıcıyım artırmalısın.", EN: "Don't lower it, I'm a buyer, you should increase.", DE: "Senke es nicht, ich bin Käufer, du solltest erhöhen." }
+    tr: [
+      "Bu daha mantıklı bir fiyat!",
+      "İşte şimdi konuşuyoruz!",
+      "Daha iyi, ama biraz daha olabilir.",
+      "Ayarlamayı takdir ediyorum, ama...",
+      "Doğru yönde ilerliyorsun."
+    ],
+    de: [
+      "Das kommt dem näher, was ich mir vorgestellt hatte!",
+      "Jetzt reden wir!",
+      "Besser, aber ich denke, wir können noch besser werden.",
+      "Ich schätze die Anpassung, aber...",
+      "Sie bewegen sich in die richtige Richtung."
     ]
   },
+  
   // Price increased (player raised offer)
-  priceIncreased: {
-    seller: [
-      { TR: "İşte böyle, yaklaşıyorsun.", EN: "That's it, you're getting closer.", DE: "Das ist es, du kommst näher." },
-      { TR: "Şimdi konuşmaya başlıyoruz.", EN: "Now we're starting to talk.", DE: "Jetzt fangen wir an zu reden." },
-      { TR: "Doğru yöne gidiyorsun, devam et.", EN: "You're going the right direction, continue.", DE: "Du gehst in die richtige Richtung, mach weiter." }
+  priceUp: {
+    en: [
+      "Hmm, that's going the wrong way...",
+      "Now you're pushing it a bit far.",
+      "I wasn't expecting that direction.",
+      "That's a bit steep for me.",
+      "You're moving away from my comfort zone."
     ],
-    buyer: [
-      { TR: "Artırıyorsun ama hâlâ az.", EN: "You're increasing but it's still low.", DE: "Du erhöhst, aber es ist immer noch wenig." },
-      { TR: "Yükseltiyor ama yeterli değil.", EN: "Going up but not enough.", DE: "Es geht nach oben, aber nicht genug." },
-      { TR: "Doğru yön ama daha cesur ol.", EN: "Right direction but be bolder.", DE: "Richtige Richtung, aber sei mutiger." }
+    tr: [
+      "Hmm, bu yanlış yönde gidiyor...",
+      "Şimdi biraz fazla zorluyorsun.",
+      "Bu yönü beklemiyordum.",
+      "Bu bana biraz fazla geldi.",
+      "Konfor alanımdan uzaklaşıyorsun."
+    ],
+    de: [
+      "Hmm, das geht in die falsche Richtung...",
+      "Jetzt treibst du es etwas zu weit.",
+      "Ich hatte nicht diese Richtung erwartet.",
+      "Das ist mir etwas zu steil.",
+      "Sie entfernen sich von meiner Komfortzone."
     ]
   },
-  // Price unchanged
-  priceUnchanged: {
-    seller: [
-      { TR: "Aynı teklifte kaldın, biraz daha oynayalım.", EN: "You stayed with the same offer, let's play more.", DE: "Du bist bei demselben Angebot geblieben, lass uns mehr spielen." },
-      { TR: "Değiştirmediğin için ısrarcısın demek.", EN: "Since you didn't change, you must be persistent.", DE: "Da du nicht geändert hast, musst du hartnäckig sein." },
-      { TR: "Aynı rakam, başka bir şey dene.", EN: "Same number, try something else.", DE: "Gleiche Zahl, versuche etwas anderes." }
+  
+  // Very close to agreement
+  veryClose: {
+    en: [
+      "We're almost there! Just a tiny bit more...",
+      "So close I can taste it!",
+      "Just a few dollars and we have a deal!",
+      "You're practically reading my mind now.",
+      "One more small adjustment and it's perfect!"
     ],
-    buyer: [
-      { TR: "Aynı fiyat, hareket et artık.", EN: "Same price, make a move already.", DE: "Gleicher Preis, mach endlich einen Zug." },
-      { TR: "Tekrarladın, yeni bir teklif ver.", EN: "You repeated, give a new offer.", DE: "Du hast wiederholt, mache ein neues Angebot." },
-      { TR: "Değişiklik yok, cesur ol.", EN: "No change, be brave.", DE: "Keine Änderung, sei mutig." }
+    tr: [
+      "Neredeyse anlaştık! Sadece biraz daha...",
+      "O kadar yakın ki tadını alabiliyorum!",
+      "Sadece birkaç dolar daha ve anlaştık!",
+      "Artık aklımı okuyorsun adeta.",
+      "Bir küçük ayarlama daha ve mükemmel!"
+    ],
+    de: [
+      "Wir sind fast da! Nur noch ein kleines bisschen...",
+      "So nah, dass ich es schmecken kann!",
+      "Nur noch ein paar Dollar und wir haben einen Deal!",
+      "Sie lesen praktisch meine Gedanken.",
+      "Noch eine kleine Anpassung und es ist perfekt!"
     ]
   },
-  // Very close to base price (90%+)
-  veryClose: [
-    { TR: "Neredeyse anlaşıyoruz, az kaldı.", EN: "We're almost there, just a bit more.", DE: "Wir sind fast da, nur noch ein bisschen." },
-    { TR: "Çok yaklaştık, son bir hamle.", EN: "Very close now, one last move.", DE: "Sehr nah jetzt, ein letzter Zug." },
-    { TR: "İşte şimdi ciddi konuşuyoruz.", EN: "Now we're talking seriously.", DE: "Jetzt reden wir ernsthaft." }
-  ],
-  // Very low offer (under 50%)
-  veryLow: [
-    { TR: "Bu çok düşük, ciddi değil.", EN: "This is too low, not serious.", DE: "Das ist zu niedrig, nicht ernst." },
-    { TR: "Şaka mı bu? Çok az.", EN: "Is this a joke? Too little.", DE: "Ist das ein Scherz? Zu wenig." },
-    { TR: "Bu rakamla ciddiye alamam.", EN: "I can't take this amount seriously.", DE: "Ich kann diesen Betrag nicht ernst nehmen." }
-  ],
-  // Very high offer (over 120% - good for customer)
-  veryHigh: [
-    { TR: "Bu beklediğimden bile iyi, hemen kabul edebilirim.", EN: "This is even better than expected, I can accept right away.", DE: "Das ist sogar besser als erwartet, ich kann sofort akzeptieren." },
-    { TR: "Vay canına, bu harika bir teklif!", EN: "Wow, this is a great offer!", DE: "Wow, das ist ein tolles Angebot!" },
-    { TR: "Bu kadar cömert olacağını beklemiyordum.", EN: "I didn't expect you to be this generous.", DE: "Ich hatte nicht erwartet, dass du so großzügig bist." }
-  ]
+  
+  // Extreme offers (too high or too low)
+  extreme: {
+    en: [
+      "That's way off what I was thinking...",
+      "I think we're on completely different pages here.",
+      "That's not even in the ballpark!",
+      "Are we talking about the same item?",
+      "I think there's been a misunderstanding."
+    ],
+    tr: [
+      "Bu düşündüğümden çok farklı...",
+      "Sanırım tamamen farklı şeyler düşünüyoruz.",
+      "Bu hiç yakınında bile değil!",
+      "Aynı üründen mi bahsediyoruz?",
+      "Sanırım bir yanlış anlaşılma var."
+    ],
+    de: [
+      "Das ist weit weg von dem, was ich dachte...",
+      "Ich denke, wir reden völlig aneinander vorbei.",
+      "Das ist nicht mal ansatzweise richtig!",
+      "Sprechen wir über dasselbe Teil?",
+      "Ich denke, da gab es ein Missverständnis."
+    ]
+  }
 };
 
-export const generateHaggleResponse = (
-  customer: Customer, 
-  item: Item, 
-  offeredPrice: number, 
-  haggleCount: number,
-  previousOffer?: number,
-  playerLevel: number = 1
-) => {
-  // Try using balanced bargaining system first
-  try {
-    const { generateBalancedCounterOffer } = require('./balancedBargaining');
-    const lastOffer = previousOffer || generateCustomerInitialOffer(customer, calculateItemValue(item), playerLevel);
-    
-    const result = generateBalancedCounterOffer(
-      customer, 
-      item, 
-      offeredPrice, 
-      lastOffer, 
-      playerLevel, 
-      haggleCount
-    );
-    
-    if (result.accepted) {
-      return {
-        accepted: true,
-        message: result.message,
-        reputationChange: 2,
-        trustChange: 1,
-        counter: null
-      };
-    } else if (result.counterOffer) {
-      return {
-        accepted: false,
-        message: `${result.emoji} ${result.message} $${result.counterOffer} nasıl?`,
-        reputationChange: 0,
-        trustChange: 0,
-        counter: result.counterOffer
-      };
-    } else {
-      // Auto-fail case
-      return {
-        accepted: false,
-        message: result.message,
-        reputationChange: -1,
-        trustChange: 0,
-        counter: null
-      };
-    }
-  } catch (error) {
-    console.warn('Falling back to original haggle system:', error);
-  }
-
-  // Fallback to original system
-  const itemValue = calculateItemValue(item);
-  const basePrice = customer.intent === 'sell' 
-    ? generateCustomerInitialOffer(customer, itemValue, playerLevel)
-    : itemValue;
-  
-  const priceRatio = offeredPrice / itemValue;
-  
-  // Determine price direction if previous offer exists
-  let priceDirection: 'increased' | 'decreased' | 'unchanged' | 'first' = 'first';
-  if (previousOffer !== undefined) {
-    if (offeredPrice > previousOffer) priceDirection = 'increased';
-    else if (offeredPrice < previousOffer) priceDirection = 'decreased';
-    else priceDirection = 'unchanged';
-  }
-  
-  // Determine price category relative to base price
-  const priceToBaseRatio = offeredPrice / basePrice;
-  let priceCategory: 'veryLow' | 'low' | 'close' | 'veryHigh' | 'normal' = 'normal';
-  
-  if (priceToBaseRatio < 0.5) priceCategory = 'veryLow';
-  else if (priceToBaseRatio >= 0.9 && priceToBaseRatio <= 1.1) priceCategory = 'close';
-  else if (priceToBaseRatio > 1.2) priceCategory = 'veryHigh';
-  else if (priceToBaseRatio < 0.8) priceCategory = 'low';
-  
-  // Generate dynamic response message
-  let responseMessage = "";
-  const language = 'TR'; // Can be made configurable later
-  
-  // Priority: Special price categories first, then direction-based responses
-  if (priceCategory === 'close' && haggleResponses.veryClose) {
-    const messages = haggleResponses.veryClose;
-    responseMessage = messages[Math.floor(Math.random() * messages.length)][language];
-  } else if (priceCategory === 'veryLow' && haggleResponses.veryLow) {
-    const messages = haggleResponses.veryLow;
-    responseMessage = messages[Math.floor(Math.random() * messages.length)][language];
-  } else if (priceCategory === 'veryHigh' && haggleResponses.veryHigh) {
-    const messages = haggleResponses.veryHigh;
-    responseMessage = messages[Math.floor(Math.random() * messages.length)][language];
-  } else if (priceDirection !== 'first') {
-    // Use direction-based responses
-    const roleKey = customer.intent === 'sell' ? 'seller' : 'buyer';
-    
-    if (priceDirection === 'decreased' && haggleResponses.priceDecreased[roleKey]) {
-      const messages = haggleResponses.priceDecreased[roleKey];
-      responseMessage = messages[Math.floor(Math.random() * messages.length)][language];
-    } else if (priceDirection === 'increased' && haggleResponses.priceIncreased[roleKey]) {
-      const messages = haggleResponses.priceIncreased[roleKey];
-      responseMessage = messages[Math.floor(Math.random() * messages.length)][language];
-    } else if (priceDirection === 'unchanged' && haggleResponses.priceUnchanged[roleKey]) {
-      const messages = haggleResponses.priceUnchanged[roleKey];
-      responseMessage = messages[Math.floor(Math.random() * messages.length)][language];
-    }
-  }
-  
-  // Customer-specific behavior
-  let acceptanceThreshold = 0.8; // Base threshold
-  let patienceDecrease = 10;
-  
-  switch (customer.type) {
-    case 'collector':
-      acceptanceThreshold = item.rarity === 'legendary' ? 1.2 : 0.9;
-      patienceDecrease = 5;
-      break;
-    case 'student':
-      acceptanceThreshold = 0.7;
-      patienceDecrease = 15;
-      break;
-    case 'trader':
-      acceptanceThreshold = 0.6;
-      patienceDecrease = 20;
-      break;
-    case 'hunter':
-      acceptanceThreshold = 0.5;
-      patienceDecrease = 25;
-      break;
-    case 'expert':
-      if (item.authenticity === 'fake') {
-        return {
-          accepted: false,
-          message: "This is a fake! I'm not interested.",
-          reputationChange: -5,
-          trustChange: -10,
-          counter: null
-        };
-      }
-      acceptanceThreshold = 0.85;
-      patienceDecrease = 8;
-      break;
-  }
-  
-  // Adjust for haggle count
-  acceptanceThreshold -= haggleCount * 0.05;
-  patienceDecrease += haggleCount * 5;
-  
-  const newPatience = Math.max(0, customer.patience - patienceDecrease);
-  
-  if (priceRatio >= acceptanceThreshold && offeredPrice <= customer.budget) {
-    return {
-      accepted: true,
-      message: "Deal! I'll take it.",
-      reputationChange: 2,
-      trustChange: 1,
-      counter: null
-    };
-  }
-  
-  if (newPatience <= 10) {
-    const farewellMessages = [
-      "Sanırım anlaşamayacağız, başka bir zaman görüşürüz.",
-      "Bu fiyatlarla olmaz, iyi günler dilerim.",
-      "Bu iş bugünlük buraya kadar, hoşça kalın.",
-      "Fikirlerimiz uyuşmuyor, şimdilik vazgeçiyorum.",
-      "Belki başka bir üründe anlaşırız, şimdilik hoşça kal."
-    ];
-    
-    return {
-      accepted: false,
-      message: farewellMessages[Math.floor(Math.random() * farewellMessages.length)],
-      reputationChange: -1,
-      trustChange: 0,
-      counter: null
-    };
-  }
-  
-  if (offeredPrice > customer.budget) {
-    return {
-      accepted: false,
-      message: "That's more than I can afford.",
-      reputationChange: 0,
-      trustChange: 0,
-      counter: Math.floor(customer.budget * 0.9)
-    };
-  }
-  
-  // Use dynamic response if available, otherwise fall back to default
-  if (!responseMessage) {
-    const rejectionMessages = [
-      "Bu fiyat çok düşük, biraz daha yükseltmelisiniz.",
-      "Bu teklif içimi hiç açmadı, daha iyi bir rakam bekliyorum.",
-      "Bu rakamla anlaşamayız, biraz daha cömert olun.",
-      "Hmm… değerinin altında, biraz daha artırın lütfen.",
-      "Bunu kabul edemem, fiyatı biraz yukarı çekmelisiniz."
-    ];
-    responseMessage = rejectionMessages[Math.floor(Math.random() * rejectionMessages.length)];
-  }
-  
-  // Counter offer
-  const counterOffer = Math.floor(itemValue * (acceptanceThreshold - 0.1));
-  
-  return {
-    accepted: false,
-    message: `${responseMessage} $${counterOffer} nasıl?`,
-    reputationChange: 0,
-    trustChange: 0,
-    counter: counterOffer
-  };
-};
-
+// Calculate the current market value of an item
 export const calculateItemValue = (item: Item): number => {
-  const conditionMultiplier = 1 + (item.condition / 100);
-  const rarityMultiplier = {
+  const conditionMultiplier = item.condition / 100;
+  const rarityMultipliers = {
     common: 1,
     rare: 1.5,
     very_rare: 2.5,
     legendary: 4
-  }[item.rarity];
+  };
   
-  return Math.floor(item.baseValue * conditionMultiplier * rarityMultiplier * (1 + item.trendBonus / 100));
+  return Math.floor(item.baseValue * conditionMultiplier * rarityMultipliers[item.rarity] + item.trendBonus);
 };
 
-export const generateCustomerInitialOffer = (customer: Customer, itemValue: number, playerLevel: number = 1): number => {
-  // Import the balanced bargaining system
-  const { generateBalancedInitialOffer } = require('./balancedBargaining');
+// Generate haggle response based on customer behavior and offer history
+export const generateHaggleResponse = (
+  customer: Customer,
+  item: Item,
+  playerOffer: number,
+  previousOffer: number,
+  haggleCount: number = 0,
+  language: string = 'en'
+): { 
+  response: string; 
+  counterOffer?: number; 
+  accepted: boolean; 
+  customerMessage: string;
+} => {
   
-  // Create a mock item for the calculation if we only have itemValue
-  const mockItem = {
-    baseValue: itemValue,
-    condition: 80,
-    rarity: 'common',
-    trendBonus: 0,
-    purchasePrice: itemValue * 0.7
-  } as any;
-  
+  // Use balanced bargaining system if available
   try {
-    return generateBalancedInitialOffer(customer, mockItem, playerLevel);
+    const balancedBargaining = require('./balancedBargaining');
+    if (balancedBargaining.generateBalancedCounterOffer) {
+      const result = balancedBargaining.generateBalancedCounterOffer(
+        customer, 
+        item, 
+        playerOffer, 
+        previousOffer, 
+        1, // player level - could be passed as parameter
+        haggleCount
+      );
+      
+      if (result) {
+        return {
+          response: result.message || "Let me think about that...",
+          counterOffer: result.accepted ? undefined : result.counterOffer,
+          accepted: result.accepted,
+          customerMessage: result.message || ""
+        };
+      }
+    }
   } catch (error) {
-    // Fallback to original logic if new system fails
-    const offerMultiplier = {
-      collector: 0.7 + Math.random() * 0.2,
-      student: 0.5 + Math.random() * 0.2, 
-      trader: 0.6 + Math.random() * 0.2,
-      nostalgic: 0.8 + Math.random() * 0.15,
-      hunter: 0.4 + Math.random() * 0.2,
-      tourist: 0.7 + Math.random() * 0.2,
-      expert: 0.8 + Math.random() * 0.15
-    }[customer.type];
-
-    const budgetConstrainedOffer = Math.min(customer.budget * 0.8, itemValue * offerMultiplier);
-    return Math.floor(budgetConstrainedOffer);
+    console.log('Balanced bargaining system not available, using fallback logic');
   }
-};
 
-export const generateInitialMessage = (customer: Customer, item: Item, offer: number): string => {
-  const messages = {
-    collector: [
-      `I like this ${item.name}. Would you take $${offer} for it?`,
-      `This ${item.name} would complete my collection. I can offer $${offer}.`,
-      `I've been searching for this ${item.name}. My offer is $${offer}.`
-    ],
-    student: [
-      `Hey, I'm interested in the ${item.name}. How about $${offer}?`,
-      `I don't have much money, but I can offer $${offer} for the ${item.name}.`,
-      `Would you accept $${offer} for the ${item.name}? I'm a student.`
-    ],
-    trader: [
-      `I can resell this ${item.name}. My best offer is $${offer}.`,
-      `For business purposes, I'll give you $${offer} for the ${item.name}.`,
-      `Straight business - $${offer} for the ${item.name}.`
-    ],
-    nostalgic: [
-      `This ${item.name} brings back memories. $${offer} is what I can offer.`,
-      `I used to have one of these ${item.name}s. Would you take $${offer}?`,
-      `Nostalgic value here - $${offer} for the ${item.name}.`
-    ],
-    hunter: [
-      `Found it! I'll give you $${offer} for this ${item.name}.`,
-      `I've been hunting for this ${item.name}. $${offer} is my offer.`,
-      `Perfect find! $${offer} for the ${item.name}.`
-    ],
-    tourist: [
-      `This ${item.name} would be a great souvenir. $${offer}?`,
-      `I'm visiting and love this ${item.name}. How about $${offer}?`,
-      `Tourist here - would you take $${offer} for the ${item.name}?`
-    ],
-    expert: [
-      `I know the value of this ${item.name}. $${offer} is a fair price.`,
-      `Based on market analysis, $${offer} is reasonable for this ${item.name}.`,
-      `My expert assessment puts this ${item.name} at $${offer}.`
-    ]
+  const itemValue = calculateItemValue(item);
+  const tolerance = customer.knowledge > 70 ? 0.1 : 0.2; // Experts are pickier
+  const acceptableRange = {
+    min: itemValue * (1 - tolerance),
+    max: itemValue * (1 + tolerance)
   };
 
-  const customerMessages = messages[customer.type];
-  return customerMessages[Math.floor(Math.random() * customerMessages.length)];
+  // Determine price direction
+  const priceDirection = playerOffer > previousOffer ? 'up' : 'down';
+  const priceDifference = Math.abs(playerOffer - itemValue);
+  const isVeryClose = priceDifference < itemValue * 0.05; // Within 5%
+  const isExtreme = priceDifference > itemValue * 0.5; // More than 50% off
+
+  // Get appropriate response category
+  let responseCategory: string;
+  if (isExtreme) {
+    responseCategory = 'extreme';
+  } else if (isVeryClose) {
+    responseCategory = 'veryClose';
+  } else {
+    responseCategory = priceDirection === 'up' ? 'priceUp' : 'priceDown';
+  }
+
+  // Get response in the specified language
+  const responses = haggleResponses[responseCategory as keyof typeof haggleResponses];
+  const languageResponses = responses[language as keyof typeof responses] || responses.en;
+  const response = languageResponses[Math.floor(Math.random() * languageResponses.length)];
+
+  // Decide if customer accepts or makes counter-offer
+  const customerAccepts = playerOffer >= acceptableRange.min && playerOffer <= acceptableRange.max;
+  
+  if (customerAccepts || haggleCount >= 3) {
+    return {
+      response,
+      accepted: true,
+      customerMessage: response
+    };
+  }
+
+  // Generate counter-offer
+  const targetPrice = itemValue + (Math.random() - 0.5) * itemValue * 0.1;
+  const counterOffer = Math.floor(
+    playerOffer + (targetPrice - playerOffer) * (customer.patience / 100) * 0.7
+  );
+
+  return {
+    response,
+    counterOffer: Math.max(1, counterOffer),
+    accepted: false,
+    customerMessage: response
+  };
+};
+
+// Generate customer's initial offer for an item
+export const generateCustomerInitialOffer = (
+  customer: Customer, 
+  itemValue: number, 
+  playerLevel: number = 1
+): number => {
+  
+  // Try using balanced bargaining system first
+  try {
+    const balancedBargaining = require('./balancedBargaining');
+    if (balancedBargaining.generateBalancedInitialOffer) {
+      const offer = balancedBargaining.generateBalancedInitialOffer(
+        customer, 
+        { value: itemValue, rarity: 'common' }, // Simplified item for this function
+        playerLevel
+      );
+      if (offer && offer > 0) {
+        return offer;
+      }
+    }
+  } catch (error) {
+    console.log('Balanced bargaining system not available, using fallback logic');
+  }
+
+  // Fallback logic
+  const multiplier = customer.intent === 'buy' ? 0.7 + Math.random() * 0.3 : 0.8 + Math.random() * 0.4;
+  return Math.floor(itemValue * multiplier);
+};
+
+// Generate initial message when customer approaches
+export const generateInitialMessage = (
+  customer: Customer, 
+  item: Item, 
+  offer: number
+): string => {
+  const greetings = [
+    "Hey there!",
+    "Excuse me,",
+    "Hi,",
+    "Hello!"
+  ];
+  
+  const buyMessages = [
+    `I'm interested in this ${item.name}. Would you take $${offer} for it?`,
+    `This ${item.name} caught my eye. How about $${offer}?`,
+    `I'd love to buy this ${item.name}. $${offer} sound fair?`
+  ];
+  
+  const sellMessages = [
+    `I have this ${item.name} I'd like to sell. I'm asking $${offer} for it.`,
+    `Would you be interested in this ${item.name}? I'm looking for $${offer}.`,
+    `I've got this ${item.name} for sale. $${offer} and it's yours.`
+  ];
+  
+  const greeting = greetings[Math.floor(Math.random() * greetings.length)];
+  const messages = customer.intent === 'buy' ? buyMessages : sellMessages;
+  const message = messages[Math.floor(Math.random() * messages.length)];
+  
+  return `${greeting} ${message}`;
 };

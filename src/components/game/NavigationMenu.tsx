@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useI18n } from '@/contexts/I18nContext';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -18,19 +19,22 @@ interface NotebookMenuProps {
   triggerButton?: React.ReactNode;
 }
 
-// Future-proof tab configuration - add new tabs here without code changes
-const TABS: TabConfig[] = [
-  { id: 'inventory', label: 'Envanter', icon: '📦', component: Inventory },
-  { id: 'missions', label: 'Görevler', icon: '🎯', component: MissionsPanel },
-  { id: 'skills', label: 'Yetenekler', icon: '⚡', component: SkillsPanel },
+// Dynamic tab configuration using translations
+const getTabsConfig = (t: any): TabConfig[] => [
+  { id: 'inventory', label: t('navigation.inventory'), icon: '📦', component: Inventory },
+  { id: 'missions', label: t('navigation.missions'), icon: '🎯', component: MissionsPanel },
+  { id: 'skills', label: t('navigation.skills'), icon: '⚡', component: SkillsPanel },
   // Future tabs can be added here:
-  // { id: 'achievements', label: 'Başarılar', icon: '🏆', component: AchievementsPanel },
-  // { id: 'market', label: 'Pazar', icon: '🏪', component: MarketPanel },
+  // { id: 'achievements', label: t('navigation.achievements'), icon: '🏆', component: AchievementsPanel },
+  // { id: 'market', label: t('navigation.market'), icon: '🏪', component: MarketPanel },
 ];
 
 export const NavigationMenu = ({ triggerButton }: NotebookMenuProps) => {
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState(TABS[0].id);
+  const [activeTab, setActiveTab] = useState('inventory');
+
+  const TABS = getTabsConfig(t);
 
   const defaultTrigger = (
     <Button 
@@ -57,7 +61,7 @@ export const NavigationMenu = ({ triggerButton }: NotebookMenuProps) => {
               <div className="flex items-center gap-3">
                 <span className="text-xl">📒</span>
                 <h1 className="text-lg font-bold bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 bg-clip-text text-transparent">
-                  Oyun Defteri
+                  {t('navigation.gameBook')}
                 </h1>
               </div>
               <Button
