@@ -11,7 +11,7 @@ import { generateCustomer, calculateItemValue } from '@/utils/gameLogic';
 import { useI18n } from '@/contexts/I18nContext';
 import { useTranslatedItems } from '@/hooks/useTranslatedItems';
 import type { Item, Customer } from '@/types/game';
-import shopInteriorBg from '@/assets/shop-interior-bg.jpg';
+import shopInteriorBg from '@/assets/vintage-shop-interior.jpg';
 
 const Shop: React.FC = () => {
   const { t } = useI18n();
@@ -216,7 +216,7 @@ const Shop: React.FC = () => {
       
       <div className="relative flex-1 p-4 space-y-4 max-w-md mx-auto w-full z-10">
         {/* Customer Info Card */}
-        <div className="bg-white/90 backdrop-blur-md rounded-lg border border-amber-200/50 p-6 shadow-xl shadow-amber-900/20">
+        <div className="bg-white/95 backdrop-blur-lg rounded-lg border border-amber-200/60 p-6 shadow-2xl shadow-amber-900/25">
           <div className="flex items-start gap-4">
             <div className="relative">
               <img 
@@ -258,7 +258,7 @@ const Shop: React.FC = () => {
         </div>
 
         {/* Product Info Card */}
-        <div className="bg-white/90 backdrop-blur-md rounded-lg border border-amber-200/50 p-6 shadow-xl shadow-amber-900/20">
+        <div className="bg-white/95 backdrop-blur-lg rounded-lg border border-amber-200/60 p-6 shadow-2xl shadow-amber-900/25">
           <div className="flex gap-4 mb-4">
             <div className="w-24 h-24 bg-gray-50 rounded-lg flex items-center justify-center border border-gray-100">
               <span className="text-3xl">{dealItem.image || '📦'}</span>
@@ -377,7 +377,7 @@ const Shop: React.FC = () => {
 
         {/* Customer Message */}
         {speechVisible && (
-          <div className="bg-amber-50/95 backdrop-blur-md border border-amber-300/60 rounded-lg p-4 shadow-lg shadow-amber-900/15">
+          <div className="bg-amber-50/98 backdrop-blur-lg border border-amber-300/70 rounded-lg p-4 shadow-xl shadow-amber-900/20">
             <p className="text-amber-900 leading-relaxed font-medium">{speechText}</p>
           </div>
         )}
