@@ -11,6 +11,7 @@ import { generateCustomer, calculateItemValue } from '@/utils/gameLogic';
 import { useI18n } from '@/contexts/I18nContext';
 import { useTranslatedItems } from '@/hooks/useTranslatedItems';
 import type { Item, Customer } from '@/types/game';
+import shopInteriorBg from '@/assets/shop-interior-bg.jpg';
 
 const Shop: React.FC = () => {
   const { t } = useI18n();
@@ -180,10 +181,12 @@ const Shop: React.FC = () => {
   // Show day completed message if no more customers
   if (customersServed >= dailyCustomerLimit) {
     return (
-      <div className="flex items-center justify-center h-full bg-professional-light-grey">
-        <div className="text-center p-8">
-          <h2 className="text-2xl font-semibold mb-4 text-professional-dark-grey">{t('game.dayComplete')}</h2>
-          <p className="text-professional-grey">{t('game.customersServed')}: {customersServed}/{dailyCustomerLimit}</p>
+      <div className="relative flex items-center justify-center h-full min-h-screen bg-cover bg-center bg-no-repeat"
+           style={{ backgroundImage: `url(${shopInteriorBg})` }}>
+        <div className="absolute inset-0 bg-gradient-to-b from-amber-50/80 to-amber-100/90 backdrop-blur-sm"></div>
+        <div className="relative text-center p-8 bg-white/85 backdrop-blur-md rounded-2xl border border-white/50 shadow-2xl">
+          <h2 className="text-2xl font-semibold mb-4 text-amber-900">{t('game.dayComplete')}</h2>
+          <p className="text-amber-700">{t('game.customersServed')}: {customersServed}/{dailyCustomerLimit}</p>
         </div>
       </div>
     );
@@ -191,10 +194,12 @@ const Shop: React.FC = () => {
 
   if (!currentCustomer || isLoadingNextCustomer) {
     return (
-      <div className="flex items-center justify-center h-full bg-professional-light-grey">
-        <div className="text-center">
-          <h2 className="text-2xl font-semibold mb-4 text-professional-dark-grey">{t('game.lookingForCustomers')}</h2>
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-professional-blue mx-auto"></div>
+      <div className="relative flex items-center justify-center h-full min-h-screen bg-cover bg-center bg-no-repeat"
+           style={{ backgroundImage: `url(${shopInteriorBg})` }}>
+        <div className="absolute inset-0 bg-gradient-to-b from-amber-50/80 to-amber-100/90 backdrop-blur-sm"></div>
+        <div className="relative text-center bg-white/85 backdrop-blur-md rounded-2xl border border-white/50 shadow-2xl p-8">
+          <h2 className="text-2xl font-semibold mb-4 text-amber-900">{t('game.lookingForCustomers')}</h2>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600 mx-auto"></div>
         </div>
       </div>
     );
@@ -204,10 +209,14 @@ const Shop: React.FC = () => {
   const dealItem = currentCustomer.carriedItem;
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto bg-professional-light-grey">
-      <div className="flex-1 p-4 space-y-4 max-w-md mx-auto w-full">
+    <div className="relative flex flex-col h-full overflow-y-auto min-h-screen bg-cover bg-center bg-no-repeat"
+         style={{ backgroundImage: `url(${shopInteriorBg})` }}>
+      {/* Background overlay for warmth and contrast */}
+      <div className="absolute inset-0 bg-gradient-to-b from-amber-50/75 to-orange-50/80 backdrop-blur-[1px]"></div>
+      
+      <div className="relative flex-1 p-4 space-y-4 max-w-md mx-auto w-full z-10">
         {/* Customer Info Card */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+        <div className="bg-white/90 backdrop-blur-md rounded-lg border border-amber-200/50 p-6 shadow-xl shadow-amber-900/20">
           <div className="flex items-start gap-4">
             <div className="relative">
               <img 
@@ -249,7 +258,7 @@ const Shop: React.FC = () => {
         </div>
 
         {/* Product Info Card */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+        <div className="bg-white/90 backdrop-blur-md rounded-lg border border-amber-200/50 p-6 shadow-xl shadow-amber-900/20">
           <div className="flex gap-4 mb-4">
             <div className="w-24 h-24 bg-gray-50 rounded-lg flex items-center justify-center border border-gray-100">
               <span className="text-3xl">{dealItem.image || '📦'}</span>
@@ -368,8 +377,8 @@ const Shop: React.FC = () => {
 
         {/* Customer Message */}
         {speechVisible && (
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 shadow-sm">
-            <p className="text-professional-dark-grey leading-relaxed">{speechText}</p>
+          <div className="bg-amber-50/95 backdrop-blur-md border border-amber-300/60 rounded-lg p-4 shadow-lg shadow-amber-900/15">
+            <p className="text-amber-900 leading-relaxed font-medium">{speechText}</p>
           </div>
         )}
 
