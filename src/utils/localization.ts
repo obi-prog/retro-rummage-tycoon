@@ -94,6 +94,9 @@ export const translations = {
     dealCompleted: '✅ Deal Completed!',
     dealRejected: '❌ Deal Rejected',
     customerRejected: 'Customer rejected the offer',
+    customerWantsToBuy: "I'd like to buy this {} for ${}",
+    customerWantsToSell: "I want to sell this {} for ${}",
+    week: 'Week',
   },
   
   de: {
@@ -189,6 +192,9 @@ export const translations = {
     dealCompleted: '✅ Deal Abgeschlossen!',
     dealRejected: '❌ Angebot Abgelehnt',
     customerRejected: 'Kunde hat abgelehnt',
+    customerWantsToBuy: "Ich möchte dieses {} für ${} kaufen",
+    customerWantsToSell: "Ich möchte dieses {} für ${} verkaufen",
+    week: 'Woche',
   },
   
   tr: {
@@ -287,6 +293,9 @@ export const translations = {
     dealCompleted: '✅ Anlaşma Tamamlandı!',
     dealRejected: '❌ Anlaşma Reddedildi',
     customerRejected: 'Müşteri teklifi reddetti',
+    customerWantsToBuy: "Bu {} ürününü ${} dolara satın almak istiyorum",
+    customerWantsToSell: "Bu {} ürününü ${} dolara satmak istiyorum",
+    week: 'Hafta',
   }
 };
 

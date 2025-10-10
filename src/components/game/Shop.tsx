@@ -53,14 +53,20 @@ const Shop: React.FC = () => {
       if (currentCustomer.intent === 'buy') {
         const offer = Math.floor(itemValue * (0.7 + Math.random() * 0.3));
         setCurrentOffer(offer);
-        showSpeech(`I'd like to buy this ${currentCustomer.carriedItem.name} for $${offer}`, 3000);
+        const message = t('common.customerWantsToBuy')
+          .replace('{}', currentCustomer.carriedItem.name)
+          .replace('${}', `$${offer}`);
+        showSpeech(message, 3000);
       } else {
         const askPrice = Math.floor(itemValue * (0.8 + Math.random() * 0.4));
         setCurrentOffer(askPrice);
-        showSpeech(`I want to sell this ${currentCustomer.carriedItem.name} for $${askPrice}`, 3000);
+        const message = t('common.customerWantsToSell')
+          .replace('{}', currentCustomer.carriedItem.name)
+          .replace('${}', `$${askPrice}`);
+        showSpeech(message, 3000);
       }
     }
-  }, [currentCustomer]);
+  }, [currentCustomer, t]);
 
   // Handle customer actions
   const handleAccept = () => {

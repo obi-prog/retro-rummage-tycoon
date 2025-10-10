@@ -56,7 +56,7 @@ export const EndOfDayModal = ({ isOpen, onContinue }: EndOfDayModalProps) => {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-xl">
             <Calendar className="w-6 h-6 text-blue-600" />
-            Week {weekNumber} Day {dayOfWeek} – {t('endOfDay.title')}
+            {t('common.week')} {weekNumber} {t('common.day')} {dayOfWeek} – {t('endOfDay.title')}
           </DialogTitle>
         </DialogHeader>
 
