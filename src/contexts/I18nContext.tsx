@@ -32,7 +32,17 @@ const resources: Record<SupportedLocale, Record<string, any>> = {
       yes: "Yes",
       no: "No",
       save: "Save",
-      close: "Close"
+      close: "Close",
+      week: "Week",
+      day: "Day",
+      customerWantsToBuy: "I'd like to buy this {} for ${}",
+      customerWantsToSell: "I want to sell this {} for ${}",
+      greatDeal: "🎉 Great deal!",
+      dealAccepted: "✅ Deal Accepted",
+      noDeal: "Maybe next time...",
+      dealCompleted: "✅ Deal Completed!",
+      dealRejected: "❌ Deal Rejected",
+      customerRejected: "Customer rejected the offer"
     },
     menu: {
       newGame: "New Game",
@@ -80,7 +90,13 @@ const resources: Record<SupportedLocale, Record<string, any>> = {
       currentOffer: "Current Offer",
       condition: "condition",
       soldFor: "Sold {} for ${}!",
-      boughtFor: "Bought {} for ${}!"
+      boughtFor: "Bought {} for ${}!",
+      counterRejectionMessages: [
+        "That's not quite what I had in mind...",
+        "I was thinking of a different price range.",
+        "Let me consider other options.",
+        "That doesn't work for me, sorry."
+      ]
     },
     navigation: {
       shop: "Shop",
@@ -147,7 +163,17 @@ const resources: Record<SupportedLocale, Record<string, any>> = {
       yes: "Evet",
       no: "Hayır",
       save: "Kaydet",
-      close: "Kapat"
+      close: "Kapat",
+      week: "Hafta",
+      day: "Gün",
+      customerWantsToBuy: "Bu {} ürününü ${} dolara satın almak istiyorum",
+      customerWantsToSell: "Bu {} ürününü ${} dolara satmak istiyorum",
+      greatDeal: "🎉 Harika anlaşma!",
+      dealAccepted: "✅ Anlaşma Kabul Edildi",
+      noDeal: "Belki başka zaman...",
+      dealCompleted: "✅ Anlaşma Tamamlandı!",
+      dealRejected: "❌ Anlaşma Reddedildi",
+      customerRejected: "Müşteri teklifi reddetti"
     },
     menu: {
       newGame: "Yeni Oyun",
@@ -195,7 +221,13 @@ const resources: Record<SupportedLocale, Record<string, any>> = {
       currentOffer: "Mevcut Teklif",
       condition: "durumu",
       soldFor: "{} ${}' a satıldı!",
-      boughtFor: "{} ${}' a satın alındı!"
+      boughtFor: "{} ${}' a satın alındı!",
+      counterRejectionMessages: [
+        "Aklımda tam olarak bu değildi...",
+        "Farklı bir fiyat aralığı düşünüyordum.",
+        "Diğer seçenekleri değerlendireyim.",
+        "Bu benim için uygun değil, üzgünüm."
+      ]
     },
     navigation: {
       shop: "Dükkan",
@@ -262,7 +294,17 @@ const resources: Record<SupportedLocale, Record<string, any>> = {
       yes: "Ja",
       no: "Nein",
       save: "Speichern",
-      close: "Schließen"
+      close: "Schließen",
+      week: "Woche",
+      day: "Tag",
+      customerWantsToBuy: "Ich möchte dieses {} für ${} kaufen",
+      customerWantsToSell: "Ich möchte dieses {} für ${} verkaufen",
+      greatDeal: "🎉 Toller Deal!",
+      dealAccepted: "✅ Deal Angenommen",
+      noDeal: "Vielleicht nächstes Mal...",
+      dealCompleted: "✅ Deal Abgeschlossen!",
+      dealRejected: "❌ Deal Abgelehnt",
+      customerRejected: "Kunde hat abgelehnt"
     },
     menu: {
       newGame: "Neues Spiel",
@@ -310,7 +352,13 @@ const resources: Record<SupportedLocale, Record<string, any>> = {
       currentOffer: "Aktuelles Angebot",
       condition: "Zustand",
       soldFor: "{} für ${} verkauft!",
-      boughtFor: "{} für ${} gekauft!"
+      boughtFor: "{} für ${} gekauft!",
+      counterRejectionMessages: [
+        "Das ist nicht ganz das, was ich mir vorgestellt habe...",
+        "Ich hatte an eine andere Preisspanne gedacht.",
+        "Lassen Sie mich andere Optionen in Betracht ziehen.",
+        "Das funktioniert leider nicht für mich."
+      ]
     },
     navigation: {
       shop: "Geschäft",

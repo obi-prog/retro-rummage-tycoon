@@ -85,12 +85,12 @@ const Shop: React.FC = () => {
         const success = buyItem(dealItem, price);
         if (success) {
           playSound('buy');
-          showSuccess(`Bought ${dealItem.name} for $${price}!`);
+          showSuccess(`${t('shop.boughtFor').replace('{}', dealItem.name).replace('${}', `$${price}`)}`);
         }
       } else {
         toast({
-          title: "Insufficient Funds",
-          description: "You don't have enough money for this purchase.",
+          title: t('game.insufficientFunds'),
+          description: t('game.notEnoughMoney'),
           variant: "destructive"
         });
         return;
@@ -126,18 +126,18 @@ const Shop: React.FC = () => {
       if (currentCustomer.intent === 'buy') {
         sellItem(dealItem, amount);
         playSound('coin');
-        showSuccess(`Sold ${dealItem.name} for $${amount}!`);
+        showSuccess(`${t('shop.soldFor').replace('{}', dealItem.name).replace('${}', `$${amount}`)}`);
       } else {
         if (cash >= amount) {
           const success = buyItem(dealItem, amount);
           if (success) {
             playSound('buy');
-            showSuccess(`Bought ${dealItem.name} for $${amount}!`);
+            showSuccess(`${t('shop.boughtFor').replace('{}', dealItem.name).replace('${}', `$${amount}`)}`);
           }
         } else {
           toast({
-            title: "Insufficient Funds",
-            description: "You don't have enough money for this purchase.",
+            title: t('game.insufficientFunds'),
+            description: t('game.notEnoughMoney'),
             variant: "destructive"
           });
           return;
@@ -147,13 +147,11 @@ const Shop: React.FC = () => {
     } else {
       // Reject the counter offer
       playSound('error');
-      const responses = [
-        "That's not quite what I had in mind...",
-        "I was thinking of a different price range.",
-        "Let me consider other options.",
-        "That doesn't work for me, sorry."
-      ];
-      showSpeech(responses[Math.floor(Math.random() * responses.length)], 2000);
+      const responses = t('shop.counterRejectionMessages');
+      const randomResponse = Array.isArray(responses) 
+        ? responses[Math.floor(Math.random() * responses.length)]
+        : responses;
+      showSpeech(randomResponse, 2000);
       setTimeout(() => onDealResolved(), 2000);
     }
   };
