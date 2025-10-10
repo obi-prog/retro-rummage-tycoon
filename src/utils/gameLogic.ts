@@ -10,6 +10,15 @@ import customer6 from '@/assets/avatars/customer-6.jpg';
 import customer7 from '@/assets/avatars/customer-7.jpg';
 import customer8 from '@/assets/avatars/customer-8.jpg';
 
+// Import item images
+import cassetteRecordImg from '@/assets/items/cassette-record.jpg';
+import walkmanElectronicsImg from '@/assets/items/walkman-electronics.jpg';
+import watchImg from '@/assets/items/watch.jpg';
+import toyImg from '@/assets/items/toy.jpg';
+import comicImg from '@/assets/items/comic.jpg';
+import posterImg from '@/assets/items/poster.jpg';
+import cameraImg from '@/assets/items/camera.jpg';
+
 // Array of customer avatars for random selection
 const customerAvatars = [
   customer1, customer2, customer3, customer4, 
@@ -60,13 +69,13 @@ const generateRandomItem = (): Item => {
   };
   
   const images = {
-    cassette_record: '💿',
-    walkman_electronics: '📻',
-    watch: '⌚',
-    toy: '🧸',
-    comic: '📚',
-    poster: '🖼️',
-    camera: '📷'
+    cassette_record: cassetteRecordImg,
+    walkman_electronics: walkmanElectronicsImg,
+    watch: watchImg,
+    toy: toyImg,
+    comic: comicImg,
+    poster: posterImg,
+    camera: cameraImg
   };
   
   const itemNames = getItemNames();

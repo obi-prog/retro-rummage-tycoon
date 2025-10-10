@@ -260,8 +260,20 @@ const Shop: React.FC = () => {
         {/* Product Info Card */}
         <div className="bg-white/95 backdrop-blur-lg rounded-lg border border-amber-200/60 p-6 shadow-2xl shadow-amber-900/25">
           <div className="flex gap-4 mb-4">
-            <div className="w-24 h-24 bg-gray-50 rounded-lg flex items-center justify-center border border-gray-100">
-              <span className="text-3xl">{dealItem.image || '📦'}</span>
+            <div className="w-24 h-24 bg-gray-50 rounded-lg overflow-hidden border border-gray-100">
+              {typeof dealItem.image === 'string' && dealItem.image.startsWith('/') ? (
+                <img 
+                  src={dealItem.image} 
+                  alt={dealItem.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <img 
+                  src={dealItem.image} 
+                  alt={dealItem.name}
+                  className="w-full h-full object-cover"
+                />
+              )}
             </div>
             
             <div className="flex-1">

@@ -78,8 +78,12 @@ export const Inventory = ({ onItemSelect }: InventoryProps) => {
               <CardContent className="p-4">
                 <div className="flex items-center gap-4">
                   {/* Item Image */}
-                  <div className="text-3xl flex-shrink-0 group-hover:scale-110 transition-transform duration-200">
-                    {item.image}
+                  <div className="w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden bg-gray-50 border border-gray-100 group-hover:scale-110 transition-transform duration-200">
+                    <img 
+                      src={item.image} 
+                      alt={item.name}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   
                   {/* Item Details */}
