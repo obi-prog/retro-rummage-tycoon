@@ -12,6 +12,7 @@ import { useI18n } from '@/contexts/I18nContext';
 import { useTranslatedItems } from '@/hooks/useTranslatedItems';
 import type { Item, Customer } from '@/types/game';
 import shopInteriorBg from '@/assets/vintage-shop-interior.jpg';
+import { SpeechBubble } from '@/components/ui/SpeechBubble';
 
 const Shop: React.FC = () => {
   const { t } = useI18n();
@@ -95,8 +96,14 @@ const Shop: React.FC = () => {
 
   const handleReject = () => {
     playSound('click');
-    showSpeech("Maybe next time!", 1500);
-    setTimeout(() => onDealResolved(), 1500);
+    showSpeech("❌ No deal...", 2000);
+    toast({
+      title: "❌ Anlaşma Reddedildi",
+      description: "Müşteri teklifini reddetti",
+      variant: "destructive",
+      duration: 2000,
+    });
+    setTimeout(() => onDealResolved(), 2000);
   };
 
   const handleCounterOffer = (amount: number) => {
@@ -153,11 +160,14 @@ const Shop: React.FC = () => {
 
   const showSuccess = (message: string) => {
     setShowSuccessEffect(true);
+    const isProfit = message.includes('Sold');
+    showSpeech(isProfit ? "✅ Great deal!" : "✅ Deal accepted!", 2500);
     toast({
-      title: "Deal Completed!",
+      title: "✅ Anlaşma Tamamlandı!",
       description: message,
+      duration: 3000,
     });
-    setTimeout(() => setShowSuccessEffect(false), 2000);
+    setTimeout(() => setShowSuccessEffect(false), 2500);
   };
 
   const openOfferModal = () => {
@@ -226,6 +236,27 @@ const Shop: React.FC = () => {
                 alt={currentCustomer.name}
                 className="w-20 h-20 rounded-full object-cover border-2 border-gray-100"
               />
+              {/* Intent Badge on Avatar */}
+              <div className={`absolute -bottom-1 -right-1 rounded-full p-1.5 border-2 border-white shadow-lg ${
+                currentCustomer.intent === 'buy' 
+                  ? 'bg-blue-500' 
+                  : 'bg-orange-500'
+              }`}>
+                {currentCustomer.intent === 'buy' ? (
+                  <DollarSign className="w-4 h-4 text-white" />
+                ) : (
+                  <Star className="w-4 h-4 text-white" />
+                )}
+              </div>
+              
+              {/* Speech Bubble near customer */}
+              {speechVisible && (
+                <SpeechBubble 
+                  message={speechText}
+                  isVisible={speechVisible}
+                  className="absolute left-24 top-0 w-64 z-20"
+                />
+              )}
             </div>
             
             <div className="flex-1 min-w-0">
@@ -236,12 +267,12 @@ const Shop: React.FC = () => {
               <div className="flex flex-wrap gap-2 mb-3">
                 <Badge 
                   variant="outline" 
-                  className={`font-medium px-3 py-1 ${currentCustomer.intent === 'buy'
-                    ? 'border-professional-blue text-professional-blue bg-blue-50' 
-                    : 'border-orange-500 text-orange-700 bg-orange-50'
+                  className={`font-medium px-3 py-1 text-sm ${currentCustomer.intent === 'buy'
+                    ? 'border-blue-500 text-blue-700 bg-blue-100' 
+                    : 'border-orange-500 text-orange-700 bg-orange-100'
                   }`}
                 >
-                  {currentCustomer.intent === 'buy' ? t('shop.buyer') : t('shop.seller')}
+                  {currentCustomer.intent === 'buy' ? '💰 ' + t('shop.buyer') : '🏷️ ' + t('shop.seller')}
                 </Badge>
                 
                 <Badge variant="secondary" className="text-xs bg-gray-100 text-professional-grey border-gray-200">
@@ -249,10 +280,10 @@ const Shop: React.FC = () => {
                 </Badge>
               </div>
               
-              <p className="text-sm text-professional-grey leading-relaxed">
+              <p className="text-sm font-medium text-professional-dark-grey leading-relaxed">
                 {currentCustomer.intent === 'buy'
-                  ? t('shop.wantsToPurchase') 
-                  : t('shop.wantsToSell')
+                  ? '🛒 ' + t('shop.wantsToPurchase') 
+                  : '💼 ' + t('shop.wantsToSell')
                 }
               </p>
             </div>
@@ -391,14 +422,6 @@ const Shop: React.FC = () => {
           </div>
         </div>
 
-        {/* Customer Message */}
-        {speechVisible && (
-          <div className="bg-gradient-to-br from-amber-100/98 via-yellow-50/95 to-orange-50/90 backdrop-blur-lg border-2 border-amber-400/50 rounded-lg p-4 shadow-xl shadow-amber-900/20 relative overflow-hidden">
-            {/* Vintage paper texture overlay */}
-            <div className="absolute inset-0 opacity-[0.04] pointer-events-none bg-[radial-gradient(circle_at_50%_50%,#000_1px,transparent_1px)] bg-[length:20px_20px]"></div>
-            <p className="text-amber-900 leading-relaxed font-medium relative z-10">{speechText}</p>
-          </div>
-        )}
 
         {/* Action Buttons */}
         <div className="grid grid-cols-3 gap-3 pt-2">
