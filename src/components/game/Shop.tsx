@@ -96,10 +96,10 @@ const Shop: React.FC = () => {
 
   const handleReject = () => {
     playSound('click');
-    showSpeech("❌ No deal...", 2000);
+    showSpeech(t('common.noDeal'), 2000);
     toast({
-      title: "❌ Anlaşma Reddedildi",
-      description: "Müşteri teklifini reddetti",
+      title: t('common.dealRejected'),
+      description: t('common.customerRejected'),
       variant: "destructive",
       duration: 2000,
     });
@@ -160,10 +160,10 @@ const Shop: React.FC = () => {
 
   const showSuccess = (message: string) => {
     setShowSuccessEffect(true);
-    const isProfit = message.includes('Sold');
-    showSpeech(isProfit ? "✅ Great deal!" : "✅ Deal accepted!", 2500);
+    const isProfit = message.includes('Sold') || message.includes('sattın');
+    showSpeech(isProfit ? t('common.greatDeal') : t('common.dealAccepted'), 2500);
     toast({
-      title: "✅ Anlaşma Tamamlandı!",
+      title: t('common.dealCompleted'),
       description: message,
       duration: 3000,
     });

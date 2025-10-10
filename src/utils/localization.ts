@@ -86,6 +86,14 @@ export const translations = {
     buyFromThem: 'Buy From Them',
     sellToThem: 'Sell To Them',
     reject: 'Reject',
+    
+    // Speech bubbles and deal messages
+    greatDeal: '✅ Great deal!',
+    dealAccepted: '✅ Deal accepted!',
+    noDeal: '❌ No deal...',
+    dealCompleted: '✅ Deal Completed!',
+    dealRejected: '❌ Deal Rejected',
+    customerRejected: 'Customer rejected the offer',
   },
   
   de: {
@@ -173,6 +181,14 @@ export const translations = {
     buyFromThem: 'Von ihnen kaufen',
     sellToThem: 'An sie verkaufen',
     reject: 'Ablehnen',
+    
+    // Speech bubbles and deal messages
+    greatDeal: '✅ Toller Deal!',
+    dealAccepted: '✅ Angebot angenommen!',
+    noDeal: '❌ Kein Deal...',
+    dealCompleted: '✅ Deal Abgeschlossen!',
+    dealRejected: '❌ Angebot Abgelehnt',
+    customerRejected: 'Kunde hat abgelehnt',
   },
   
   tr: {
@@ -263,6 +279,14 @@ export const translations = {
     buyFromThem: 'Onlardan Satın Al',
     sellToThem: 'Onlara Sat',
     reject: 'Reddet',
+    
+    // Speech bubbles and deal messages
+    greatDeal: '✅ Harika anlaşma!',
+    dealAccepted: '✅ Anlaşma kabul edildi!',
+    noDeal: '❌ Anlaşma yok...',
+    dealCompleted: '✅ Anlaşma Tamamlandı!',
+    dealRejected: '❌ Anlaşma Reddedildi',
+    customerRejected: 'Müşteri teklifi reddetti',
   }
 };
 
