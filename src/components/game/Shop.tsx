@@ -216,7 +216,9 @@ const Shop: React.FC = () => {
       
       <div className="relative flex-1 p-4 space-y-4 max-w-md mx-auto w-full z-10">
         {/* Customer Info Card */}
-        <div className="bg-white/95 backdrop-blur-lg rounded-lg border border-amber-200/60 p-6 shadow-2xl shadow-amber-900/25">
+        <div className="bg-gradient-to-br from-amber-50/98 via-orange-50/95 to-amber-100/90 backdrop-blur-lg rounded-lg border-2 border-amber-300/40 p-6 shadow-2xl shadow-amber-900/25 relative overflow-hidden">
+          {/* Vintage paper texture overlay */}
+          <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(circle_at_50%_50%,#000_1px,transparent_1px)] bg-[length:20px_20px]"></div>
           <div className="flex items-start gap-4">
             <div className="relative">
               <img 
@@ -258,9 +260,11 @@ const Shop: React.FC = () => {
         </div>
 
         {/* Product Info Card */}
-        <div className="bg-white/95 backdrop-blur-lg rounded-lg border border-amber-200/60 p-6 shadow-2xl shadow-amber-900/25">
-          <div className="flex gap-4 mb-4">
-            <div className="w-24 h-24 bg-gray-50 rounded-lg overflow-hidden border border-gray-100">
+        <div className="bg-gradient-to-br from-orange-50/98 via-amber-50/95 to-yellow-50/90 backdrop-blur-lg rounded-lg border-2 border-amber-300/40 p-6 shadow-2xl shadow-amber-900/25 relative overflow-hidden">
+          {/* Vintage paper texture overlay */}
+          <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(circle_at_50%_50%,#000_1px,transparent_1px)] bg-[length:20px_20px]"></div>
+          <div className="flex gap-4 mb-4 relative z-10">
+            <div className="w-24 h-24 bg-white/80 rounded-lg overflow-hidden border-2 border-amber-200/60 shadow-inner">
               {typeof dealItem.image === 'string' && dealItem.image.startsWith('/') ? (
                 <img 
                   src={dealItem.image} 
@@ -389,8 +393,10 @@ const Shop: React.FC = () => {
 
         {/* Customer Message */}
         {speechVisible && (
-          <div className="bg-amber-50/98 backdrop-blur-lg border border-amber-300/70 rounded-lg p-4 shadow-xl shadow-amber-900/20">
-            <p className="text-amber-900 leading-relaxed font-medium">{speechText}</p>
+          <div className="bg-gradient-to-br from-amber-100/98 via-yellow-50/95 to-orange-50/90 backdrop-blur-lg border-2 border-amber-400/50 rounded-lg p-4 shadow-xl shadow-amber-900/20 relative overflow-hidden">
+            {/* Vintage paper texture overlay */}
+            <div className="absolute inset-0 opacity-[0.04] pointer-events-none bg-[radial-gradient(circle_at_50%_50%,#000_1px,transparent_1px)] bg-[length:20px_20px]"></div>
+            <p className="text-amber-900 leading-relaxed font-medium relative z-10">{speechText}</p>
           </div>
         )}
 
