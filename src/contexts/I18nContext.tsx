@@ -148,6 +148,48 @@ const resources: Record<SupportedLocale, Record<string, any>> = {
       fakeDetected: "Fake Items Detected",
       cashAfter: "Cash After Day",
       openShop: "Open Shop"
+    },
+    dialogue: {
+      greeting: [
+        "Hi! I have something I'd like to sell.",
+        "Would you take a look at this item?",
+        "Maybe this will catch your interest!"
+      ],
+      buy_dialogues: [
+        "This might be exactly what I'm looking for.",
+        "Not bad, but the price is a bit high.",
+        "Can you offer a better price?",
+        "Deal! I'm buying it right now!"
+      ],
+      sell_dialogues: [
+        "This item is rare, lowering the price is hard.",
+        "I can't sell it below its value.",
+        "It's well kept, but the price feels high.",
+        "Deal! It's yours!"
+      ],
+      negotiation: [
+        "That offer's too low, raise it a bit.",
+        "You're getting closer, but add a little more.",
+        "Hmm… I'm almost convinced.",
+        "Alright, that works for me.",
+        "No, I changed my mind."
+      ],
+      deal_success: [
+        "That was a great deal!",
+        "Thanks, I'm satisfied with that.",
+        "We made a good deal!"
+      ],
+      deal_fail: [
+        "I guess we won't agree, see you around.",
+        "That was a waste of time, goodbye.",
+        "Maybe we'll agree next time."
+      ],
+      random_talks: [
+        "I used to have this when I was a kid!",
+        "This reminds me of my grandfather's shop.",
+        "Leave me some profit too, what do you say?",
+        "I love bargaining, let's see what happens!"
+      ]
     }
   },
   tr: {
@@ -279,6 +321,48 @@ const resources: Record<SupportedLocale, Record<string, any>> = {
       fakeDetected: "Sahte Ürün Yakalandı",
       cashAfter: "Gün Sonu Nakit",
       openShop: "Dükkanı Aç"
+    },
+    dialogue: {
+      greeting: [
+        "Merhaba! Satmak istediğim bir şeyim var.",
+        "Şu ürüne bir göz atar mısın?",
+        "Belki bu senin ilgini çeker!"
+      ],
+      buy_dialogues: [
+        "Bu tam aradığım şey olabilir.",
+        "Fena değil ama fiyat biraz fazla.",
+        "Daha uygun bir fiyat teklif edebilir misin?",
+        "Anlaştık, hemen alıyorum!"
+      ],
+      sell_dialogues: [
+        "Bu ürün nadir, fiyatını düşürmem zor.",
+        "Bunu değerinin altında veremem.",
+        "Bu ürüne iyi bakılmış, ama fiyat yüksek.",
+        "Anlaştık, satış senin!"
+      ],
+      negotiation: [
+        "Bu teklif çok düşük, biraz daha yükselt.",
+        "Yaklaşıyorsun, ama biraz daha ekle.",
+        "Hımm… neredeyse ikna oldum.",
+        "Tamam, bu bana uygun.",
+        "Hayır, vazgeçtim."
+      ],
+      deal_success: [
+        "Harika bir alışverişti!",
+        "Teşekkürler, memnun kaldım.",
+        "Güzel iş yaptık!"
+      ],
+      deal_fail: [
+        "Sanırım anlaşamayacağız, görüşmek üzere.",
+        "Zaman kaybı oldu, hoşça kal.",
+        "Belki başka zaman anlaşırız."
+      ],
+      random_talks: [
+        "Bu ürünü çocukken ben de kullanmıştım!",
+        "Bu bana dedemin dükkanını hatırlattı.",
+        "Biraz kâr bırak bana da, ne dersin?",
+        "Pazarlık yapmayı severim, hadi bakalım!"
+      ]
     }
   },
   de: {
@@ -410,6 +494,48 @@ const resources: Record<SupportedLocale, Record<string, any>> = {
       fakeDetected: "Gefälschte Artikel erkannt",
       cashAfter: "Bargeld nach dem Tag",
       openShop: "Laden öffnen"
+    },
+    dialogue: {
+      greeting: [
+        "Hallo! Ich habe etwas, das ich verkaufen möchte.",
+        "Würdest du dir dieses Stück ansehen?",
+        "Vielleicht interessiert dich das!"
+      ],
+      buy_dialogues: [
+        "Das ist vielleicht genau das, was ich suche.",
+        "Nicht schlecht, aber der Preis ist etwas hoch.",
+        "Kannst du mir einen besseren Preis anbieten?",
+        "Abgemacht! Ich kaufe es sofort!"
+      ],
+      sell_dialogues: [
+        "Dieses Stück ist selten, den Preis zu senken ist schwierig.",
+        "Ich kann es nicht unter Wert verkaufen.",
+        "Es ist gut erhalten, aber der Preis scheint hoch.",
+        "Abgemacht! Es gehört dir!"
+      ],
+      negotiation: [
+        "Dieses Angebot ist zu niedrig, erhöhe es ein wenig.",
+        "Du kommst näher, aber leg noch etwas drauf.",
+        "Hmm… ich bin fast überzeugt.",
+        "In Ordnung, das passt für mich.",
+        "Nein, ich habe es mir anders überlegt."
+      ],
+      deal_success: [
+        "Das war ein großartiges Geschäft!",
+        "Danke, ich bin zufrieden damit.",
+        "Wir haben ein gutes Geschäft gemacht!"
+      ],
+      deal_fail: [
+        "Ich glaube, wir werden uns nicht einig, bis bald.",
+        "Das war Zeitverschwendung, auf Wiedersehen.",
+        "Vielleicht werden wir uns das nächste Mal einig."
+      ],
+      random_talks: [
+        "Das hatte ich als Kind auch!",
+        "Das erinnert mich an den Laden meines Großvaters.",
+        "Lass mir auch etwas Gewinn, was meinst du?",
+        "Ich liebe Feilschen, mal sehen, was passiert!"
+      ]
     }
   }
 };

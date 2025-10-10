@@ -175,107 +175,44 @@ const willCustomerAccept = (customer: Customer, offer: number, itemValue: number
   return Math.random() < 0.3; // 30% chance of acceptance
 };
 
-// Dynamic haggling responses based on price direction and customer role
-const haggleResponses = {
-  // Price decreased (player lowered offer)
-  priceDown: {
-    en: [
-      "That's getting closer to what I had in mind!",
-      "Now we're talking!",
-      "Better, but I think we can do even better.",
-      "I appreciate the adjustment, but...",
-      "You're moving in the right direction."
-    ],
-    tr: [
-      "Bu daha mantıklı bir fiyat!",
-      "İşte şimdi konuşuyoruz!",
-      "Daha iyi, ama biraz daha olabilir.",
-      "Ayarlamayı takdir ediyorum, ama...",
-      "Doğru yönde ilerliyorsun."
-    ],
-    de: [
-      "Das kommt dem näher, was ich mir vorgestellt hatte!",
-      "Jetzt reden wir!",
-      "Besser, aber ich denke, wir können noch besser werden.",
-      "Ich schätze die Anpassung, aber...",
-      "Sie bewegen sich in die richtige Richtung."
-    ]
-  },
-  
-  // Price increased (player raised offer)
-  priceUp: {
-    en: [
-      "Hmm, that's going the wrong way...",
-      "Now you're pushing it a bit far.",
-      "I wasn't expecting that direction.",
-      "That's a bit steep for me.",
-      "You're moving away from my comfort zone."
-    ],
-    tr: [
-      "Hmm, bu yanlış yönde gidiyor...",
-      "Şimdi biraz fazla zorluyorsun.",
-      "Bu yönü beklemiyordum.",
-      "Bu bana biraz fazla geldi.",
-      "Konfor alanımdan uzaklaşıyorsun."
-    ],
-    de: [
-      "Hmm, das geht in die falsche Richtung...",
-      "Jetzt treibst du es etwas zu weit.",
-      "Ich hatte nicht diese Richtung erwartet.",
-      "Das ist mir etwas zu steil.",
-      "Sie entfernen sich von meiner Komfortzone."
-    ]
-  },
-  
-  // Very close to agreement
-  veryClose: {
-    en: [
-      "We're almost there! Just a tiny bit more...",
-      "So close I can taste it!",
-      "Just a few dollars and we have a deal!",
-      "You're practically reading my mind now.",
-      "One more small adjustment and it's perfect!"
-    ],
-    tr: [
-      "Neredeyse anlaştık! Sadece biraz daha...",
-      "O kadar yakın ki tadını alabiliyorum!",
-      "Sadece birkaç dolar daha ve anlaştık!",
-      "Artık aklımı okuyorsun adeta.",
-      "Bir küçük ayarlama daha ve mükemmel!"
-    ],
-    de: [
-      "Wir sind fast da! Nur noch ein kleines bisschen...",
-      "So nah, dass ich es schmecken kann!",
-      "Nur noch ein paar Dollar und wir haben einen Deal!",
-      "Sie lesen praktisch meine Gedanken.",
-      "Noch eine kleine Anpassung und es ist perfekt!"
-    ]
-  },
-  
-  // Extreme offers (too high or too low)
-  extreme: {
-    en: [
-      "That's way off what I was thinking...",
-      "I think we're on completely different pages here.",
-      "That's not even in the ballpark!",
-      "Are we talking about the same item?",
-      "I think there's been a misunderstanding."
-    ],
-    tr: [
-      "Bu düşündüğümden çok farklı...",
-      "Sanırım tamamen farklı şeyler düşünüyoruz.",
-      "Bu hiç yakınında bile değil!",
-      "Aynı üründen mi bahsediyoruz?",
-      "Sanırım bir yanlış anlaşılma var."
-    ],
-    de: [
-      "Das ist weit weg von dem, was ich dachte...",
-      "Ich denke, wir reden völlig aneinander vorbei.",
-      "Das ist nicht mal ansatzweise richtig!",
-      "Sprechen wir über dasselbe Teil?",
-      "Ich denke, da gab es ein Missverständnis."
-    ]
+// Dynamic haggling responses - now uses i18n context for translations
+const getHaggleResponse = (category: 'priceDown' | 'priceUp' | 'veryClose' | 'extreme' | 'negotiation', locale: string = 'en'): string => {
+  if (!currentI18nContext) {
+    // Fallback responses
+    const fallbackResponses = {
+      priceDown: ["That's getting closer!", "Now we're talking!"],
+      priceUp: ["Hmm, that's going the wrong way...", "Now you're pushing it."],
+      veryClose: ["We're almost there!", "So close!"],
+      extreme: ["That's way off...", "Are we talking about the same item?"],
+      negotiation: ["Let me think about that...", "Hmm..."]
+    };
+    const responses = fallbackResponses[category];
+    return responses[Math.floor(Math.random() * responses.length)];
   }
+  
+  // Map haggle categories to dialogue keys
+  const categoryMap = {
+    priceDown: 'dialogue.negotiation',
+    priceUp: 'dialogue.negotiation', 
+    veryClose: 'dialogue.negotiation',
+    extreme: 'dialogue.negotiation',
+    negotiation: 'dialogue.negotiation'
+  };
+  
+  const dialogueKey = categoryMap[category];
+  const dialogues = currentI18nContext.getNestedTranslation(dialogueKey, [
+    "That offer's too low, raise it a bit.",
+    "You're getting closer, but add a little more.",
+    "Hmm… I'm almost convinced.",
+    "Alright, that works for me.",
+    "No, I changed my mind."
+  ]);
+  
+  if (Array.isArray(dialogues)) {
+    return dialogues[Math.floor(Math.random() * dialogues.length)];
+  }
+  
+  return dialogues;
 };
 
 // Calculate the current market value of an item
@@ -346,7 +283,7 @@ export const generateHaggleResponse = (
   const isExtreme = priceDifference > itemValue * 0.5; // More than 50% off
 
   // Get appropriate response category
-  let responseCategory: string;
+  let responseCategory: 'priceDown' | 'priceUp' | 'veryClose' | 'extreme' | 'negotiation';
   if (isExtreme) {
     responseCategory = 'extreme';
   } else if (isVeryClose) {
@@ -355,10 +292,9 @@ export const generateHaggleResponse = (
     responseCategory = priceDirection === 'up' ? 'priceUp' : 'priceDown';
   }
 
-  // Get response in the specified language
-  const responses = haggleResponses[responseCategory as keyof typeof haggleResponses];
-  const languageResponses = responses[language as keyof typeof responses] || responses.en;
-  const response = languageResponses[Math.floor(Math.random() * languageResponses.length)];
+  // Get response using i18n context
+  const locale = currentI18nContext?.locale || language;
+  const response = getHaggleResponse(responseCategory, locale);
 
   // Decide if customer accepts or makes counter-offer
   const customerAccepts = playerOffer >= acceptableRange.min && playerOffer <= acceptableRange.max;
@@ -420,28 +356,54 @@ export const generateInitialMessage = (
   item: Item, 
   offer: number
 ): string => {
-  const greetings = [
-    "Hey there!",
-    "Excuse me,",
-    "Hi,",
-    "Hello!"
-  ];
+  // Get current locale from i18n context
+  const locale = currentI18nContext?.locale || 'en';
   
-  const buyMessages = [
-    `I'm interested in this ${item.name}. Would you take $${offer} for it?`,
-    `This ${item.name} caught my eye. How about $${offer}?`,
-    `I'd love to buy this ${item.name}. $${offer} sound fair?`
-  ];
+  // Get translated greetings
+  const greetings = currentI18nContext?.getNestedTranslation('dialogue.greeting', [
+    "Hi! I have something I'd like to sell.",
+    "Would you take a look at this item?",
+    "Maybe this will catch your interest!"
+  ]);
   
-  const sellMessages = [
-    `I have this ${item.name} I'd like to sell. I'm asking $${offer} for it.`,
-    `Would you be interested in this ${item.name}? I'm looking for $${offer}.`,
-    `I've got this ${item.name} for sale. $${offer} and it's yours.`
-  ];
+  // Get dialogue arrays based on customer intent
+  const buyDialogues = currentI18nContext?.getNestedTranslation('dialogue.buy_dialogues', [
+    "This might be exactly what I'm looking for.",
+    "Not bad, but the price is a bit high.",
+    "Can you offer a better price?",
+    "Deal! I'm buying it right now!"
+  ]);
   
-  const greeting = greetings[Math.floor(Math.random() * greetings.length)];
-  const messages = customer.intent === 'buy' ? buyMessages : sellMessages;
-  const message = messages[Math.floor(Math.random() * messages.length)];
+  const sellDialogues = currentI18nContext?.getNestedTranslation('dialogue.sell_dialogues', [
+    "This item is rare, lowering the price is hard.",
+    "I can't sell it below its value.",
+    "It's well kept, but the price feels high.",
+    "Deal! It's yours!"
+  ]);
   
-  return `${greeting} ${message}`;
+  const randomTalks = currentI18nContext?.getNestedTranslation('dialogue.random_talks', [
+    "I used to have this when I was a kid!",
+    "This reminds me of my grandfather's shop.",
+    "Leave me some profit too, what do you say?",
+    "I love bargaining, let's see what happens!"
+  ]);
+  
+  // Select random greeting
+  const greeting = Array.isArray(greetings) 
+    ? greetings[Math.floor(Math.random() * greetings.length)]
+    : greetings;
+  
+  // Select message based on customer intent
+  const dialogues = customer.intent === 'buy' ? buyDialogues : sellDialogues;
+  const dialogue = Array.isArray(dialogues)
+    ? dialogues[Math.floor(Math.random() * dialogues.length)]
+    : dialogues;
+  
+  // Sometimes add a random talk (30% chance)
+  if (Math.random() < 0.3 && Array.isArray(randomTalks)) {
+    const randomTalk = randomTalks[Math.floor(Math.random() * randomTalks.length)];
+    return `${greeting} ${randomTalk}`;
+  }
+  
+  return `${greeting} ${dialogue}`;
 };
