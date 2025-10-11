@@ -107,18 +107,18 @@ const Index = () => {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-secondary/20 to-accent/20">
         <Card className="w-full max-w-md mx-4 bg-card/95 backdrop-blur-sm shadow-xl">
           <CardContent className="p-6 text-center">
-            <h2 className="text-2xl font-bold mb-4">❓ Nasıl Oynanır</h2>
+            <h2 className="text-2xl font-bold mb-4">❓ How to Play</h2>
             <div className="text-left space-y-2 text-sm">
-              <p>🎯 <strong>Amaç:</strong> Eşyaları ucuza alıp pahalıya sat!</p>
-              <p>💰 <strong>Para Kazan:</strong> Müşterilerle pazarlık yap</p>
-              <p>⭐ <strong>Seviye At:</strong> Deneyim kazan ve yeni özellikler aç</p>
-              <p>📦 <strong>Envanter:</strong> Eşyalarını yönet ve değerlendir</p>
+              <p>🎯 <strong>Goal:</strong> Buy low and sell high!</p>
+              <p>💰 <strong>Make Money:</strong> Negotiate with customers</p>
+              <p>⭐ <strong>Level Up:</strong> Gain experience and unlock new features</p>
+              <p>📦 <strong>Inventory:</strong> Manage and evaluate your items</p>
             </div>
             <button 
               onClick={handleBackToMenu}
               className="mt-4 w-full bg-gradient-to-r from-retro-orange to-retro-pink hover:from-retro-orange/90 hover:to-retro-pink/90 text-white font-bold py-3 text-lg shadow-lg rounded-md"
             >
-              ← Ana Menüye Dön
+              ← Back to Main Menu
             </button>
           </CardContent>
         </Card>
@@ -164,7 +164,7 @@ const Index = () => {
                       {/* Header */}
                       <div className="flex items-center justify-between">
                         <h3 className="font-semibold flex items-center gap-2">
-                          ⚙️ Oyun Ayarları
+                          ⚙️ Game Settings
                         </h3>
                         <Button
                           variant="ghost"
@@ -181,11 +181,11 @@ const Index = () => {
                       {/* Sound Settings */}
                       <div className="space-y-3">
                         <h4 className="text-sm font-medium flex items-center gap-2">
-                          🔊 Ses Ayarları
+                          🔊 Sound Settings
                         </h4>
                         
                         <div className="flex items-center justify-between">
-                          <span className="text-sm">🔔 Ses Efektleri</span>
+                          <span className="text-sm">🔔 Sound Effects</span>
                           <Switch
                             checked={settings.sfxEnabled}
                             onCheckedChange={(enabled) => {
@@ -209,7 +209,7 @@ const Index = () => {
                           variant="outline"
                           className="w-full justify-start text-sm"
                         >
-                          ⚙️ Detaylı Ayarlar
+                          ⚙️ Detailed Settings
                         </Button>
                         
                         <Button
@@ -221,7 +221,7 @@ const Index = () => {
                           variant="outline"
                           className="w-full justify-start text-sm"
                         >
-                          📋 Ana Menü
+                          📋 Main Menu
                         </Button>
                         
                         <Button
@@ -232,7 +232,7 @@ const Index = () => {
                           variant="outline"
                           className="w-full justify-start text-sm text-destructive hover:text-destructive"
                         >
-                          🚪 Oyundan Çık
+                          🚪 Exit Game
                         </Button>
                       </div>
                     </div>
