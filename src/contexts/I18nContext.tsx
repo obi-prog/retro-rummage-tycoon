@@ -1,25 +1,17 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, ReactNode } from 'react';
 
-export type SupportedLocale = 'en' | 'tr' | 'de';
-
-interface I18nState {
-  currentLocale: SupportedLocale;
-  override: SupportedLocale | null;
-  resources: Record<SupportedLocale, Record<string, any>>;
-}
+export type SupportedLocale = 'en';
 
 interface I18nContextType {
   locale: SupportedLocale;
   t: (key: string, fallback?: string, params?: Record<string, string>) => string | any;
-  setLocale: (locale: SupportedLocale | null) => void;
   getNestedTranslation: (key: string, fallback?: string, params?: Record<string, string>) => string | any;
 }
 
 const I18nContext = createContext<I18nContextType | undefined>(undefined);
 
-// Translation resources
-const resources: Record<SupportedLocale, Record<string, any>> = {
-  en: {
+// Translation resources (English only)
+const resources = {
     common: {
       continue: "Continue",
       accept: "Accept",
@@ -191,398 +183,18 @@ const resources: Record<SupportedLocale, Record<string, any>> = {
         "I love bargaining, let's see what happens!"
       ]
     }
-  },
-  tr: {
-    common: {
-      continue: "Devam Et",
-      accept: "Kabul Et",
-      decline: "Reddet",
-      counter: "Karşı Teklif",
-      submit: "Gönder",
-      cancel: "İptal",
-      back: "Geri",
-      next: "İleri",
-      yes: "Evet",
-      no: "Hayır",
-      save: "Kaydet",
-      close: "Kapat",
-      week: "Hafta",
-      day: "Gün",
-      customerWantsToBuy: "Bu {} ürününü ${} dolara satın almak istiyorum",
-      customerWantsToSell: "Bu {} ürününü ${} dolara satmak istiyorum",
-      greatDeal: "🎉 Harika anlaşma!",
-      dealAccepted: "✅ Anlaşma Kabul Edildi",
-      noDeal: "Belki başka zaman...",
-      dealCompleted: "✅ Anlaşma Tamamlandı!",
-      dealRejected: "❌ Anlaşma Reddedildi",
-      customerRejected: "Müşteri teklifi reddetti"
-    },
-    menu: {
-      newGame: "Yeni Oyun",
-      continue: "Devam Et",
-      settings: "Ayarlar",
-      credits: "Yapımcılar",
-      language: "Dil",
-      systemDefault: "Sistem Varsayılanı"
-    },
-    settings: {
-      title: "Ayarlar",
-      language: "Dil",
-      systemDefault: "Sistem Varsayılanı",
-      sound: "Ses",
-      music: "Müzik",
-      effects: "Ses Efektleri"
-    },
-    game: {
-      cash: "Nakit",
-      level: "Seviye",
-      reputation: "İtibar",
-      dayComplete: "Gün Tamamlandı!",
-      customersServed: "Hizmet verilen müşteri",
-      lookingForCustomers: "Müşteri aranıyor...",
-      dealCompleted: "Anlaşma Tamamlandı!",
-      insufficientFunds: "Yetersiz Bakiye",
-      notEnoughMoney: "Bu satın alma için yeterli paranız yok."
-    },
-    shop: {
-      buyer: "ALICI",
-      seller: "SATICI",
-      wantsToPurchase: "Sizden satın almak istiyor",
-      wantsToSell: "Size satmak istiyor",
-      marketValue: "Piyasa Değeri",
-      estimatedMarketValue: "Tahmini Piyasa Değeri",
-      referenceInfo: "referans bilgi",
-      sellerAskingPrice: "Satıcının İstediği Fiyat",
-      customerRequestedAmount: "müşterinin istediği rakam",
-      yourPurchasePrice: "Senin Alış Fiyatın",
-      yourCostForItem: "bu ürünün sana maliyeti",
-      buyerOfferPrice: "Alıcının Teklif Ettiği Fiyat",
-      customerWillingToPay: "müşterinin ödemek istediği rakam",
-      profitLoss: "Kar/Zarar",
-      makeCounterOffer: "Karşı Teklif Yap",
-      currentOffer: "Mevcut Teklif",
-      condition: "durumu",
-      soldFor: "{} ${}' a satıldı!",
-      boughtFor: "{} ${}' a satın alındı!",
-      counterRejectionMessages: [
-        "Aklımda tam olarak bu değildi...",
-        "Farklı bir fiyat aralığı düşünüyordum.",
-        "Diğer seçenekleri değerlendireyim.",
-        "Bu benim için uygun değil, üzgünüm."
-      ]
-    },
-    navigation: {
-      shop: "Dükkan",
-      gameBook: "Oyun Defteri",
-      inventory: "Envanter",
-      missions: "Görevler",
-      skills: "Yetenekler"
-    },
-    items: {
-      categories: {
-        cassette_record: "Plak Kayıtları",
-        walkman_electronics: "Elektronik",
-        watch: "Saatler",
-        toy: "Oyuncaklar",
-        comic: "Çizgi Romanlar",
-        poster: "Posterler",
-        camera: "Kameralar"
-      },
-      names: {
-        cassette_record: ["Vintage LP", "Rock Albümü", "Jazz Koleksiyonu", "Klasik Set"],
-        walkman_electronics: ["Retro Walkman", "Vintage Radyo", "Eski Kulaklık", "Kaset Çalar"],
-        watch: ["Cep Saati", "Vintage Rolex", "Antika Saat", "Klasik Saat"],
-        toy: ["Aksiyon Figürü", "Vintage Bebek", "Model Araba", "Masa Oyunu"],
-        comic: ["İlk Baskı Çizgi Roman", "Vintage Dergi", "Nadir Sayı", "Koleksiyoncu Çizgi Romanı"],
-        poster: ["Film Posteri", "Konser Posteri", "Vintage Reklam", "Sanat Baskısı"],
-        camera: ["Film Kamerası", "Vintage Polaroid", "Eski Lens", "Fotoğraf Ekipmanı"]
-      },
-      rarities: {
-        common: "Yaygın",
-        rare: "Nadir",
-        very_rare: "Çok Nadir",
-        legendary: "Efsanevi"
-      },
-      authenticity: {
-        authentic: "Orijinal",
-        fake: "Sahte",
-        suspicious: "Şüpheli"
-      }
-    },
-    endOfDay: {
-      title: "Gün Özeti",
-      income: "Gelir",
-      expenses: "Gider",
-      net: "Net Kâr / Zarar",
-      stats: "Günlük İstatistikler",
-      sold: "Satılan Ürün",
-      bought: "Alınan Ürün",
-      successful: "Başarılı Pazarlık",
-      fakeDetected: "Sahte Ürün Yakalandı",
-      cashAfter: "Gün Sonu Nakit",
-      openShop: "Dükkanı Aç"
-    },
-    dialogue: {
-      greeting: [
-        "Merhaba! Satmak istediğim bir şeyim var.",
-        "Şu ürüne bir göz atar mısın?",
-        "Belki bu senin ilgini çeker!"
-      ],
-      buy_dialogues: [
-        "Bu tam aradığım şey olabilir.",
-        "Fena değil ama fiyat biraz fazla.",
-        "Daha uygun bir fiyat teklif edebilir misin?",
-        "Anlaştık, hemen alıyorum!"
-      ],
-      sell_dialogues: [
-        "Bu ürün nadir, fiyatını düşürmem zor.",
-        "Bunu değerinin altında veremem.",
-        "Bu ürüne iyi bakılmış, ama fiyat yüksek.",
-        "Anlaştık, satış senin!"
-      ],
-      negotiation: [
-        "Bu teklif çok düşük, biraz daha yükselt.",
-        "Yaklaşıyorsun, ama biraz daha ekle.",
-        "Hımm… neredeyse ikna oldum.",
-        "Tamam, bu bana uygun.",
-        "Hayır, vazgeçtim."
-      ],
-      deal_success: [
-        "Harika bir alışverişti!",
-        "Teşekkürler, memnun kaldım.",
-        "Güzel iş yaptık!"
-      ],
-      deal_fail: [
-        "Sanırım anlaşamayacağız, görüşmek üzere.",
-        "Zaman kaybı oldu, hoşça kal.",
-        "Belki başka zaman anlaşırız."
-      ],
-      random_talks: [
-        "Bu ürünü çocukken ben de kullanmıştım!",
-        "Bu bana dedemin dükkanını hatırlattı.",
-        "Biraz kâr bırak bana da, ne dersin?",
-        "Pazarlık yapmayı severim, hadi bakalım!"
-      ]
-    }
-  },
-  de: {
-    common: {
-      continue: "Weiter",
-      accept: "Annehmen",
-      decline: "Ablehnen",
-      counter: "Gegenangebot",
-      submit: "Senden",
-      cancel: "Abbrechen",
-      back: "Zurück",
-      next: "Weiter",
-      yes: "Ja",
-      no: "Nein",
-      save: "Speichern",
-      close: "Schließen",
-      week: "Woche",
-      day: "Tag",
-      customerWantsToBuy: "Ich möchte dieses {} für ${} kaufen",
-      customerWantsToSell: "Ich möchte dieses {} für ${} verkaufen",
-      greatDeal: "🎉 Toller Deal!",
-      dealAccepted: "✅ Deal Angenommen",
-      noDeal: "Vielleicht nächstes Mal...",
-      dealCompleted: "✅ Deal Abgeschlossen!",
-      dealRejected: "❌ Deal Abgelehnt",
-      customerRejected: "Kunde hat abgelehnt"
-    },
-    menu: {
-      newGame: "Neues Spiel",
-      continue: "Weiter",
-      settings: "Einstellungen",
-      credits: "Credits",
-      language: "Sprache",
-      systemDefault: "Systemstandard"
-    },
-    settings: {
-      title: "Einstellungen",
-      language: "Sprache",
-      systemDefault: "Systemstandard",
-      sound: "Ton",
-      music: "Musik",
-      effects: "Soundeffekte"
-    },
-    game: {
-      cash: "Bargeld",
-      level: "Level",
-      reputation: "Ruf",
-      dayComplete: "Tag Abgeschlossen!",
-      customersServed: "Bediente Kunden",
-      lookingForCustomers: "Suche nach Kunden...",
-      dealCompleted: "Geschäft Abgeschlossen!",
-      insufficientFunds: "Unzureichende Mittel",
-      notEnoughMoney: "Sie haben nicht genug Geld für diesen Kauf."
-    },
-    shop: {
-      buyer: "KÄUFER",
-      seller: "VERKÄUFER",
-      wantsToPurchase: "Möchte von Ihnen kaufen",
-      wantsToSell: "Möchte an Sie verkaufen",
-      marketValue: "Marktwert",
-      estimatedMarketValue: "Geschätzter Marktwert",
-      referenceInfo: "Referenzinfo",
-      sellerAskingPrice: "Verkäufer Wunschpreis",
-      customerRequestedAmount: "vom Kunden gewünschter Betrag",
-      yourPurchasePrice: "Ihr Einkaufspreis",
-      yourCostForItem: "Ihre Kosten für diesen Artikel",
-      buyerOfferPrice: "Käufer Angebotspreis",
-      customerWillingToPay: "Kunde bereit zu zahlen",
-      profitLoss: "Gewinn/Verlust",
-      makeCounterOffer: "Gegenangebot Machen",
-      currentOffer: "Aktuelles Angebot",
-      condition: "Zustand",
-      soldFor: "{} für ${} verkauft!",
-      boughtFor: "{} für ${} gekauft!",
-      counterRejectionMessages: [
-        "Das ist nicht ganz das, was ich mir vorgestellt habe...",
-        "Ich hatte an eine andere Preisspanne gedacht.",
-        "Lassen Sie mich andere Optionen in Betracht ziehen.",
-        "Das funktioniert leider nicht für mich."
-      ]
-    },
-    navigation: {
-      shop: "Geschäft",
-      gameBook: "Spielbuch",
-      inventory: "Inventar",
-      missions: "Missionen",
-      skills: "Fähigkeiten"
-    },
-    items: {
-      categories: {
-        cassette_record: "Schallplatten",
-        walkman_electronics: "Elektronik",
-        watch: "Uhren",
-        toy: "Spielzeug",
-        comic: "Comics",
-        poster: "Poster",
-        camera: "Kameras"
-      },
-      names: {
-        cassette_record: ["Vintage LP", "Rock Album", "Jazz Sammlung", "Klassik Set"],
-        walkman_electronics: ["Retro Walkman", "Vintage Radio", "Alte Kopfhörer", "Kassettenspieler"],
-        watch: ["Taschenuhr", "Vintage Rolex", "Antike Uhr", "Klassische Uhr"],
-        toy: ["Actionfigur", "Vintage Puppe", "Modellauto", "Brettspiel"],
-        comic: ["Erstausgabe Comic", "Vintage Magazin", "Seltene Ausgabe", "Sammler Comic"],
-        poster: ["Film Poster", "Konzert Poster", "Vintage Werbung", "Kunstdruck"],
-        camera: ["Filmkamera", "Vintage Polaroid", "Alte Linse", "Foto Ausrüstung"]
-      },
-      rarities: {
-        common: "Häufig",
-        rare: "Selten",
-        very_rare: "Sehr Selten",
-        legendary: "Legendär"
-      },
-      authenticity: {
-        authentic: "Echt",
-        fake: "Gefälscht",
-        suspicious: "Verdächtig"
-      }
-    },
-    endOfDay: {
-      title: "Tagesübersicht",
-      income: "Einnahmen",
-      expenses: "Ausgaben",
-      net: "Netto Gewinn / Verlust",
-      stats: "Tagesstatistik",
-      sold: "Verkaufte Artikel",
-      bought: "Gekaufte Artikel",
-      successful: "Erfolgreiche Verhandlungen",
-      fakeDetected: "Gefälschte Artikel erkannt",
-      cashAfter: "Bargeld nach dem Tag",
-      openShop: "Laden öffnen"
-    },
-    dialogue: {
-      greeting: [
-        "Hallo! Ich habe etwas, das ich verkaufen möchte.",
-        "Würdest du dir dieses Stück ansehen?",
-        "Vielleicht interessiert dich das!"
-      ],
-      buy_dialogues: [
-        "Das ist vielleicht genau das, was ich suche.",
-        "Nicht schlecht, aber der Preis ist etwas hoch.",
-        "Kannst du mir einen besseren Preis anbieten?",
-        "Abgemacht! Ich kaufe es sofort!"
-      ],
-      sell_dialogues: [
-        "Dieses Stück ist selten, den Preis zu senken ist schwierig.",
-        "Ich kann es nicht unter Wert verkaufen.",
-        "Es ist gut erhalten, aber der Preis scheint hoch.",
-        "Abgemacht! Es gehört dir!"
-      ],
-      negotiation: [
-        "Dieses Angebot ist zu niedrig, erhöhe es ein wenig.",
-        "Du kommst näher, aber leg noch etwas drauf.",
-        "Hmm… ich bin fast überzeugt.",
-        "In Ordnung, das passt für mich.",
-        "Nein, ich habe es mir anders überlegt."
-      ],
-      deal_success: [
-        "Das war ein großartiges Geschäft!",
-        "Danke, ich bin zufrieden damit.",
-        "Wir haben ein gutes Geschäft gemacht!"
-      ],
-      deal_fail: [
-        "Ich glaube, wir werden uns nicht einig, bis bald.",
-        "Das war Zeitverschwendung, auf Wiedersehen.",
-        "Vielleicht werden wir uns das nächste Mal einig."
-      ],
-      random_talks: [
-        "Das hatte ich als Kind auch!",
-        "Das erinnert mich an den Laden meines Großvaters.",
-        "Lass mir auch etwas Gewinn, was meinst du?",
-        "Ich liebe Feilschen, mal sehen, was passiert!"
-      ]
-    }
-  }
-};
-
-const STORAGE_KEY = 'dow_locale';
-
-// Detect device language
-const detectDeviceLanguage = (): SupportedLocale => {
-  const browserLang = navigator.language.toLowerCase();
-  
-  if (browserLang.startsWith('tr')) return 'tr';
-  if (browserLang.startsWith('de')) return 'de';
-  return 'en'; // default fallback
 };
 
 export const I18nProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [i18nState, setI18nState] = useState<I18nState>(() => {
-    // Load from localStorage or detect device language
-    const savedOverride = localStorage.getItem(STORAGE_KEY) as SupportedLocale | null;
-    const deviceLang = detectDeviceLanguage();
-    const currentLocale = savedOverride || deviceLang;
-    
-    return {
-      currentLocale,
-      override: savedOverride,
-      resources
-    };
-  });
-
   const getNestedTranslation = (key: string, fallback?: string, params?: Record<string, string>): string | any => {
     const keys = key.split('.');
-    let value: any = i18nState.resources[i18nState.currentLocale];
+    let value: any = resources;
     
     for (const k of keys) {
       if (value && typeof value === 'object' && k in value) {
         value = value[k];
       } else {
-        // Fallback to English if key not found in current language
-        value = i18nState.resources.en;
-        for (const fallbackKey of keys) {
-          if (value && typeof value === 'object' && fallbackKey in value) {
-            value = value[fallbackKey];
-          } else {
-            value = fallback || key;
-            break;
-          }
-        }
+        value = fallback || key;
         break;
       }
     }
@@ -605,31 +217,9 @@ export const I18nProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return result;
   };
 
-  const setLocale = (locale: SupportedLocale | null) => {
-    if (locale === null) {
-      // Reset to system default
-      localStorage.removeItem(STORAGE_KEY);
-      const deviceLang = detectDeviceLanguage();
-      setI18nState(prev => ({
-        ...prev,
-        currentLocale: deviceLang,
-        override: null
-      }));
-    } else {
-      // Set manual override
-      localStorage.setItem(STORAGE_KEY, locale);
-      setI18nState(prev => ({
-        ...prev,
-        currentLocale: locale,
-        override: locale
-      }));
-    }
-  };
-
   const contextValue: I18nContextType = {
-    locale: i18nState.currentLocale,
+    locale: 'en',
     t: getNestedTranslation,
-    setLocale,
     getNestedTranslation
   };
 

@@ -9,7 +9,7 @@ import { Separator } from '@/components/ui/separator';
 import { toast } from '@/hooks/use-toast';
 import { useGameStore } from '@/store/gameStore';
 import { useSoundContext } from '@/contexts/SoundContext';
-import { useI18n, SupportedLocale } from '@/contexts/I18nContext';
+import { useI18n } from '@/contexts/I18nContext';
 
 interface SettingsProps {
   onBack: () => void;
@@ -19,7 +19,7 @@ interface SettingsProps {
 
 export const Settings = ({ onBack, isInGame, onBackToGame }: SettingsProps) => {
   const { initGame, saveGameState } = useGameStore();
-  const { locale, t, setLocale } = useI18n();
+  const { t } = useI18n();
   const { 
     settings, 
     updateSettings, 
@@ -31,18 +31,6 @@ export const Settings = ({ onBack, isInGame, onBackToGame }: SettingsProps) => {
   } = useSoundContext();
   const [showResetConfirm, setShowResetConfirm] = useState(false);
 
-  const handleLanguageChange = (newLang: SupportedLocale) => {
-    playClickSound();
-    setLocale(newLang);
-    saveGameState(); // Save immediately when language changes
-  };
-
-  const handleSystemDefaultLanguage = () => {
-    playClickSound();
-    setLocale(null); // Reset to system default
-    saveGameState();
-  };
-
   const handleResetGame = () => {
     initGame(); // This resets the game to initial state
     setShowResetConfirm(false);
@@ -52,12 +40,6 @@ export const Settings = ({ onBack, isInGame, onBackToGame }: SettingsProps) => {
   const handleSaveAndBack = () => {
     saveGameState();
     onBack();
-  };
-
-  const languageNames = {
-    'tr': '🇹🇷 Türkçe',
-    'en': '🇺🇸 English', 
-    'de': '🇩🇪 Deutsch'
   };
 
   return (
@@ -83,33 +65,6 @@ export const Settings = ({ onBack, isInGame, onBackToGame }: SettingsProps) => {
         </CardHeader>
         
         <CardContent className="space-y-5 p-6">
-          {/* Language Settings Card */}
-          <Card className="border-2 border-gray-200/60 shadow-sm bg-gradient-to-r from-blue-50/50 to-indigo-50/50">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-3">
-                <span className="text-xl">🌍</span>
-                <h3 className="font-bold text-gray-800">{t('settings.language')}</h3>
-              </div>
-              <Select value={locale} onValueChange={handleLanguageChange}>
-                <SelectTrigger className="w-full border-2 border-gray-300 bg-white/80 hover:border-blue-400 transition-colors">
-                  <SelectValue placeholder={t('settings.language')} />
-                </SelectTrigger>
-                <SelectContent className="bg-white border-2 border-gray-300 shadow-lg z-50">
-                  <SelectItem value="en" className="hover:bg-blue-50">{languageNames.en}</SelectItem>
-                  <SelectItem value="tr" className="hover:bg-blue-50">{languageNames.tr}</SelectItem>
-                  <SelectItem value="de" className="hover:bg-blue-50">{languageNames.de}</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button 
-                onClick={handleSystemDefaultLanguage}
-                variant="outline"
-                className="w-full mt-2 text-sm border-gray-300 hover:bg-gray-50"
-              >
-                🔄 {t('settings.systemDefault')}
-              </Button>
-            </CardContent>
-          </Card>
-
           {/* Audio Settings Card */}
           <Card className="border-2 border-gray-200/60 shadow-sm bg-gradient-to-r from-purple-50/50 to-pink-50/50">
             <CardContent className="p-4 space-y-4">

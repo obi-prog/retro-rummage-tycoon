@@ -12,12 +12,10 @@ import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { useSoundContext } from '@/contexts/SoundContext';
 import { X } from 'lucide-react';
-import { t } from '@/utils/localization';
 
 const Index = () => {
   const { 
     initGame, 
-    language, 
     level,
     cash,
     reputation,
@@ -89,7 +87,6 @@ const Index = () => {
   if (currentView === 'menu') {
     return (
       <MainMenu
-        language={language}
         onStartGame={handleStartGame}
         onSettings={handleSettings}
         onHowToPlay={handleHowToPlay}

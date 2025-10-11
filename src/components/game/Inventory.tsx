@@ -1,5 +1,4 @@
 import { useGameStore } from '@/store/gameStore';
-import { t } from '@/utils/localization';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -10,7 +9,7 @@ interface InventoryProps {
 }
 
 export const Inventory = ({ onItemSelect }: InventoryProps) => {
-  const { inventory, language } = useGameStore();
+  const { inventory } = useGameStore();
 
   const getRarityColor = (rarity: string) => {
     switch (rarity) {
@@ -23,10 +22,10 @@ export const Inventory = ({ onItemSelect }: InventoryProps) => {
   };
 
   const getConditionText = (condition: number) => {
-    if (condition < 25) return t('broken', language);
-    if (condition < 50) return t('damaged', language);
-    if (condition < 75) return t('good', language);
-    return t('excellent', language);
+    if (condition < 25) return 'Broken';
+    if (condition < 50) return 'Damaged';
+    if (condition < 75) return 'Good';
+    return 'Excellent';
   };
 
   const getConditionColor = (condition: number) => {
@@ -53,7 +52,7 @@ export const Inventory = ({ onItemSelect }: InventoryProps) => {
       {/* Header with capacity */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <h2 className="text-lg font-semibold text-gray-800">Envanter</h2>
+          <h2 className="text-lg font-semibold text-gray-800">Inventory</h2>
           <Badge className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white border-0">
             {inventory.length} / 10
           </Badge>
@@ -65,8 +64,8 @@ export const Inventory = ({ onItemSelect }: InventoryProps) => {
         {inventory.length === 0 ? (
           <div className="text-center py-12">
             <div className="text-4xl mb-4">📦</div>
-            <div className="text-gray-500 font-medium">Envanter boş</div>
-            <div className="text-sm text-gray-400 mt-1">Müşterilerden ürün satın al</div>
+            <div className="text-gray-500 font-medium">Inventory Empty</div>
+            <div className="text-sm text-gray-400 mt-1">Buy items from customers</div>
           </div>
         ) : (
           inventory.map((item) => (
@@ -92,13 +91,13 @@ export const Inventory = ({ onItemSelect }: InventoryProps) => {
                     <div className="flex items-center gap-2 flex-wrap">
                       <h4 className="font-semibold text-gray-800 truncate">{item.name}</h4>
                       <Badge className={`text-xs font-medium border ${getRarityColor(item.rarity)}`}>
-                        {t(item.rarity as any, language)}
+                        {item.rarity}
                       </Badge>
                     </div>
                     
                     {/* Category */}
                     <div className="text-sm text-gray-600">
-                      {t(item.category as any, language)}
+                      {item.category}
                     </div>
                     
                     {/* Condition Bar */}
@@ -120,7 +119,7 @@ export const Inventory = ({ onItemSelect }: InventoryProps) => {
                     {/* Authenticity Warning */}
                     {item.authenticity !== 'authentic' && (
                       <Badge variant="destructive" className="text-xs bg-red-100 text-red-700 border-red-200">
-                        {item.authenticity === 'fake' ? '⚠️ Sahte' : '❓ Şüpheli'}
+                        {item.authenticity === 'fake' ? '⚠️ Fake' : '❓ Suspicious'}
                       </Badge>
                     )}
                   </div>

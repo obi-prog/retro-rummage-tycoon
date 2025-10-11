@@ -1,13 +1,10 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { t } from '@/utils/localization';
-import { Language } from '@/types/game';
 import { useSoundContext } from '@/contexts/SoundContext';
 import { useEffect } from 'react';
 import { Handshake } from 'lucide-react';
 
 interface MainMenuProps {
-  language: Language;
   onStartGame: () => void;
   onSettings: () => void;
   onHowToPlay: () => void;
@@ -16,8 +13,7 @@ interface MainMenuProps {
 }
 
 export const MainMenu = ({ 
-  language, 
-  onStartGame, 
+  onStartGame,
   onSettings, 
   onHowToPlay,
   hasSavedGame = false,

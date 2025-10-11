@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import { GameState, Item, Customer, ItemCategory, Language, DailyStats, FinancialRecord, DailyFinancials } from '@/types/game';
 import { Mission } from '@/types/missions';
-import { detectLanguage } from '@/utils/localization';
 import { generateDailyMissions, generateWeeklyMissions, generateAchievementMissions, calculateLevelProgress, updateMissionProgress } from '@/utils/missionSystem';
 import { generateRandomEvent, generateTrendBurst, processEventEffects } from '@/utils/eventSystem';
 import { saveGame, loadGame, hasSavedGame } from '@/utils/saveGame';

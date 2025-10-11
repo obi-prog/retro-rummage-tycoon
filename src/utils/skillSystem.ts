@@ -1,5 +1,3 @@
-import { t } from './localization';
-
 export interface Skill {
   id: string;
   name: string;

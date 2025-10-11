@@ -2,10 +2,9 @@ import { useGameStore } from '@/store/gameStore';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { t } from '@/utils/localization';
 
 export const EventsPanel = () => {
-  const { events, trends, dismissEvent, language } = useGameStore();
+  const { events, trends, dismissEvent } = useGameStore();
 
   const activeEvents = events.filter(e => e.duration && e.duration > 0);
   const activeTrends = trends.filter(t => t.duration > 0);

@@ -1,5 +1,4 @@
 import { useGameStore } from '@/store/gameStore';
-import { t } from '@/utils/localization';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -25,7 +24,6 @@ export const GameUI = () => {
     trust, 
     day, 
     timeLeft, 
-    language,
     experience,
     unlocks,
     showLevelUpModal,
@@ -72,11 +70,11 @@ export const GameUI = () => {
             <div className="flex justify-between items-center text-white">
               <div className="flex items-center gap-2">
                 <Trophy className="w-4 h-4" />
-                <span className="font-bold">{t('level', language)} {level}</span>
+                <span className="font-bold">Level {level}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Star className="w-4 h-4" />
-                <span className="font-bold">Hafta {Math.ceil(day / 7)} Gün {((day - 1) % 7) + 1}</span>
+                <span className="font-bold">Week {Math.ceil(day / 7)} Day {((day - 1) % 7) + 1}</span>
               </div>
             </div>
             
@@ -113,7 +111,7 @@ export const GameUI = () => {
             <div className="flex items-center gap-2">
               <Coins className="w-4 h-4 text-cash-green" />
               <div className="flex-1">
-                <div className="text-xs text-muted-foreground">{t('cash', language)}</div>
+                <div className="text-xs text-muted-foreground">Cash</div>
                 <div className="font-bold text-lg text-cash-green">${cash.toLocaleString()}</div>
                 {nextLevelConfig && (
                   <div className="text-xs text-muted-foreground mt-1">
@@ -132,7 +130,7 @@ export const GameUI = () => {
               <div className="flex justify-between items-center mb-1">
                 <div className="flex items-center gap-1">
                   <Heart className="w-4 h-4 text-retro-pink" />
-                  <span className="text-xs font-medium">{t('reputation', language)}</span>
+                  <span className="text-xs font-medium">Reputation</span>
                 </div>
                 <span className="text-xs font-bold">{reputation}/100</span>
               </div>
@@ -143,7 +141,7 @@ export const GameUI = () => {
               <div className="flex justify-between items-center mb-1">
                 <div className="flex items-center gap-1">
                   <Trophy className="w-4 h-4 text-retro-yellow" />
-                  <span className="text-xs font-medium">{t('trust', language)}</span>
+                  <span className="text-xs font-medium">Trust</span>
                 </div>
                 <span className="text-xs font-bold">{trust}/100</span>
               </div>
@@ -160,18 +158,18 @@ export const GameUI = () => {
         newLevel={level}
         newUnlocks={unlocks}
         skillPointsEarned={1}
-        language={language}
+        language="en"
       />
 
       {/* Game Tabs */}
       <Tabs defaultValue="inventory" className="w-full">
         <TabsList className="w-full">
-          <TabsTrigger value="inventory">📦 Envanter</TabsTrigger>
-          <TabsTrigger value="missions">🎯 Görevler</TabsTrigger>
-          <TabsTrigger value="skills">⚡ Yetenekler</TabsTrigger>
-          <TabsTrigger value="events">📰 Olaylar</TabsTrigger>
-          <TabsTrigger value="financials">💰 Mali Durum</TabsTrigger>
-          <TabsTrigger value="appraisal">🔍 Değerlendirme</TabsTrigger>
+          <TabsTrigger value="inventory">📦 Inventory</TabsTrigger>
+          <TabsTrigger value="missions">🎯 Missions</TabsTrigger>
+          <TabsTrigger value="skills">⚡ Skills</TabsTrigger>
+          <TabsTrigger value="events">📰 Events</TabsTrigger>
+          <TabsTrigger value="financials">💰 Financials</TabsTrigger>
+          <TabsTrigger value="appraisal">🔍 Appraisal</TabsTrigger>
         </TabsList>
 
         <TabsContent value="inventory">
@@ -196,7 +194,7 @@ export const GameUI = () => {
 
         <TabsContent value="appraisal">
           <div className="text-center p-8">
-            <p className="text-muted-foreground">Değerlendirme aracı seçilen eşyalarla kullanılabilir</p>
+            <p className="text-muted-foreground">Appraisal tool available for selected items</p>
           </div>
         </TabsContent>
       </Tabs>

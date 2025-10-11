@@ -14,7 +14,6 @@ import {
   isSkillMaxLevel,
   type SkillCategory 
 } from '@/utils/skillSystem';
-import { t } from '@/utils/localization';
 import { useToast } from '@/hooks/use-toast';
 import { X } from 'lucide-react';
 
