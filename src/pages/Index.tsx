@@ -36,31 +36,39 @@ const Index = () => {
   const { 
     settings, 
     updateSettings, 
-    playClickSound 
+    playClickSound,
+    playMusic,
+    stopMusic
   } = useSoundContext();
   
   const [gameStarted, setGameStarted] = useState(false);
   const [currentView, setCurrentView] = useState<'menu' | 'game' | 'settings' | 'howtoplay'>('menu');
   const [settingsOpen, setSettingsOpen] = useState(false);
 
-  // Auto-load saved game on mount
+  // Auto-load saved game on mount and play menu music
   useEffect(() => {
     if (hasSavedGame()) {
       // Silently show that there's a saved game available
       // User can choose to continue or start new
     }
-  }, []);
+    // Play menu music when on menu
+    if (currentView === 'menu' || currentView === 'howtoplay') {
+      playMusic('menu');
+    }
+  }, [currentView, playMusic]);
 
   const handleStartGame = () => {
     initGame();
     setGameStarted(true);
     setCurrentView('game');
+    playMusic('game');
   };
 
   const handleContinueGame = () => {
     loadGameSafe();
     setGameStarted(true);
     setCurrentView('game');
+    playMusic('game');
   };
 
   const handleSettings = () => {

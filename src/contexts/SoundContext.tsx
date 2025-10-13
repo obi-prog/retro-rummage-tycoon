@@ -5,6 +5,8 @@ import { soundEventEmitter } from '@/utils/soundEvents';
 interface SoundContextType {
   settings: SoundSettings;
   updateSettings: (settings: Partial<SoundSettings>) => void;
+  playMusic: (track: 'menu' | 'game') => void;
+  stopMusic: () => void;
   playCoinSound: () => void;
   playSellSound: () => void;
   playBuySound: () => void;

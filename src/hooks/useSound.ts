@@ -4,12 +4,16 @@ export interface SoundSettings {
   masterVolume: number;
   sfxVolume: number;
   sfxEnabled: boolean;
+  musicVolume: number;
+  musicEnabled: boolean;
 }
 
 const defaultSettings: SoundSettings = {
   masterVolume: 0.7,
   sfxVolume: 0.8,
   sfxEnabled: true,
+  musicVolume: 0.5,
+  musicEnabled: true,
 };
 
 // Music and sound effect paths
@@ -23,6 +27,11 @@ const soundEffects = {
   levelUp: '/audio/sound-effects/levelup.wav',
 };
 
+const musicTracks = {
+  menu: '/audio/music/menu-theme.mp3',
+  game: '/audio/music/game-theme.mp3',
+};
+
 
 export const useSound = () => {
   const [settings, setSettings] = useState<SoundSettings>(() => {
@@ -31,11 +40,25 @@ export const useSound = () => {
   });
 
   const sfxCache = useRef<Map<string, HTMLAudioElement>>(new Map());
+  const musicRef = useRef<HTMLAudioElement | null>(null);
+  const currentTrackRef = useRef<'menu' | 'game' | null>(null);
 
   // Save settings to localStorage whenever they change
   useEffect(() => {
     localStorage.setItem('sokak-bitpazari-sound-settings', JSON.stringify(settings));
   }, [settings]);
+
+  // Update music volume when settings change
+  useEffect(() => {
+    if (musicRef.current) {
+      musicRef.current.volume = settings.musicVolume * settings.masterVolume;
+      if (!settings.musicEnabled) {
+        musicRef.current.pause();
+      } else if (currentTrackRef.current) {
+        musicRef.current.play().catch(console.warn);
+      }
+    }
+  }, [settings.musicVolume, settings.masterVolume, settings.musicEnabled]);
 
 
   const updateSettings = (newSettings: Partial<SoundSettings>) => {
@@ -59,6 +82,37 @@ export const useSound = () => {
   };
 
 
+  const playMusic = (track: 'menu' | 'game') => {
+    if (!settings.musicEnabled) return;
+
+    // If same track is already playing, don't restart
+    if (currentTrackRef.current === track && musicRef.current && !musicRef.current.paused) {
+      return;
+    }
+
+    // Stop current music if playing
+    if (musicRef.current) {
+      musicRef.current.pause();
+      musicRef.current.currentTime = 0;
+    }
+
+    // Create and play new track
+    musicRef.current = new Audio(musicTracks[track]);
+    musicRef.current.loop = true;
+    musicRef.current.volume = settings.musicVolume * settings.masterVolume;
+    currentTrackRef.current = track;
+    
+    musicRef.current.play().catch(console.warn);
+  };
+
+  const stopMusic = () => {
+    if (musicRef.current) {
+      musicRef.current.pause();
+      musicRef.current.currentTime = 0;
+      currentTrackRef.current = null;
+    }
+  };
+
   // Convenience methods for common game sounds
   const playCoinSound = () => playSound('coin');
   const playSellSound = () => playSound('sell');
@@ -72,6 +126,8 @@ export const useSound = () => {
     settings,
     updateSettings,
     playSound,
+    playMusic,
+    stopMusic,
     playCoinSound,
     playSellSound,
     playBuySound,

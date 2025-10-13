@@ -105,8 +105,9 @@ export const Settings = ({ onBack, isInGame, onBackToGame }: SettingsProps) => {
                       <label className="text-xs font-medium text-gray-700">Music</label>
                     </div>
                     <Switch
-                      checked={true} // Always true for now - can be extended later
+                      checked={settings.musicEnabled}
                       onCheckedChange={(enabled) => {
+                        updateSettings({ musicEnabled: enabled });
                         toast({
                           title: enabled ? "🎵 Music On" : "🔇 Music Off",
                           duration: 1500,
@@ -115,6 +116,23 @@ export const Settings = ({ onBack, isInGame, onBackToGame }: SettingsProps) => {
                       className="data-[state=checked]:bg-green-500"
                     />
                   </div>
+                  {settings.musicEnabled && (
+                    <div className="mt-2">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs text-gray-600">Volume</span>
+                        <span className="text-xs font-semibold text-purple-600">{Math.round(settings.musicVolume * 100)}%</span>
+                      </div>
+                      <Slider
+                        value={[settings.musicVolume * 100]}
+                        onValueChange={(value) => {
+                          updateSettings({ musicVolume: value[0] / 100 });
+                        }}
+                        max={100}
+                        step={5}
+                        className="w-full"
+                      />
+                    </div>
+                  )}
                 </div>
                 
                 <div className="bg-white/60 rounded-lg p-3 border border-gray-200">
