@@ -29,7 +29,7 @@ const soundEffects = {
 
 const musicTracks = {
   menu: '/audio/music/bargain-beat.mp3',
-  game: '/audio/music/game-theme.mp3',
+  game: '/audio/music/retro-pop-game.mp3',
 };
 
 
