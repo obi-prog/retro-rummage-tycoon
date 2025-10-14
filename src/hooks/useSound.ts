@@ -28,7 +28,7 @@ const soundEffects = {
 };
 
 const musicTracks = {
-  menu: '/audio/music/menu-theme.mp3',
+  menu: '/audio/music/bargain-beat.mp3',
   game: '/audio/music/game-theme.mp3',
 };
 
