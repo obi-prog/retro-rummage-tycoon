@@ -195,10 +195,10 @@ const Shop: React.FC = () => {
   // Show day completed message if no more customers
   if (customersServed >= dailyCustomerLimit) {
     return (
-      <div className="relative flex items-center justify-center h-full min-h-screen bg-cover bg-center bg-no-repeat"
+      <div className="relative flex flex-1 items-center justify-center bg-cover bg-center bg-no-repeat bg-fixed"
            style={{ backgroundImage: `url(${shopInteriorBg})` }}>
         <div className="absolute inset-0 bg-gradient-to-b from-amber-50/80 to-amber-100/90 backdrop-blur-sm"></div>
-        <div className="relative text-center p-8 bg-white/85 backdrop-blur-md rounded-2xl border border-white/50 shadow-2xl">
+        <div className="relative text-center p-8 bg-white/85 backdrop-blur-md rounded-2xl border border-white/50 shadow-2xl mx-4">
           <h2 className="text-2xl font-semibold mb-4 text-amber-900">{t('game.dayComplete')}</h2>
           <p className="text-amber-700">{t('game.customersServed')}: {customersServed}/{dailyCustomerLimit}</p>
         </div>
@@ -208,10 +208,10 @@ const Shop: React.FC = () => {
 
   if (!currentCustomer || isLoadingNextCustomer) {
     return (
-      <div className="relative flex items-center justify-center h-full min-h-screen bg-cover bg-center bg-no-repeat"
+      <div className="relative flex flex-1 items-center justify-center bg-cover bg-center bg-no-repeat bg-fixed"
            style={{ backgroundImage: `url(${shopInteriorBg})` }}>
         <div className="absolute inset-0 bg-gradient-to-b from-amber-50/80 to-amber-100/90 backdrop-blur-sm"></div>
-        <div className="relative text-center bg-white/85 backdrop-blur-md rounded-2xl border border-white/50 shadow-2xl p-8">
+        <div className="relative text-center bg-white/85 backdrop-blur-md rounded-2xl border border-white/50 shadow-2xl p-8 mx-4">
           <h2 className="text-2xl font-semibold mb-4 text-amber-900">{t('game.lookingForCustomers')}</h2>
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600 mx-auto"></div>
         </div>
@@ -223,14 +223,19 @@ const Shop: React.FC = () => {
   const dealItem = currentCustomer.carriedItem;
 
   return (
-    <div className="relative flex flex-col h-full overflow-y-auto min-h-screen bg-cover bg-center bg-no-repeat"
-         style={{ backgroundImage: `url(${shopInteriorBg})` }}>
+    <div className="relative flex flex-col flex-1 bg-cover bg-center bg-no-repeat bg-fixed overflow-hidden"
+         style={{ 
+           backgroundImage: `url(${shopInteriorBg})`,
+           paddingBottom: 'max(12px, calc(env(safe-area-inset-bottom) + 10px))'
+         }}>
       {/* Background overlay for warmth and contrast */}
-      <div className="absolute inset-0 bg-gradient-to-b from-amber-50/75 to-orange-50/80 backdrop-blur-[1px]"></div>
+      <div className="absolute inset-0 bg-gradient-to-b from-amber-50/75 to-orange-50/80 backdrop-blur-[1px] shop-vignette"></div>
       
-      <div className="relative flex-1 p-4 space-y-4 max-w-md mx-auto w-full z-10">
-        {/* Customer Info Card */}
-        <div className="bg-gradient-to-br from-amber-50/98 via-orange-50/95 to-amber-100/90 backdrop-blur-lg rounded-lg border-2 border-amber-300/40 p-6 shadow-2xl shadow-amber-900/25 relative overflow-hidden">
+      {/* Scrollable Content Area */}
+      <div className="relative flex-1 overflow-y-auto px-4 pt-2 pb-2 max-w-md mx-auto w-full z-10">
+        <div className="grid gap-3 shop-content-gap">
+          {/* Customer Info Card */}
+          <div className="bg-gradient-to-br from-amber-50/98 via-orange-50/95 to-amber-100/90 backdrop-blur-lg rounded-lg border-2 border-amber-300/40 p-5 shop-card-padding shadow-2xl shadow-amber-900/25 relative overflow-hidden">
           {/* Vintage paper texture overlay */}
           <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(circle_at_50%_50%,#000_1px,transparent_1px)] bg-[length:20px_20px]"></div>
           <div className="flex items-start gap-4">
@@ -292,10 +297,10 @@ const Shop: React.FC = () => {
               </p>
             </div>
           </div>
-        </div>
+          </div>
 
-        {/* Product Info Card */}
-        <div className="bg-gradient-to-br from-orange-50/98 via-amber-50/95 to-yellow-50/90 backdrop-blur-lg rounded-lg border-2 border-amber-300/40 p-6 shadow-2xl shadow-amber-900/25 relative overflow-hidden">
+          {/* Product Info Card */}
+          <div className="bg-gradient-to-br from-orange-50/98 via-amber-50/95 to-yellow-50/90 backdrop-blur-lg rounded-lg border-2 border-amber-300/40 p-5 shop-card-padding shadow-2xl shadow-amber-900/25 relative overflow-hidden">
           {/* Vintage paper texture overlay */}
           <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(circle_at_50%_50%,#000_1px,transparent_1px)] bg-[length:20px_20px]"></div>
           <div className="flex gap-4 mb-4 relative z-10">
@@ -424,29 +429,34 @@ const Shop: React.FC = () => {
               </>
             )}
           </div>
+          </div>
         </div>
+      </div>
 
-
-        {/* Action Buttons */}
-        <div className="grid grid-cols-3 gap-3 pt-2">
+      {/* Bottom Action Bar - Sticky */}
+      <div className="relative flex-shrink-0 px-4 pb-2 max-w-md mx-auto w-full z-10"
+           style={{ 
+             marginBottom: 'env(safe-area-inset-bottom)'
+           }}>
+        <div className="grid grid-cols-3 gap-2.5">
           <Button
             variant="outline"
             onClick={handleReject}
-            className="h-12 border-professional-red text-professional-red hover:bg-red-50 hover:border-red-400 font-medium"
+            className="min-h-[48px] text-base shop-button-text border-professional-red text-professional-red hover:bg-red-50 hover:border-red-400 font-medium"
           >
             {t('common.decline')}
           </Button>
           
           <Button
             onClick={openOfferModal}
-            className="h-12 bg-professional-navy hover:bg-professional-blue text-white font-medium"
+            className="min-h-[48px] text-base shop-button-text bg-professional-navy hover:bg-professional-blue text-white font-medium"
           >
             {t('common.counter')}
           </Button>
           
           <Button
             onClick={handleAccept}
-            className="h-12 bg-professional-emerald hover:bg-emerald-600 text-white font-medium"
+            className="min-h-[48px] text-base shop-button-text bg-professional-emerald hover:bg-emerald-600 text-white font-medium"
           >
             {t('common.accept')}
           </Button>

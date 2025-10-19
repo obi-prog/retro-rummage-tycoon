@@ -189,3 +189,49 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+/* Mobile viewport optimizations */
+@layer utilities {
+  /* Support for safe-area-inset on mobile devices */
+  .safe-top {
+    padding-top: max(12px, calc(env(safe-area-inset-top) + 8px));
+  }
+  
+  .safe-bottom {
+    padding-bottom: max(12px, calc(env(safe-area-inset-bottom) + 10px));
+  }
+  
+  .safe-left {
+    padding-left: max(12px, env(safe-area-inset-left));
+  }
+  
+  .safe-right {
+    padding-right: max(12px, env(safe-area-inset-right));
+  }
+  
+  /* Responsive adjustments for small height screens */
+  @media (max-height: 640px) {
+    .shop-content-gap {
+      gap: 0.5rem; /* 8px */
+    }
+    
+    .shop-card-padding {
+      padding: 0.875rem; /* 14px */
+    }
+    
+    .shop-button-text {
+      font-size: 0.9375rem; /* 15px */
+    }
+  }
+  
+  @media (min-height: 800px) {
+    .shop-content-gap {
+      gap: 0.875rem; /* 14px */
+    }
+  }
+}
+
+/* Vignette effect for better readability over backgrounds */
+.shop-vignette {
+  box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.1);
+}

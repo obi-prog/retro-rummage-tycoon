@@ -135,132 +135,136 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-secondary/10 to-accent/10">
-      <div className="container mx-auto px-4 py-2">
-        {/* Top Bar - Single Line */}
-        <Card className="mb-4 bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/20">
-          <CardContent className="p-3">
-            <div className="flex justify-between items-center text-sm">
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-1">
-                  <span>💵</span>
-                  <span className="font-bold">${cash}</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <span>⭐</span>
-                  <span className="font-bold">Lv.{level}</span>
-                </div>
+    <div className="flex flex-col bg-gradient-to-br from-background via-secondary/10 to-accent/10" 
+         style={{ 
+           height: '100vh',
+           minHeight: '100svh',
+           paddingTop: 'max(12px, calc(env(safe-area-inset-top) + 8px))',
+           paddingLeft: 'max(12px, env(safe-area-inset-left))',
+           paddingRight: 'max(12px, env(safe-area-inset-right))'
+         }}>
+      {/* Top Bar - Single Line */}
+      <Card className="mb-2.5 bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/20 rounded-lg shadow-md flex-shrink-0">
+        <CardContent className="p-3">
+          <div className="flex justify-between items-center text-sm">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-1">
+                <span>💵</span>
+                <span className="font-bold">${cash}</span>
               </div>
-              <div className="flex items-center gap-2">
-                <NavigationMenu />
-                <Popover open={settingsOpen} onOpenChange={setSettingsOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="px-3 py-1 text-xs font-medium border-primary/30 hover:bg-primary/10"
-                      onClick={playClickSound}
-                    >
-                      ⚙️
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent 
-                    className="w-80 bg-background/95 backdrop-blur-sm border-primary/20 shadow-xl" 
-                    align="end"
-                  >
-                    <div className="space-y-4">
-                      {/* Header */}
-                      <div className="flex items-center justify-between">
-                        <h3 className="font-semibold flex items-center gap-2">
-                          ⚙️ Game Settings
-                        </h3>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setSettingsOpen(false)}
-                          className="h-8 w-8 p-0"
-                        >
-                          <X className="w-4 h-4" />
-                        </Button>
-                      </div>
-
-                      <Separator />
-
-                      {/* Sound Settings */}
-                      <div className="space-y-3">
-                        <h4 className="text-sm font-medium flex items-center gap-2">
-                          🔊 Sound Settings
-                        </h4>
-                        
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm">🔔 Sound Effects</span>
-                          <Switch
-                            checked={settings.sfxEnabled}
-                            onCheckedChange={(enabled) => {
-                              updateSettings({ sfxEnabled: enabled });
-                              if (enabled) playClickSound();
-                            }}
-                          />
-                        </div>
-                      </div>
-
-                      <Separator />
-
-                      {/* Action Buttons */}
-                      <div className="space-y-2">
-                        <Button
-                          onClick={() => {
-                            playClickSound();
-                            setSettingsOpen(false);
-                            handleSettings();
-                          }}
-                          variant="outline"
-                          className="w-full justify-start text-sm"
-                        >
-                          ⚙️ Detailed Settings
-                        </Button>
-                        
-                        <Button
-                          onClick={() => {
-                            playClickSound();
-                            setSettingsOpen(false);
-                            handleBackToMenu();
-                          }}
-                          variant="outline"
-                          className="w-full justify-start text-sm"
-                        >
-                          📋 Main Menu
-                        </Button>
-                        
-                        <Button
-                          onClick={() => {
-                            playClickSound();
-                            window.location.reload();
-                          }}
-                          variant="outline"
-                          className="w-full justify-start text-sm text-destructive hover:text-destructive"
-                        >
-                          🚪 Exit Game
-                        </Button>
-                      </div>
-                    </div>
-                  </PopoverContent>
-                </Popover>
+              <div className="flex items-center gap-1">
+                <span>⭐</span>
+                <span className="font-bold">Lv.{level}</span>
               </div>
             </div>
-          </CardContent>
-        </Card>
+            <div className="flex items-center gap-2">
+              <NavigationMenu />
+              <Popover open={settingsOpen} onOpenChange={setSettingsOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="px-3 py-1 text-xs font-medium border-primary/30 hover:bg-primary/10"
+                    onClick={playClickSound}
+                  >
+                    ⚙️
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent 
+                  className="w-80 bg-background/95 backdrop-blur-sm border-primary/20 shadow-xl" 
+                  align="end"
+                >
+                  <div className="space-y-4">
+                    {/* Header */}
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-semibold flex items-center gap-2">
+                        ⚙️ Game Settings
+                      </h3>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSettingsOpen(false)}
+                        className="h-8 w-8 p-0"
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
 
-        {/* Main Game Interface - Single Screen */}
-        <Shop />
+                    <Separator />
 
-        {/* End of Day Modal */}
-        <EndOfDayModal 
-          isOpen={showEndOfDayModal}
-          onContinue={handleContinueToNextDay}
-        />
+                    {/* Sound Settings */}
+                    <div className="space-y-3">
+                      <h4 className="text-sm font-medium flex items-center gap-2">
+                        🔊 Sound Settings
+                      </h4>
+                      
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm">🔔 Sound Effects</span>
+                        <Switch
+                          checked={settings.sfxEnabled}
+                          onCheckedChange={(enabled) => {
+                            updateSettings({ sfxEnabled: enabled });
+                            if (enabled) playClickSound();
+                          }}
+                        />
+                      </div>
+                    </div>
 
-      </div>
+                    <Separator />
+
+                    {/* Action Buttons */}
+                    <div className="space-y-2">
+                      <Button
+                        onClick={() => {
+                          playClickSound();
+                          setSettingsOpen(false);
+                          handleSettings();
+                        }}
+                        variant="outline"
+                        className="w-full justify-start text-sm"
+                      >
+                        ⚙️ Detailed Settings
+                      </Button>
+                      
+                      <Button
+                        onClick={() => {
+                          playClickSound();
+                          setSettingsOpen(false);
+                          handleBackToMenu();
+                        }}
+                        variant="outline"
+                        className="w-full justify-start text-sm"
+                      >
+                        📋 Main Menu
+                      </Button>
+                      
+                      <Button
+                        onClick={() => {
+                          playClickSound();
+                          window.location.reload();
+                        }}
+                        variant="outline"
+                        className="w-full justify-start text-sm text-destructive hover:text-destructive"
+                      >
+                        🚪 Exit Game
+                      </Button>
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Main Game Interface - Single Screen */}
+      <Shop />
+
+      {/* End of Day Modal */}
+      <EndOfDayModal 
+        isOpen={showEndOfDayModal}
+        onContinue={handleContinueToNextDay}
+      />
     </div>
   );
 };
