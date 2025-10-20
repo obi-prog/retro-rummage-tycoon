@@ -53,8 +53,8 @@ export const NavigationMenu = ({ triggerButton }: NotebookMenuProps) => {
       <SheetTrigger asChild>
         {triggerButton || defaultTrigger}
       </SheetTrigger>
-      <SheetContent side="bottom" className="h-[85vh] p-0 border-0 bg-gradient-to-b from-amber-50/95 to-orange-50/95 backdrop-blur-lg">
-        <div className="flex flex-col h-full max-w-[420px] mx-auto">
+      <SheetContent side="bottom" className="h-[90vh] p-0 border-0 bg-gradient-to-b from-amber-50/95 to-orange-50/95 backdrop-blur-lg">
+        <div className="flex flex-col h-full w-full max-w-md mx-auto overflow-hidden">
           {/* Header */}
           <div className="relative p-4 pb-3 border-b border-amber-200/50">
             <div className="flex items-center justify-between">
@@ -76,49 +76,49 @@ export const NavigationMenu = ({ triggerButton }: NotebookMenuProps) => {
           </div>
 
           {/* Fixed Tab Bar - Equal Width Buttons */}
-          <div className="px-4 py-3 border-b border-amber-200/50">
-            <div className="grid grid-cols-3 gap-2">
+          <div className="px-3 py-2.5 border-b border-amber-200/50 flex-shrink-0">
+            <div className="grid grid-cols-3 gap-1.5">
               {TABS.map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={`
-                    flex flex-col items-center justify-center gap-1 px-2 py-3 rounded-lg text-sm font-medium 
-                    transition-all duration-300 min-h-[44px]
+                    flex flex-col items-center justify-center gap-0.5 px-2 py-2 rounded-lg text-sm font-medium 
+                    transition-all duration-200 min-h-[48px] active:scale-95
                     ${activeTab === tab.id 
-                      ? 'bg-gradient-to-r from-orange-400 to-red-400 text-white shadow-lg font-bold' 
-                      : 'bg-white/60 text-gray-700 hover:bg-white/80 hover:shadow-md border border-amber-200/30'
+                      ? 'bg-gradient-to-r from-orange-400 to-red-400 text-white shadow-md font-bold' 
+                      : 'bg-white/60 text-gray-700 active:bg-white/90 border border-amber-200/30'
                     }
                   `}
                 >
                   <span className="text-base">{tab.icon}</span>
-                  <span className="text-xs text-center leading-tight">{tab.label}</span>
+                  <span className="text-[10px] text-center leading-tight break-words px-1">{tab.label}</span>
                 </button>
               ))}
             </div>
           </div>
 
           {/* Content Area */}
-          <div className="flex-1 overflow-hidden">
+          <div className="flex-1 overflow-hidden min-h-0">
             <ScrollArea className="h-full">
-              <div className="p-3 animate-fade-in">
+              <div className="p-3 pb-6 animate-fade-in">
                 {/* Inventory Content */}
                 {activeTab === 'inventory' && (
-                  <div className="space-y-3">
+                  <div className="space-y-2.5">
                     <Inventory />
                   </div>
                 )}
                 
                 {/* Missions Content */}
                 {activeTab === 'missions' && (
-                  <div className="space-y-3">
+                  <div className="space-y-2.5">
                     <MissionsPanel />
                   </div>
                 )}
                 
                 {/* Skills Content */}
                 {activeTab === 'skills' && (
-                  <div className="space-y-3">
+                  <div className="space-y-2.5">
                     <SkillsPanel onClose={() => setOpen(false)} isModal={false} />
                   </div>
                 )}
