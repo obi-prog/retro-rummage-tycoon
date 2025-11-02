@@ -271,6 +271,7 @@ const Index = () => {
       <EndOfDayModal 
         isOpen={showEndOfDayModal}
         onContinue={handleContinueToNextDay}
+        onClose={() => setShowEndOfDayModal(false)}
       />
     </div>
   );

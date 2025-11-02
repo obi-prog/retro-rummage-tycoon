@@ -9,9 +9,10 @@ import { Coins, TrendingUp, TrendingDown, Calendar, ShoppingCart, ShoppingBag, T
 interface EndOfDayModalProps {
   isOpen: boolean;
   onContinue: () => void;
+  onClose: () => void;
 }
 
-export const EndOfDayModal = ({ isOpen, onContinue }: EndOfDayModalProps) => {
+export const EndOfDayModal = ({ isOpen, onContinue, onClose }: EndOfDayModalProps) => {
   const { t, locale } = useI18n();
   const { 
     day, 
@@ -51,7 +52,7 @@ export const EndOfDayModal = ({ isOpen, onContinue }: EndOfDayModalProps) => {
   const dayOfWeek = ((day - 1) % 7) + 1;
 
   return (
-    <Dialog open={isOpen} onOpenChange={() => {}}>
+    <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-xl">
