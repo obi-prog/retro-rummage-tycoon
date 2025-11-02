@@ -19,7 +19,12 @@ export const MainMenu = ({
   hasSavedGame = false,
   onContinueGame 
 }: MainMenuProps) => {
-  const { playClickSound } = useSoundContext();
+  const { playClickSound, playMusic } = useSoundContext();
+
+  // Start menu music when component mounts
+  useEffect(() => {
+    playMusic('menu');
+  }, [playMusic]);
 
   const handleUserInteraction = (callback: () => void) => {
     playClickSound();

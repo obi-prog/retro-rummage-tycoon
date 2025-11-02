@@ -45,22 +45,12 @@ const Index = () => {
   const [currentView, setCurrentView] = useState<'menu' | 'game' | 'settings' | 'howtoplay'>('menu');
   const [settingsOpen, setSettingsOpen] = useState(false);
 
-  // Auto-load saved game on mount and play menu music
+  // Cleanup: stop music when component unmounts
   useEffect(() => {
-    if (hasSavedGame()) {
-      // Silently show that there's a saved game available
-      // User can choose to continue or start new
-    }
-    // Play menu music when on menu
-    if (currentView === 'menu' || currentView === 'howtoplay') {
-      playMusic('menu');
-    }
-    
-    // Cleanup: stop music when component unmounts
     return () => {
       stopMusic();
     };
-  }, [currentView, playMusic, stopMusic]);
+  }, [stopMusic]);
 
   const handleStartGame = () => {
     initGame();
@@ -77,10 +67,12 @@ const Index = () => {
   };
 
   const handleSettings = () => {
+    playMusic('menu'); // Ayarlarda menü müziği çal
     setCurrentView('settings');
   };
 
   const handleHowToPlay = () => {
+    playMusic('menu'); // How to play'de menü müziği çal
     setCurrentView('howtoplay');
   };
 
@@ -88,7 +80,7 @@ const Index = () => {
     if (gameStarted) {
       saveGameState(); // Otomatik kayıt
     }
-    stopMusic(); // Müziği durdur
+    playMusic('menu'); // Ana menüye dönerken menü müziğini çal
     setCurrentView('menu');
   };
 
