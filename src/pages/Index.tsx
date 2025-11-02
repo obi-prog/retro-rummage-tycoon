@@ -55,7 +55,12 @@ const Index = () => {
     if (currentView === 'menu' || currentView === 'howtoplay') {
       playMusic('menu');
     }
-  }, [currentView, playMusic]);
+    
+    // Cleanup: stop music when component unmounts
+    return () => {
+      stopMusic();
+    };
+  }, [currentView, playMusic, stopMusic]);
 
   const handleStartGame = () => {
     initGame();
@@ -83,6 +88,7 @@ const Index = () => {
     if (gameStarted) {
       saveGameState(); // Otomatik kayıt
     }
+    stopMusic(); // Müziği durdur
     setCurrentView('menu');
   };
 
@@ -241,6 +247,7 @@ const Index = () => {
                       <Button
                         onClick={() => {
                           playClickSound();
+                          stopMusic();
                           window.location.reload();
                         }}
                         variant="outline"
