@@ -54,43 +54,43 @@ const generateDetectedFeatures = (item: Item, detectedAsAuthentic: boolean, conf
   
   if (detectedAsAuthentic) {
     if (confidence > 70) {
-      features.push('Orijinal malzeme kullanımı');
-      features.push('Dönem uyumlu üretim detayları');
+      features.push('Original materials used');
+      features.push('Period-appropriate manufacturing details');
     }
     if (item.condition > 70) {
-      features.push('İyi korunmuş orijinal ambalaj');
+      features.push('Well-preserved original packaging');
     }
     if (item.rarity !== 'common') {
-      features.push('Seri numarası doğrulandı');
+      features.push('Serial number verified');
     }
   } else {
     if (confidence > 70) {
-      features.push('Şüpheli malzeme kalitesi');
-      features.push('Dönem dışı üretim belirtileri');
+      features.push('Suspicious material quality');
+      features.push('Non-period manufacturing signs');
     }
     if (item.condition < 80) {
-      features.push('Yeniden boyama/onarım izleri');
+      features.push('Repainting/repair traces');
     }
-    features.push('Seri numarası tutarsızlığı');
+    features.push('Serial number inconsistency');
   }
   
   // Add some neutral observations
-  features.push(`Durum: ${item.condition}%`);
-  features.push(`Kategori: ${getCategoryName(item.category)}`);
+  features.push(`Condition: ${item.condition}%`);
+  features.push(`Category: ${getCategoryName(item.category)}`);
   
   return features;
 };
 
 const getCategoryName = (category: string): string => {
   const names: Record<string, string> = {
-    'cassette_record': 'Kaset/Plak',
-    'walkman_electronics': 'Walkman/Elektronik',
-    'watch': 'Saat',
-    'toy': 'Oyuncak',
-    'comic': 'Çizgi Roman',
-    'poster': 'Poster',
-    'camera': 'Kamera',
-    'mystery_box': 'Gizemli Kutu'
+    'cassette_record': 'Vinyl Records',
+    'walkman_electronics': 'Electronics',
+    'watch': 'Watches',
+    'toy': 'Toys',
+    'comic': 'Comics',
+    'poster': 'Posters',
+    'camera': 'Cameras',
+    'mystery_box': 'Mystery Box'
   };
   return names[category] || category;
 };
@@ -98,7 +98,7 @@ const getCategoryName = (category: string): string => {
 export const generateFakeItem = (baseItem: Partial<Item>): Item => {
   return {
     id: Math.random().toString(36).substr(2, 9),
-    name: baseItem.name || 'Şüpheli Ürün',
+    name: baseItem.name || 'Suspicious Item',
     category: baseItem.category || 'toy',
     baseValue: (baseItem.baseValue || 100) * (0.3 + Math.random() * 0.4), // 30-70% of real value
     condition: Math.floor(60 + Math.random() * 35), // 60-95% condition

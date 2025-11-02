@@ -16,7 +16,7 @@ export const EventsPanel = () => {
         <Card className="bg-gradient-to-r from-destructive/10 to-retro-orange/10 border-destructive/30">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center gap-2">
-              ⚡ Olaylar
+              ⚡ Events
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -30,7 +30,7 @@ export const EventsPanel = () => {
                     </div>
                     {event.duration && (
                       <Badge variant="destructive" className="text-xs">
-                        {event.duration} gün
+                        {event.duration} days
                       </Badge>
                     )}
                   </div>
@@ -40,7 +40,7 @@ export const EventsPanel = () => {
                     onClick={() => dismissEvent(event.id)}
                     className="h-6 px-2 text-xs"
                   >
-                    Tamam
+                    OK
                   </Button>
                 </CardContent>
               </Card>
@@ -54,7 +54,7 @@ export const EventsPanel = () => {
         <Card className="bg-gradient-to-r from-retro-orange/10 to-retro-yellow/10 border-retro-orange/30">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center gap-2">
-              🔥 Trendler
+              🔥 Trends
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -64,14 +64,14 @@ export const EventsPanel = () => {
                   <div className="flex justify-between items-center">
                     <div>
                       <div className="font-medium text-sm">
-                        {getCategoryName(trend.category)} Trendi
+                        {getCategoryName(trend.category)} Trend
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        +{trend.bonus}% değer bonusu
+                        +{trend.bonus}% value bonus
                       </div>
                     </div>
                     <Badge className="bg-retro-orange text-white text-xs">
-                      {trend.duration} gün
+                      {trend.duration} days
                     </Badge>
                   </div>
                 </CardContent>
@@ -85,7 +85,7 @@ export const EventsPanel = () => {
         <Card className="bg-muted/20">
           <CardContent className="p-4 text-center text-muted-foreground">
             <div className="text-2xl mb-2">😌</div>
-            <div className="text-sm">Şu anda aktif olay yok</div>
+            <div className="text-sm">No active events</div>
           </CardContent>
         </Card>
       )}
@@ -95,14 +95,14 @@ export const EventsPanel = () => {
 
 const getCategoryName = (category: string): string => {
   const names: Record<string, string> = {
-    'cassette_record': 'Kaset/Plak',
-    'walkman_electronics': 'Walkman/Elektronik',
-    'watch': 'Saat',
-    'toy': 'Oyuncak',
-    'comic': 'Çizgi Roman',
-    'poster': 'Poster',
-    'camera': 'Kamera',
-    'mystery_box': 'Gizemli Kutu'
+    'cassette_record': 'Vinyl Records',
+    'walkman_electronics': 'Electronics',
+    'watch': 'Watches',
+    'toy': 'Toys',
+    'comic': 'Comics',
+    'poster': 'Posters',
+    'camera': 'Cameras',
+    'mystery_box': 'Mystery Box'
   };
   return names[category] || category;
 };

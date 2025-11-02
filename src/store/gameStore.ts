@@ -1,5 +1,12 @@
 import { create } from 'zustand';
 import { GameState, Item, Customer, ItemCategory, Language, DailyStats, FinancialRecord, DailyFinancials } from '@/types/game';
+
+// Import item images
+import cassetteRecordImg from '@/assets/items/cassette-record.jpg';
+import walkmanElectronicsImg from '@/assets/items/walkman-electronics.jpg';
+import watchImg from '@/assets/items/watch.jpg';
+import toyImg from '@/assets/items/toy.jpg';
+import cameraImg from '@/assets/items/camera.jpg';
 import { Mission } from '@/types/missions';
 import { generateDailyMissions, generateWeeklyMissions, generateAchievementMissions, calculateLevelProgress, updateMissionProgress } from '@/utils/missionSystem';
 import { generateRandomEvent, generateTrendBurst, processEventEffects } from '@/utils/eventSystem';
@@ -92,51 +99,51 @@ const generateStartingItems = (): Item[] => {
       authenticity: 'authentic',
       rarity: 'rare',
       trendBonus: 0,
-      image: '🎧'
+      image: walkmanElectronicsImg
     },
     {
       id: '2',
-      name: 'Klasik Rock Albümü',
+      name: 'Classic Rock Album',
       category: 'cassette_record',
       baseValue: 80,
       condition: 60,
       authenticity: 'authentic',
       rarity: 'common',
       trendBonus: 0,
-      image: '💿'
+      image: cassetteRecordImg
     },
     {
       id: '3',
-      name: 'Retro Saat',
+      name: 'Retro Watch',
       category: 'watch',
       baseValue: 200,
       condition: 80,
       authenticity: 'authentic',
       rarity: 'rare',
       trendBonus: 0,
-      image: '⌚'
+      image: watchImg
     },
     {
       id: '4',
-      name: 'Oyuncak Araba',
+      name: 'Toy Car',
       category: 'toy',
       baseValue: 60,
       condition: 70,
       authenticity: 'authentic',
       rarity: 'common',
       trendBonus: 0,
-      image: '🧸'
+      image: toyImg
     },
     {
       id: '5',
-      name: 'Film Kamerası',
+      name: 'Film Camera',
       category: 'camera',
       baseValue: 300,
       condition: 85,
       authenticity: 'authentic',
       rarity: 'very_rare',
       trendBonus: 0,
-      image: '📷'
+      image: cameraImg
     }
   ];
 };
@@ -155,7 +162,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
   events: [],
   trends: [],
   dailyExpenses: 50,
-  language: 'tr', // Set to Turkish by default
+  language: 'en', // Set to English by default
   // New enhanced state
   experience: 0,
   skillPoints: 0,
@@ -217,7 +224,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       events: [],
       trends: [],
       dailyExpenses: 50,
-      language: 'tr',
+      language: 'en',
       experience: 0,
       skillPoints: 0,
       missions: initialMissions,
@@ -292,14 +299,14 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       const earnedMissions = updateMissionProgress(updatedMissions, 'earn_cash', price);
       
       // Add financial record
-      const newRecord: FinancialRecord = {
-        id: `sale_${Date.now()}_${Math.random()}`,
-        date: state.day,
-        type: 'income',
-        category: 'sales',
-        amount: price,
-        description: `Satış: ${item.name}`
-      };
+        const newRecord: FinancialRecord = {
+          id: `sale_${Date.now()}_${Math.random()}`,
+          date: state.day,
+          type: 'income',
+          category: 'sales',
+          amount: price,
+          description: `Sale: ${item.name}`
+        };
       
       // Emit sound events for selling
       soundEventEmitter.emit('sell');
@@ -336,7 +343,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
           type: 'expense',
           category: 'purchases',
           amount: price,
-          description: `Satın alma: ${item.name}`
+          description: `Purchase: ${item.name}`
         };
         
         const itemWithPurchasePrice = {
@@ -388,7 +395,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
           type: 'expense',
           category: 'rent',
           amount: baseRent,
-          description: `Dükkan kirası (${state.level}. seviye)`
+          description: `Shop rent (Level ${state.level})`
         },
         {
           id: `tax_${state.day}`,
@@ -396,7 +403,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
           type: 'expense',
           category: 'tax',
           amount: tax,
-          description: 'Günlük vergi'
+          description: 'Daily tax'
         },
         {
           id: `utilities_${state.day}`,
@@ -404,7 +411,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
           type: 'expense',
           category: 'utilities',
           amount: utilities,
-          description: 'Elektrik ve su'
+          description: 'Electricity and water'
         }
       ];
 
@@ -571,7 +578,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
             type: 'expense',
             category: 'rent',
             amount: baseRent,
-            description: `Dükkan kirası (${state.level}. seviye)`
+            description: `Shop rent (Level ${state.level})`
           },
           {
             id: `tax_${state.day}`,
@@ -579,7 +586,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
             type: 'expense',
             category: 'tax',
             amount: tax,
-            description: 'Günlük vergi'
+            description: 'Daily tax'
           },
           {
             id: `utilities_${state.day}`,
@@ -587,7 +594,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
             type: 'expense',
             category: 'utilities',
             amount: utilities,
-            description: 'Elektrik ve su'
+            description: 'Electricity and water'
           }
         ];
 
