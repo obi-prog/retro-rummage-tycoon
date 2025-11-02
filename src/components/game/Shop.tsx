@@ -263,7 +263,7 @@ const Shop: React.FC = () => {
                 <SpeechBubble 
                   message={speechText}
                   isVisible={speechVisible}
-                  className="absolute left-24 top-0 w-64 z-20"
+                  className="absolute left-20 sm:left-24 top-0 z-20"
                 />
               )}
             </div>
