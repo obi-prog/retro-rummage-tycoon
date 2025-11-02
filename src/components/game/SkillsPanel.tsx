@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useGameStore } from '@/store/gameStore';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -26,8 +26,19 @@ export const SkillsPanel = ({ onClose, isModal = true }: SkillsPanelProps) => {
   const { skillPoints, playerSkills, upgradeSkill, experience, level } = useGameStore();
   const { toast } = useToast();
   const [selectedCategory, setSelectedCategory] = useState<SkillCategory>('negotiation');
+  const tabsContainerRef = useRef<HTMLDivElement>(null);
   
   const availableSkills = getAvailableSkills(level);
+
+  // Auto-scroll active tab into view
+  useEffect(() => {
+    if (tabsContainerRef.current) {
+      const activeTab = tabsContainerRef.current.querySelector('[data-state="active"]');
+      if (activeTab) {
+        activeTab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      }
+    }
+  }, [selectedCategory]);
 
   const getSkillLevel = (skillId: string) => playerSkills[skillId] || 0;
 
@@ -104,28 +115,31 @@ export const SkillsPanel = ({ onClose, isModal = true }: SkillsPanelProps) => {
       <div className={isModal ? 'p-6' : ''}>
         <Tabs value={selectedCategory} onValueChange={(value) => setSelectedCategory(value as SkillCategory)}>
           {/* Category Tabs */}
-          <div className="relative w-full mb-4">
-            <TabsList className="w-full h-auto p-1 bg-muted/30 overflow-x-auto overflow-y-hidden scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent scroll-smooth snap-x snap-mandatory">
-              <div className="flex gap-2 px-2 min-w-max">
+          <div className="relative w-full mb-4 pl-[max(12px,env(safe-area-inset-left))] pr-[max(12px,env(safe-area-inset-right))]">
+            <TabsList 
+              ref={tabsContainerRef}
+              className="w-full h-auto p-1 bg-muted/30 overflow-x-auto md:overflow-x-visible overflow-y-hidden scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent scroll-smooth snap-x snap-mandatory md:snap-none md:justify-center"
+            >
+              <div className="flex gap-2 px-2 min-w-max md:min-w-0">
                 {skillCategories.map((category) => (
                   <TabsTrigger
                     key={category.id}
                     value={category.id}
                     title={category.name}
-                    className="flex flex-col items-center justify-center gap-1.5 p-3 min-h-[64px] min-w-[85px] max-w-[100px] flex-shrink-0 snap-start text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all touch-manipulation rounded-lg"
+                    className="flex flex-col items-center justify-center gap-1.5 p-2 min-h-[60px] min-w-[110px] max-w-[130px] md:max-w-none flex-shrink-0 snap-start md:snap-align-none text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all touch-manipulation rounded-lg"
                   >
                     <span className="text-xl leading-none">{category.icon}</span>
-                    <span className="text-center leading-tight text-[10px] break-words line-clamp-2">
+                    <span className="text-center leading-tight text-[11px] md:text-xs break-words line-clamp-2 max-w-full overflow-hidden text-ellipsis px-1">
                       {category.name}
                     </span>
                   </TabsTrigger>
                 ))}
               </div>
             </TabsList>
-            {/* Scroll indicator gradient */}
-            <div className="absolute top-0 right-0 bottom-0 w-12 bg-gradient-to-l from-background/80 to-transparent pointer-events-none rounded-r-md flex items-center justify-end pr-2">
-              <span className="text-primary/60 text-sm animate-pulse">→</span>
-            </div>
+            {/* Left fade shadow for scroll indicator */}
+            <div className="absolute top-0 left-0 bottom-0 w-8 bg-gradient-to-r from-background/90 to-transparent pointer-events-none rounded-l-md md:hidden" />
+            {/* Right fade shadow for scroll indicator */}
+            <div className="absolute top-0 right-0 bottom-0 w-8 bg-gradient-to-l from-background/90 to-transparent pointer-events-none rounded-r-md md:hidden" />
           </div>
 
           {/* Skills Content */}
