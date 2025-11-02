@@ -15,6 +15,7 @@ import {
   type SkillCategory 
 } from '@/utils/skillSystem';
 import { useToast } from '@/hooks/use-toast';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { X } from 'lucide-react';
 
 interface SkillsPanelProps {
@@ -25,11 +26,24 @@ interface SkillsPanelProps {
 export const SkillsPanel = ({ onClose, isModal = true }: SkillsPanelProps) => {
   const { skillPoints, playerSkills, upgradeSkill, experience, level } = useGameStore();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [selectedCategory, setSelectedCategory] = useState<SkillCategory>('negotiation');
   
   const availableSkills = getAvailableSkills(level);
 
   const getSkillLevel = (skillId: string) => playerSkills[skillId] || 0;
+
+  // Get short label for mobile
+  const getCategoryLabel = (name: string): string => {
+    const shortLabels: Record<string, string> = {
+      'Negotiation': 'Negotiation',
+      'Analysis & Knowledge': 'Analysis',
+      'Inventory & Logistics': 'Inventory',
+      'Speed & Workflow': 'Speed',
+      'Prestige & Luck': 'Prestige'
+    };
+    return isMobile ? (shortLabels[name] || name) : name;
+  };
 
   const handleUpgradeSkill = (skillId: string) => {
     const skill = availableSkills.find(s => s.id === skillId);
@@ -105,17 +119,17 @@ export const SkillsPanel = ({ onClose, isModal = true }: SkillsPanelProps) => {
         <Tabs value={selectedCategory} onValueChange={(value) => setSelectedCategory(value as SkillCategory)}>
           {/* Category Tabs */}
           <div className="w-full mb-4 px-[max(12px,env(safe-area-inset-left))] pr-[max(12px,env(safe-area-inset-right))]">
-            <TabsList className="w-full h-auto p-1 bg-muted/30 grid grid-cols-3 sm:grid-cols-5 gap-1">
+            <TabsList className="w-full h-auto p-1.5 bg-muted/40 grid grid-cols-3 sm:grid-cols-5 gap-1.5">
               {skillCategories.map((category) => (
                 <TabsTrigger
                   key={category.id}
                   value={category.id}
                   title={category.name}
-                  className="flex flex-col items-center justify-center gap-0.5 p-1.5 min-h-[58px] text-xs font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all touch-manipulation rounded-lg hover:bg-muted/50"
+                  className="flex flex-col items-center justify-center gap-1 p-2.5 min-h-[62px] text-xs font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all touch-manipulation rounded-lg hover:bg-muted/50"
                 >
-                  <span className="text-lg sm:text-xl leading-none flex-shrink-0">{category.icon}</span>
-                  <span className="text-center leading-tight text-[8px] sm:text-[10px] break-words line-clamp-2 w-full">
-                    {category.name}
+                  <span className="text-2xl leading-none flex-shrink-0">{category.icon}</span>
+                  <span className="text-center leading-tight text-[10px] sm:text-xs break-words line-clamp-1 w-full">
+                    {getCategoryLabel(category.name)}
                   </span>
                 </TabsTrigger>
               ))}
