@@ -3,11 +3,11 @@ import { LevelConfig } from '@/types/game';
 
 // Level configurations with customer limits and unlock requirements
 export const LEVEL_CONFIGS: LevelConfig[] = [
-  { level: 1, cashTarget: 1000, reputationTarget: 10, specialGoal: "İlk satışlarını yap", unlocks: ['cassette_record', 'walkman_electronics'], minCustomers: 3, maxCustomers: 5, baseProfit: 800, difficulty: { fakeChance: 0.1, customerPatience: 80, dailyExpenses: 50 } },
-  { level: 2, cashTarget: 2500, reputationTarget: 25, specialGoal: "Daha fazla kategori keşfet", unlocks: ['watch', 'toy'], minCustomers: 3, maxCustomers: 6, baseProfit: 1100, difficulty: { fakeChance: 0.15, customerPatience: 75, dailyExpenses: 75 } },
-  { level: 3, cashTarget: 5000, reputationTarget: 50, specialGoal: "Pazarlık ustalığını geliştir", unlocks: ['comic', 'poster'], minCustomers: 4, maxCustomers: 7, baseProfit: 1500, difficulty: { fakeChance: 0.2, customerPatience: 70, dailyExpenses: 100 } },
-  { level: 4, cashTarget: 8000, reputationTarget: 80, specialGoal: "Nadir ürünleri keşfet", unlocks: ['camera', 'rarePool'], minCustomers: 4, maxCustomers: 8, baseProfit: 2000, difficulty: { fakeChance: 0.25, customerPatience: 65, dailyExpenses: 125 } },
-  { level: 5, cashTarget: 12000, reputationTarget: 120, specialGoal: "Uzman seviyesine ulaş", unlocks: ['mystery_box', 'vipCustomers'], minCustomers: 5, maxCustomers: 9, baseProfit: 2700, difficulty: { fakeChance: 0.3, customerPatience: 60, dailyExpenses: 150 } }
+  { level: 1, cashTarget: 1000, reputationTarget: 10, specialGoal: "Make your first sales", unlocks: ['cassette_record', 'walkman_electronics'], minCustomers: 3, maxCustomers: 5, baseProfit: 800, difficulty: { fakeChance: 0.1, customerPatience: 80, dailyExpenses: 50 } },
+  { level: 2, cashTarget: 2500, reputationTarget: 25, specialGoal: "Discover more categories", unlocks: ['watch', 'toy'], minCustomers: 3, maxCustomers: 6, baseProfit: 1100, difficulty: { fakeChance: 0.15, customerPatience: 75, dailyExpenses: 75 } },
+  { level: 3, cashTarget: 5000, reputationTarget: 50, specialGoal: "Improve bargaining mastery", unlocks: ['comic', 'poster'], minCustomers: 4, maxCustomers: 7, baseProfit: 1500, difficulty: { fakeChance: 0.2, customerPatience: 70, dailyExpenses: 100 } },
+  { level: 4, cashTarget: 8000, reputationTarget: 80, specialGoal: "Discover rare items", unlocks: ['camera', 'rarePool'], minCustomers: 4, maxCustomers: 8, baseProfit: 2000, difficulty: { fakeChance: 0.25, customerPatience: 65, dailyExpenses: 125 } },
+  { level: 5, cashTarget: 12000, reputationTarget: 120, specialGoal: "Reach expert level", unlocks: ['mystery_box', 'vipCustomers'], minCustomers: 5, maxCustomers: 9, baseProfit: 2700, difficulty: { fakeChance: 0.3, customerPatience: 60, dailyExpenses: 150 } }
 ];
 
 interface PlayerState {
@@ -194,8 +194,8 @@ export const generateAdaptiveQuest = (
     // Daily templates
     daily_basic_sales: {
       scalingType: 'daily_sales' as const,
-      titleTR: 'Günlük Satış',
-      descriptionTR: (target: number) => `${target} ürün sat`,
+      title: 'Daily Sales',
+      description: (target: number) => `Sell ${target} items`,
       requirements: (target: number): MissionRequirement[] => [{ type: 'sell_items', target, current: 0 }],
       rewards: (level: number): MissionReward[] => [
         { type: 'cash', amount: 50 * level },
@@ -204,8 +204,8 @@ export const generateAdaptiveQuest = (
     },
     daily_profit: {
       scalingType: 'daily_profit' as const,
-      titleTR: 'Günlük Kâr',
-      descriptionTR: (target: number) => `$${target} kâr et`,
+      title: 'Daily Profit',
+      description: (target: number) => `Earn $${target} profit`,
       requirements: (target: number): MissionRequirement[] => [{ type: 'earn_cash', target, current: 0 }],
       rewards: (level: number): MissionReward[] => [
         { type: 'experience', amount: 30 },
@@ -214,8 +214,8 @@ export const generateAdaptiveQuest = (
     },
     daily_rare: {
       scalingType: 'daily_category' as const,
-      titleTR: 'Nadir Koleksiyon',
-      descriptionTR: (target: number) => `${target} nadir ürün al`,
+      title: 'Rare Collection',
+      description: (target: number) => `Buy ${target} rare items`,
       requirements: (target: number): MissionRequirement[] => [{ type: 'buy_items', target, current: 0 }],
       rewards: (level: number): MissionReward[] => [
         { type: 'experience', amount: 60 },
@@ -226,8 +226,8 @@ export const generateAdaptiveQuest = (
     // Weekly templates
     weekly_sales: {
       scalingType: 'weekly_sales' as const,
-      titleTR: 'Haftalık Satış Hedefi',
-      descriptionTR: (target: number) => `${target} ürün sat`,
+      title: 'Weekly Sales Goal',
+      description: (target: number) => `Sell ${target} items`,
       requirements: (target: number): MissionRequirement[] => [{ type: 'sell_items', target, current: 0 }],
       rewards: (level: number): MissionReward[] => [
         { type: 'cash', amount: 500 * level },
@@ -236,8 +236,8 @@ export const generateAdaptiveQuest = (
     },
     weekly_profit: {
       scalingType: 'weekly_profit' as const,
-      titleTR: 'Haftalık Gelir',
-      descriptionTR: (target: number) => `$${target} kazan`,
+      title: 'Weekly Income',
+      description: (target: number) => `Earn $${target}`,
       requirements: (target: number): MissionRequirement[] => [{ type: 'earn_cash', target, current: 0 }],
       rewards: (level: number): MissionReward[] => [
         { type: 'experience', amount: 250 },
@@ -247,8 +247,8 @@ export const generateAdaptiveQuest = (
     // Main quest templates
     main_total_profit: {
       scalingType: 'main_total_profit' as const,
-      titleTR: 'Büyük Kâr',
-      descriptionTR: (target: number) => `Toplam $${target} kâr et`,
+      title: 'Big Profit',
+      description: (target: number) => `Earn total $${target} profit`,
       requirements: (target: number): MissionRequirement[] => [{ type: 'earn_cash', target, current: 0 }],
       rewards: (level: number): MissionReward[] => [
         { type: 'experience', amount: 500 },
@@ -257,8 +257,8 @@ export const generateAdaptiveQuest = (
     },
     negotiation_master: {
       scalingType: 'negotiation_master' as const,
-      titleTR: 'Pazarlık Ustası',
-      descriptionTR: (target: number) => `${target} başarılı pazarlık yap`,
+      title: 'Negotiation Master',
+      description: (target: number) => `Make ${target} successful negotiations`,
       requirements: (target: number): MissionRequirement[] => [{ type: 'negotiate_success', target, current: 0 }],
       rewards: (level: number): MissionReward[] => [
         { type: 'experience', amount: 300 },
@@ -293,8 +293,8 @@ export const generateAdaptiveQuest = (
   // Create the quest
   const quest: Mission = {
     id: questId,
-    title: template.titleTR,
-    description: template.descriptionTR(finalTarget),
+    title: template.title,
+    description: template.description(finalTarget),
     type: questType,
     requirements: template.requirements(finalTarget),
     rewards: template.rewards(player.level),
@@ -311,7 +311,7 @@ export const generateAdaptiveQuest = (
       // Auto-adjust if possible
       quest.requirements[0].target = validation.adjustedTarget;
       quest.maxProgress = validation.adjustedTarget;
-      quest.description = template.descriptionTR(validation.adjustedTarget);
+      quest.description = template.description(validation.adjustedTarget);
     } else {
       console.log(`Quest ${questTemplate} failed validation: ${validation.rerollReason}`);
       return null;
