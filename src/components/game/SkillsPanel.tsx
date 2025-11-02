@@ -41,14 +41,14 @@ export const SkillsPanel = ({ onClose, isModal = true }: SkillsPanelProps) => {
     if (canUpgradeSkill({ ...skill, currentLevel }, skillPoints)) {
       upgradeSkill(skillId);
       toast({
-        title: "Yetenek Geliştirildi! ✨",
-        description: `${skill.name} Seviye ${currentLevel + 1}'e yükseltildi!`,
+        title: "Skill Upgraded! ✨",
+        description: `${skill.name} upgraded to Level ${currentLevel + 1}!`,
         duration: 3000,
       });
     } else {
       toast({
-        title: "Yetersiz Puan",
-        description: `Bu yeteneği geliştirmek için ${upgradeCost} puana ihtiyacın var.`,
+        title: "Insufficient Points",
+        description: `You need ${upgradeCost} points to upgrade this skill.`,
         variant: "destructive",
       });
     }
@@ -67,13 +67,13 @@ export const SkillsPanel = ({ onClose, isModal = true }: SkillsPanelProps) => {
           <div className="flex items-center gap-4">
             <span className="text-3xl">📒</span>
             <div>
-              <h1 className="text-2xl font-bold neon-title">Yetenekler</h1>
-              <p className="text-muted-foreground text-sm">Skill Points ile yeteneklerini geliştir</p>
+              <h1 className="text-2xl font-bold neon-title">Skills</h1>
+              <p className="text-muted-foreground text-sm">Improve your skills with Skill Points</p>
             </div>
           </div>
           <div className="flex items-center gap-4">
             <Badge className="bg-gradient-to-r from-primary to-accent text-primary-foreground border-0 px-4 py-2 text-base font-bold">
-              ⚡ {skillPoints} Puan
+              ⚡ {skillPoints} Points
             </Badge>
             {isModal && onClose && (
               <Button
@@ -91,11 +91,11 @@ export const SkillsPanel = ({ onClose, isModal = true }: SkillsPanelProps) => {
         {/* Experience Info */}
         <div className="mt-4 bg-gradient-to-r from-muted/50 to-muted/30 rounded-lg p-3 border border-border/30">
           <div className="text-sm text-foreground">
-            <span className="font-medium">Deneyim:</span> {experience} XP • 
-            <span className="font-medium ml-2">Seviye:</span> {level}
+            <span className="font-medium">Experience:</span> {experience} XP • 
+            <span className="font-medium ml-2">Level:</span> {level}
           </div>
           <div className="text-xs text-muted-foreground mt-1">
-            Her 2 seviyede 1 yetenek puanı kazanırsın
+            You earn 1 skill point every 2 levels
           </div>
         </div>
       </div>
@@ -139,8 +139,8 @@ export const SkillsPanel = ({ onClose, isModal = true }: SkillsPanelProps) => {
                   {availableSkillsInCategory.length === 0 ? (
                     <div className="text-center py-12">
                       <div className="text-4xl mb-4">🔒</div>
-                      <div className="text-muted-foreground font-medium">Bu kategoride henüz yetenek yok</div>
-                      <div className="text-sm text-muted-foreground mt-1">Daha yüksek seviyeye çık</div>
+                      <div className="text-muted-foreground font-medium">No skills in this category yet</div>
+                      <div className="text-sm text-muted-foreground mt-1">Reach a higher level</div>
                     </div>
                   ) : (
                     availableSkillsInCategory.map(skill => {
@@ -170,7 +170,7 @@ export const SkillsPanel = ({ onClose, isModal = true }: SkillsPanelProps) => {
                                       <h4 className="font-semibold text-sm text-foreground break-words">{skill.name}</h4>
                                       {isLocked && (
                                         <Badge variant="outline" className="text-[10px] py-0 px-1.5 flex-shrink-0">
-                                          Sev {skill.unlockLevel}
+                                          Lvl {skill.unlockLevel}
                                         </Badge>
                                       )}
                                     </div>
@@ -191,7 +191,7 @@ export const SkillsPanel = ({ onClose, isModal = true }: SkillsPanelProps) => {
                               
                               {/* Effects */}
                               <div className="bg-muted/30 p-2 rounded-md border border-border/30">
-                                <div className="text-[10px] text-muted-foreground font-medium mb-0.5">Etkiler:</div>
+                                <div className="text-[10px] text-muted-foreground font-medium mb-0.5">Effects:</div>
                                 <div className="text-[10px] text-foreground break-words leading-relaxed">
                                   {skill.effects.join(', ')}
                                 </div>
@@ -200,7 +200,7 @@ export const SkillsPanel = ({ onClose, isModal = true }: SkillsPanelProps) => {
                               {/* Progress Bar */}
                               <div className="space-y-1">
                                 <div className="flex justify-between text-[10px] text-muted-foreground">
-                                  <span>İlerleme</span>
+                                  <span>Progress</span>
                                   <span>{currentLevel}/{skill.maxLevel}</span>
                                 </div>
                                 <Progress 
@@ -221,14 +221,14 @@ export const SkillsPanel = ({ onClose, isModal = true }: SkillsPanelProps) => {
                                         : 'opacity-50'
                                     }`}
                                   >
-                                    ⬆️ Geliştir ({upgradeCost} SP)
+                                    ⬆️ Upgrade ({upgradeCost} SP)
                                   </Button>
                                 )}
 
                                 {isMaxLevel && (
                                   <div className="flex-1 text-center py-2">
                                     <Badge className="bg-gradient-to-r from-emerald-500 to-green-500 text-white border-0 px-3 py-1 text-[10px]">
-                                      ✅ Maksimum
+                                      ✅ Maximum
                                     </Badge>
                                   </div>
                                 )}
@@ -236,7 +236,7 @@ export const SkillsPanel = ({ onClose, isModal = true }: SkillsPanelProps) => {
                                 {isLocked && (
                                   <div className="flex-1 text-center py-2">
                                     <Badge variant="outline" className="px-3 py-1 text-[10px]">
-                                      🔒 Sev {skill.unlockLevel} Gerekli
+                                      🔒 Lvl {skill.unlockLevel} Required
                                     </Badge>
                                   </div>
                                 )}
@@ -257,7 +257,7 @@ export const SkillsPanel = ({ onClose, isModal = true }: SkillsPanelProps) => {
             <div className="mt-3 text-center">
               <div className="bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 rounded-lg p-3">
                 <div className="text-amber-700 text-xs font-medium break-words">
-                  🌟 Seviye atlayarak daha fazla yetenek puanı kazan!
+                  🌟 Level up to earn more skill points!
                 </div>
               </div>
             </div>

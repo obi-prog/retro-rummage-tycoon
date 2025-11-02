@@ -28,213 +28,213 @@ export interface SkillCategoryInfo {
 export const skillCategories: SkillCategoryInfo[] = [
   {
     id: 'negotiation',
-    name: 'Pazarlık',
-    description: 'Müşterilerle daha iyi anlaşmalar yap',
+    name: 'Negotiation',
+    description: 'Make better deals with customers',
     icon: '🤝'
   },
   {
     id: 'market_insight',
-    name: 'Analiz & Bilgi', 
-    description: 'Piyasa değerlerini daha iyi anla',
+    name: 'Analysis & Knowledge', 
+    description: 'Better understand market values',
     icon: '📊'
   },
   {
     id: 'inventory_logistics',
-    name: 'Envanter & Lojistik',
-    description: 'Depo yönetimini optimize et',
+    name: 'Inventory & Logistics',
+    description: 'Optimize warehouse management',
     icon: '📦'
   },
   {
     id: 'speed_flow',
-    name: 'Hız & İş Akışı',
-    description: 'Daha hızlı ve verimli çalış',
+    name: 'Speed & Workflow',
+    description: 'Work faster and more efficiently',
     icon: '⚡'
   },
   {
     id: 'prestige_luck',
-    name: 'Prestij & Şans',
-    description: 'İtibar ve şansını artır',
+    name: 'Prestige & Luck',
+    description: 'Increase your reputation and luck',
     icon: '⭐'
   }
 ];
 
 export const allSkills: Skill[] = [
-  // Pazarlık (Negotiation) Skills
+  // Negotiation Skills
   {
     id: 'sharp_negotiator',
-    name: 'Keskin Pazarlıkçı',
-    description: 'Müşteri ilk teklifi daha avantajlı yapar.',
+    name: 'Sharp Negotiator',
+    description: 'Customer makes more advantageous first offers.',
     category: 'negotiation',
     currentLevel: 0,
     maxLevel: 5,
     costPerLevel: 1,
     unlockLevel: 1,
     icon: '🎯',
-    effects: ['İlk teklif %10 daha iyi (seviye başına)']
+    effects: ['First offer 10% better (per level)']
   },
   {
     id: 'sweet_talker',
-    name: 'Tatlı Dil',
-    description: 'Müşteri daha fazla karşı teklif verir.',
+    name: 'Sweet Talker',
+    description: 'Customer gives more counter-offers.',
     category: 'negotiation',
     currentLevel: 0,
     maxLevel: 3,
     costPerLevel: 2,
     unlockLevel: 2,
     icon: '😊',
-    effects: ['Karşı teklif şansı +15% (seviye başına)']
+    effects: ['Counter-offer chance +15% (per level)']
   },
   {
     id: 'cool_headed',
-    name: 'Soğukkanlı',
-    description: 'Reddedilen tekliflerde itibar kaybı azalır.',
+    name: 'Cool-Headed',
+    description: 'Reputation loss from rejected deals is reduced.',
     category: 'negotiation',
     currentLevel: 0,
     maxLevel: 4,
     costPerLevel: 2,
     unlockLevel: 3,
     icon: '🧊',
-    effects: ['İtibar kaybı %20 azalır (seviye başına)']
+    effects: ['Reputation loss reduced by 20% (per level)']
   },
 
-  // Analiz & Bilgi (Market Insight) Skills
+  // Analysis & Knowledge (Market Insight) Skills
   {
     id: 'market_master',
-    name: 'Piyasa Ustası',
-    description: 'Tahmini piyasa değeri doğruluğu artar.',
+    name: 'Market Master',
+    description: 'Estimated market value accuracy increases.',
     category: 'market_insight',
     currentLevel: 0,
     maxLevel: 5,
     costPerLevel: 1,
     unlockLevel: 1,
     icon: '💰',
-    effects: ['Değer tahmini +10% doğruluk (seviye başına)']
+    effects: ['Value estimation +10% accuracy (per level)']
   },
   {
     id: 'collection_knowledge',
-    name: 'Koleksiyon Bilgisi',
-    description: 'Nadir ürünlerin gerçek değerini daha iyi gösterir.',
+    name: 'Collection Knowledge',
+    description: 'Better reveals the true value of rare items.',
     category: 'market_insight',
     currentLevel: 0,
     maxLevel: 4,
     costPerLevel: 2,
     unlockLevel: 2,
     icon: '🔍',
-    effects: ['Nadir ürün değer hassasiyeti +25% (seviye başına)']
+    effects: ['Rare item value precision +25% (per level)']
   },
   {
     id: 'risk_analysis',
-    name: 'Risk Analizi',
-    description: 'Satın alma sonrası fiyat düşüşü riski azalır.',
+    name: 'Risk Analysis',
+    description: 'Risk of price drop after purchase is reduced.',
     category: 'market_insight',
     currentLevel: 0,
     maxLevel: 3,
     costPerLevel: 3,
     unlockLevel: 3,
     icon: '⚠️',
-    effects: ['Fiyat düşüş riski %15 azalır (seviye başına)']
+    effects: ['Price drop risk reduced by 15% (per level)']
   },
 
-  // Envanter & Lojistik (Inventory & Logistics) Skills
+  // Inventory & Logistics Skills
   {
     id: 'warehouse_expansion',
-    name: 'Depo Genişletme',
-    description: 'Envanter kapasitesine slot ekler.',
+    name: 'Warehouse Expansion',
+    description: 'Adds slots to inventory capacity.',
     category: 'inventory_logistics',
     currentLevel: 0,
     maxLevel: 5,
     costPerLevel: 1,
     unlockLevel: 1,
     icon: '📦',
-    effects: ['Envanter kapasitesi +1 slot (seviye başına)']
+    effects: ['Inventory capacity +1 slot (per level)']
   },
   {
     id: 'quick_organization',
-    name: 'Hızlı Düzenleme',
-    description: 'Ürün listesinde işlem süreleri kısalır.',
+    name: 'Quick Organization',
+    description: 'Processing times in item list are shortened.',
     category: 'inventory_logistics',
     currentLevel: 0,
     maxLevel: 3,
     costPerLevel: 2,
     unlockLevel: 2,
     icon: '📋',
-    effects: ['İşlem süresi %20 kısalır (seviye başına)']
+    effects: ['Processing time reduced by 20% (per level)']
   },
   {
     id: 'insured_storage',
-    name: 'Sigortalı Depo',
-    description: 'Eşya değer kaybı şansı azalır.',
+    name: 'Insured Storage',
+    description: 'Item depreciation chance is reduced.',
     category: 'inventory_logistics',
     currentLevel: 0,
     maxLevel: 3,
     costPerLevel: 3,
     unlockLevel: 3,
     icon: '🛡️',
-    effects: ['Değer kaybı şansı %10 azalır (seviye başına)']
+    effects: ['Depreciation chance reduced by 10% (per level)']
   },
 
-  // Hız & İş Akışı (Speed & Flow) Skills
+  // Speed & Workflow Skills
   {
     id: 'fast_buyer',
-    name: 'Hızlı Alıcı',
-    description: 'Yeni müşteri geliş süresi kısalır.',
+    name: 'Fast Buyer',
+    description: 'New customer arrival time is shortened.',
     category: 'speed_flow',
     currentLevel: 0,
     maxLevel: 5,
     costPerLevel: 2,
     unlockLevel: 2,
     icon: '🏃',
-    effects: ['Müşteri geliş süresi %10 kısalır (seviye başına)']
+    effects: ['Customer arrival time reduced by 10% (per level)']
   },
   {
     id: 'busy_market',
-    name: 'Yoğun Pazar',
-    description: 'Günlük müşteri sayısı artar.',
+    name: 'Busy Market',
+    description: 'Daily customer count increases.',
     category: 'speed_flow',
     currentLevel: 0,
     maxLevel: 4,
     costPerLevel: 3,
     unlockLevel: 3,
     icon: '👥',
-    effects: ['Günlük müşteri sayısı +1 (seviye başına)']
+    effects: ['Daily customer count +1 (per level)']
   },
 
-  // Prestij & Şans (Prestige & Luck) Skills
+  // Prestige & Luck Skills
   {
     id: 'charismatic',
-    name: 'Karizmatik',
-    description: 'İtibar artışı daha hızlı olur.',
+    name: 'Charismatic',
+    description: 'Reputation gain happens faster.',
     category: 'prestige_luck',
     currentLevel: 0,
     maxLevel: 4,
     costPerLevel: 2,
     unlockLevel: 3,
     icon: '✨',
-    effects: ['İtibar artışı %25 daha hızlı (seviye başına)']
+    effects: ['Reputation gain 25% faster (per level)']
   },
   {
     id: 'lucky_day',
-    name: 'Şanslı Gün',
-    description: 'Nadir ürün çıkma ihtimali artar.',
+    name: 'Lucky Day',
+    description: 'Chance of rare items appearing increases.',
     category: 'prestige_luck',
     currentLevel: 0,
     maxLevel: 5,
     costPerLevel: 2,
     unlockLevel: 4,
     icon: '🍀',
-    effects: ['Nadir ürün şansı +2% (seviye başına)']
+    effects: ['Rare item chance +2% (per level)']
   },
   {
     id: 'vip_connections',
-    name: 'VIP Bağlantıları',
-    description: 'VIP müşteri gelme şansı artar.',
+    name: 'VIP Connections',
+    description: 'Chance of VIP customers arriving increases.',
     category: 'prestige_luck',
     currentLevel: 0,
     maxLevel: 3,
     costPerLevel: 3,
     unlockLevel: 5,
     icon: '👑',
-    effects: ['VIP müşteri şansı +10% (seviye başına)']
+    effects: ['VIP customer chance +10% (per level)']
   }
 ];
 
