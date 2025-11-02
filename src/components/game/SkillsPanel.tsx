@@ -105,16 +105,16 @@ export const SkillsPanel = ({ onClose, isModal = true }: SkillsPanelProps) => {
         <Tabs value={selectedCategory} onValueChange={(value) => setSelectedCategory(value as SkillCategory)}>
           {/* Category Tabs */}
           <div className="w-full mb-4 px-[max(12px,env(safe-area-inset-left))] pr-[max(12px,env(safe-area-inset-right))]">
-            <TabsList className="w-full h-auto p-1 bg-muted/30 grid grid-cols-3 sm:grid-cols-5 gap-1.5">
+            <TabsList className="w-full h-auto p-1.5 bg-muted/30 grid grid-cols-3 sm:grid-cols-5 gap-2">
               {skillCategories.map((category) => (
                 <TabsTrigger
                   key={category.id}
                   value={category.id}
                   title={category.name}
-                  className="flex flex-col items-center justify-center gap-1 p-2 min-h-[56px] text-xs font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all touch-manipulation rounded-lg"
+                  className="flex flex-col items-center justify-center gap-1.5 p-3 min-h-[64px] text-xs font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all touch-manipulation rounded-lg hover:bg-muted/50"
                 >
-                  <span className="text-lg sm:text-xl leading-none">{category.icon}</span>
-                  <span className="text-center leading-tight text-[9px] sm:text-[10px] break-words line-clamp-2 px-0.5">
+                  <span className="text-xl sm:text-2xl leading-none flex-shrink-0">{category.icon}</span>
+                  <span className="text-center leading-snug text-[10px] sm:text-xs break-words line-clamp-2 px-1 w-full">
                     {category.name}
                   </span>
                 </TabsTrigger>
