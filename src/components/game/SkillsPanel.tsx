@@ -104,17 +104,21 @@ export const SkillsPanel = ({ onClose, isModal = true }: SkillsPanelProps) => {
       <div className={isModal ? 'p-6' : ''}>
         <Tabs value={selectedCategory} onValueChange={(value) => setSelectedCategory(value as SkillCategory)}>
           {/* Category Tabs */}
-          <div className="w-full mb-4 -mx-1">
-            <TabsList className="flex w-auto h-auto p-1 bg-muted/30 gap-1 overflow-x-auto overflow-y-hidden scrollbar-thin scrollbar-thumb-primary/30 scrollbar-track-transparent">
-              <div className="flex gap-1 px-1">
-                {skillCategories.map(category => (
+          <div className="w-full mb-4 px-[max(12px,env(safe-area-inset-left))] pr-[max(12px,env(safe-area-inset-right))]">
+            <TabsList className="w-full h-auto p-1 bg-muted/30 overflow-hidden">
+              {/* Single row on larger screens, two-row balanced on mobile */}
+              <div className="grid grid-cols-5 lg:grid-cols-5 md:grid-cols-5 sm:grid-cols-[repeat(3,1fr)] gap-1.5 w-full sm:[&>*:nth-child(n+4)]:col-span-1 sm:[&>*:nth-child(4)]:col-start-2">
+                {skillCategories.map((category, idx) => (
                   <TabsTrigger
                     key={category.id}
                     value={category.id}
-                    className="flex flex-col items-center gap-1 p-2 min-h-[56px] min-w-[72px] flex-shrink-0 text-xs font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all whitespace-nowrap"
+                    title={category.name}
+                    className="flex flex-col items-center justify-center gap-1 p-2 min-h-[48px] sm:min-h-[52px] w-full text-[clamp(13px,2.6vw,15px)] font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all touch-manipulation"
                   >
-                    <span className="text-base">{category.icon}</span>
-                    <span className="text-center leading-tight text-[10px]">{category.name}</span>
+                    <span className="text-base sm:text-lg leading-none">{category.icon}</span>
+                    <span className="text-center leading-[1.15] text-[clamp(9px,2.2vw,11px)] sm:text-[10px] md:text-[11px] max-w-full break-words line-clamp-2 px-0.5">
+                      {category.name}
+                    </span>
                   </TabsTrigger>
                 ))}
               </div>
