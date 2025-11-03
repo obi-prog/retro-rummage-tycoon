@@ -24,7 +24,7 @@ const soundEffects = {
   click: '/audio/sound-effects/click.wav',
   notification: '/audio/sound-effects/notification.wav',
   error: '/audio/sound-effects/error.wav',
-  levelUp: '/audio/sound-effects/levelup.wav',
+  levelUp: '/audio/sound-effects/levelup.mp3',
 };
 
 const musicTracks = {
