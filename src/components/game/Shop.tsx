@@ -307,7 +307,7 @@ const Shop: React.FC = () => {
       
       {/* Main Content - No scroll, fit to viewport */}
       <div className="relative flex flex-col h-full px-2 sm:px-4 py-2 max-w-md mx-auto w-full z-10">
-        <div className="flex flex-col gap-2 h-full">
+        <div className="flex flex-col gap-2 sm:gap-3 h-full justify-between">
           {/* Decision Timer - Only shown when timer is active */}
           {timerActive && timeRemaining !== null && (
             <div className="flex justify-center flex-shrink-0">
@@ -426,7 +426,7 @@ const Shop: React.FC = () => {
           </div>
 
           {/* Product Info Card - Compact */}
-          <div className="bg-gradient-to-br from-orange-50/98 via-amber-50/95 to-yellow-50/90 backdrop-blur-lg rounded-lg border-2 border-amber-300/40 p-3 shadow-2xl shadow-amber-900/25 relative overflow-hidden flex-1 min-h-0">
+          <div className="bg-gradient-to-br from-orange-50/98 via-amber-50/95 to-yellow-50/90 backdrop-blur-lg rounded-lg border-2 border-amber-300/40 p-3 shadow-2xl shadow-amber-900/25 relative overflow-hidden flex-shrink-0">
             {/* Vintage paper texture overlay */}
             <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(circle_at_50%_50%,#000_1px,transparent_1px)] bg-[length:20px_20px]"></div>
             <div className="flex gap-3 mb-2 relative z-10">
@@ -465,7 +465,7 @@ const Shop: React.FC = () => {
               </div>
             </div>
             
-            <div className="space-y-1.5 pt-2 border-t border-gray-100 text-xs sm:text-sm">
+            <div className="space-y-1 pt-2 border-t border-gray-100 text-xs sm:text-sm">
               {/* Market Price - Always shown as reference */}
               <div className="flex justify-between items-center">
                 <span className="text-xs font-medium text-professional-dark-grey">
@@ -513,7 +513,7 @@ const Shop: React.FC = () => {
                   
                   {/* Profit/Loss calculation for buyer scenario */}
                   {dealItem.purchasePrice && (
-                    <div className="flex justify-between items-center pt-1.5 border-t border-gray-100">
+                    <div className="flex justify-between items-center pt-1 border-t border-gray-100">
                       <div className="flex items-center gap-1">
                         <span className="text-xs font-medium text-professional-dark-grey">
                           {t('shop.profitLoss')}
