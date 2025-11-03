@@ -18,7 +18,7 @@ const defaultSettings: SoundSettings = {
 
 // Music and sound effect paths
 const soundEffects = {
-  coin: '/audio/sound-effects/coin.wav',
+  coin: '/audio/sound-effects/coin.mp3',
   sell: '/audio/sound-effects/sell.wav',
   buy: '/audio/sound-effects/buy.wav',
   click: '/audio/sound-effects/click.wav',
