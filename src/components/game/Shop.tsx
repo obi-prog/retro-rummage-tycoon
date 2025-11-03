@@ -13,6 +13,7 @@ import { useTranslatedItems } from '@/hooks/useTranslatedItems';
 import type { Item, Customer } from '@/types/game';
 import shopInteriorBg from '@/assets/vintage-shop-interior.jpg';
 import { SpeechBubble } from '@/components/ui/SpeechBubble';
+import { soundEventEmitter } from '@/utils/soundEvents';
 
 const Shop: React.FC = () => {
   const { t } = useI18n();
@@ -89,6 +90,9 @@ const Shop: React.FC = () => {
   // Set initial offer when customer changes
   useEffect(() => {
     if (currentCustomer?.carriedItem) {
+      // Play customer arrival sound
+      soundEventEmitter.emit('customerArrival');
+      
       // Set initial offer based on intent
       const itemValue = calculateItemValue(currentCustomer.carriedItem);
       if (currentCustomer.intent === 'buy') {

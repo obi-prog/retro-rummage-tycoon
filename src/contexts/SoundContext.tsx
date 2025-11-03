@@ -14,6 +14,7 @@ interface SoundContextType {
   playNotificationSound: () => void;
   playErrorSound: () => void;
   playLevelUpSound: () => void;
+  playCustomerArrivalSound: () => void;
 }
 
 const SoundContext = createContext<SoundContextType | undefined>(undefined);
@@ -45,6 +46,9 @@ export const SoundProvider = ({ children }: { children: ReactNode }) => {
           break;
         case 'click':
           soundHook.playClickSound();
+          break;
+        case 'customerArrival':
+          soundHook.playCustomerArrivalSound();
           break;
       }
     });

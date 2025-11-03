@@ -1,5 +1,5 @@
 // Global sound event emitter for game actions
-type SoundEventType = 'sell' | 'buy' | 'coin' | 'levelUp' | 'notification' | 'error' | 'click';
+type SoundEventType = 'sell' | 'buy' | 'coin' | 'levelUp' | 'notification' | 'error' | 'click' | 'customerArrival';
 
 type SoundEventListener = (eventType: SoundEventType, data?: any) => void;
 

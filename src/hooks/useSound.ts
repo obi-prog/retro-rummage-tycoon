@@ -25,6 +25,7 @@ const soundEffects = {
   notification: '/audio/sound-effects/notification.wav',
   error: '/audio/sound-effects/error.wav',
   levelUp: '/audio/sound-effects/levelup.mp3',
+  customerArrival: '/audio/sound-effects/customer-arrival.mp3',
 };
 
 const musicTracks = {
@@ -121,6 +122,7 @@ export const useSound = () => {
   const playNotificationSound = () => playSound('notification');
   const playErrorSound = () => playSound('error');
   const playLevelUpSound = () => playSound('levelUp');
+  const playCustomerArrivalSound = () => playSound('customerArrival');
 
   return {
     settings,
@@ -135,5 +137,6 @@ export const useSound = () => {
     playNotificationSound,
     playErrorSound,
     playLevelUpSound,
+    playCustomerArrivalSound,
   };
 };
