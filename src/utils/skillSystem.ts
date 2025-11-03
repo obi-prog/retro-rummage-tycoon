@@ -175,6 +175,18 @@ export const allSkills: Skill[] = [
 
   // Speed & Workflow Skills
   {
+    id: 'speed_workflow',
+    name: 'Speed & Workflow',
+    description: 'Improve your efficiency and timing. Gain extra seconds to decide during negotiations as you level up. At higher levels, you work so smoothly that time limits no longer matter.',
+    category: 'speed_flow',
+    currentLevel: 0,
+    maxLevel: 5,
+    costPerLevel: 2,
+    unlockLevel: 1,
+    icon: '⚡',
+    effects: ['+2 seconds decision time per level']
+  },
+  {
     id: 'fast_buyer',
     name: 'Fast Buyer',
     description: 'New customer arrival time is shortened.',

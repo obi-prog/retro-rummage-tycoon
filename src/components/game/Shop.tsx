@@ -30,7 +30,8 @@ const Shop: React.FC = () => {
     serveCustomer,
     onDealResolved,
     currentCustomer: storeCurrentCustomer,
-    isLoadingNextCustomer
+    isLoadingNextCustomer,
+    playerSkills
   } = useGameStore();
   
   const [offerModalOpen, setOfferModalOpen] = useState(false);
@@ -39,11 +40,51 @@ const Shop: React.FC = () => {
   const [speechText, setSpeechText] = useState<string>('');
   const [speechVisible, setSpeechVisible] = useState(false);
   const [showSuccessEffect, setShowSuccessEffect] = useState(false);
+  const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
+  const [timerActive, setTimerActive] = useState(false);
   
   const { playSound } = useSound();
   
   // Use the store's current customer
   const currentCustomer = storeCurrentCustomer;
+
+  // Calculate decision time based on level and skill
+  const calculateDecisionTime = (): number | null => {
+    // Level 8+ no timer
+    if (level >= 8) return null;
+    
+    // Base time by level
+    let baseTime = 10; // Level 1
+    if (level >= 2 && level <= 4) baseTime = 15;
+    else if (level >= 5 && level <= 7) baseTime = 20;
+    
+    // Add skill bonus
+    const speedSkillLevel = playerSkills['speed_workflow'] || 0;
+    const skillBonus = speedSkillLevel * 2;
+    
+    return baseTime + skillBonus;
+  };
+
+  // Handle timer timeout
+  const handleTimeout = () => {
+    playSound('error');
+    const timeoutMessages = [
+      "You took too long!",
+      "I don't have all day.",
+      "Maybe next time.",
+      "Too slow for me!",
+      "I'll find another shop."
+    ];
+    const randomMessage = timeoutMessages[Math.floor(Math.random() * timeoutMessages.length)];
+    showSpeech(randomMessage, 2500);
+    toast({
+      title: "Customer Left",
+      description: randomMessage,
+      variant: "destructive",
+      duration: 2500,
+    });
+    setTimeout(() => onDealResolved(), 2500);
+  };
 
   // Set initial offer when customer changes
   useEffect(() => {
@@ -65,12 +106,40 @@ const Shop: React.FC = () => {
           .replace('${}', `$${askPrice}`);
         showSpeech(message, 3000);
       }
+      
+      // Start timer
+      const decisionTime = calculateDecisionTime();
+      if (decisionTime !== null) {
+        setTimeRemaining(decisionTime);
+        setTimerActive(true);
+      } else {
+        setTimeRemaining(null);
+        setTimerActive(false);
+      }
     }
-  }, [currentCustomer, t]);
+  }, [currentCustomer, t, level, playerSkills]);
+
+  // Timer countdown effect
+  useEffect(() => {
+    if (!timerActive || timeRemaining === null) return;
+    
+    if (timeRemaining <= 0) {
+      setTimerActive(false);
+      handleTimeout();
+      return;
+    }
+    
+    const interval = setInterval(() => {
+      setTimeRemaining(prev => prev !== null ? prev - 1 : null);
+    }, 1000);
+    
+    return () => clearInterval(interval);
+  }, [timerActive, timeRemaining]);
 
   // Handle customer actions
   const handleAccept = () => {
     if (!currentCustomer || !dealItem) return;
+    setTimerActive(false); // Stop timer on action
 
     if (currentCustomer.intent === 'buy') {
       // Customer buying from us
@@ -101,6 +170,7 @@ const Shop: React.FC = () => {
   };
 
   const handleReject = () => {
+    setTimerActive(false); // Stop timer on action
     playSound('click');
     showSpeech(t('common.noDeal'), 2000);
     toast({
@@ -114,6 +184,7 @@ const Shop: React.FC = () => {
 
   const handleCounterOffer = (amount: number) => {
     if (!currentCustomer || !dealItem) return;
+    setTimerActive(false); // Stop timer on action
 
     // Simple acceptance logic
     const itemValue = calculateItemValue(dealItem);
@@ -234,6 +305,56 @@ const Shop: React.FC = () => {
       {/* Scrollable Content Area */}
       <div className="relative flex-1 overflow-y-auto px-4 pt-2 pb-2 max-w-md mx-auto w-full z-10">
         <div className="grid gap-3 shop-content-gap">
+          {/* Decision Timer - Only shown when timer is active */}
+          {timerActive && timeRemaining !== null && (
+            <div className="flex justify-center mb-2">
+              <div className="bg-gradient-to-r from-amber-100/95 to-orange-100/95 backdrop-blur-md rounded-full px-6 py-3 border-2 border-amber-300/60 shadow-lg">
+                <div className="flex items-center gap-3">
+                  <div className="relative w-12 h-12">
+                    {/* Circular progress ring */}
+                    <svg className="transform -rotate-90 w-12 h-12">
+                      <circle
+                        cx="24"
+                        cy="24"
+                        r="20"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        fill="transparent"
+                        className="text-gray-200"
+                      />
+                      <circle
+                        cx="24"
+                        cy="24"
+                        r="20"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        fill="transparent"
+                        strokeDasharray={`${2 * Math.PI * 20}`}
+                        strokeDashoffset={`${2 * Math.PI * 20 * (1 - timeRemaining / (calculateDecisionTime() || 1))}`}
+                        className={`transition-all duration-1000 ${
+                          timeRemaining <= 5 ? 'text-red-500' : 'text-amber-500'
+                        }`}
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                    {/* Timer text in center */}
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className={`text-lg font-bold ${
+                        timeRemaining <= 5 ? 'text-red-600' : 'text-amber-700'
+                      }`}>
+                        {timeRemaining}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="text-left">
+                    <div className="text-sm font-semibold text-amber-900">Decision Time</div>
+                    <div className="text-xs text-amber-700">Make your move</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          
           {/* Customer Info Card */}
           <div className="bg-gradient-to-br from-amber-50/98 via-orange-50/95 to-amber-100/90 backdrop-blur-lg rounded-lg border-2 border-amber-300/40 p-5 shop-card-padding shadow-2xl shadow-amber-900/25 relative overflow-hidden">
           {/* Vintage paper texture overlay */}
