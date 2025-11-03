@@ -306,34 +306,34 @@ const Shop: React.FC = () => {
       <div className="absolute inset-0 bg-gradient-to-b from-amber-50/75 to-orange-50/80 backdrop-blur-[1px] shop-vignette"></div>
       
       {/* Main Content - No scroll, fit to viewport */}
-      <div className="relative flex flex-col h-full px-2 sm:px-4 py-2 max-w-md mx-auto w-full z-10">
-        <div className="flex flex-col gap-2 sm:gap-3 h-full justify-between">
+      <div className="relative flex flex-col h-full px-2 sm:px-4 py-1.5 max-w-md mx-auto w-full z-10">
+        <div className="flex flex-col gap-1.5 sm:gap-2 h-full justify-between">
           {/* Decision Timer - Only shown when timer is active */}
           {timerActive && timeRemaining !== null && (
             <div className="flex justify-center flex-shrink-0">
-              <div className="bg-gradient-to-r from-amber-100/95 to-orange-100/95 backdrop-blur-md rounded-full px-4 py-2 border-2 border-amber-300/60 shadow-lg">
+              <div className="bg-gradient-to-r from-amber-100/95 to-orange-100/95 backdrop-blur-md rounded-full px-3 py-1.5 border-2 border-amber-300/60 shadow-lg">
                 <div className="flex items-center gap-2">
-                  <div className="relative w-8 h-8">
+                  <div className="relative w-7 h-7">
                     {/* Circular progress ring */}
-                    <svg className="transform -rotate-90 w-8 h-8">
+                    <svg className="transform -rotate-90 w-7 h-7">
                       <circle
-                        cx="16"
-                        cy="16"
-                        r="14"
+                        cx="14"
+                        cy="14"
+                        r="12"
                         stroke="currentColor"
                         strokeWidth="2"
                         fill="transparent"
                         className="text-gray-200"
                       />
                       <circle
-                        cx="16"
-                        cy="16"
-                        r="14"
+                        cx="14"
+                        cy="14"
+                        r="12"
                         stroke="currentColor"
                         strokeWidth="2"
                         fill="transparent"
-                        strokeDasharray={`${2 * Math.PI * 14}`}
-                        strokeDashoffset={`${2 * Math.PI * 14 * (1 - timeRemaining / (calculateDecisionTime() || 1))}`}
+                        strokeDasharray={`${2 * Math.PI * 12}`}
+                        strokeDashoffset={`${2 * Math.PI * 12 * (1 - timeRemaining / (calculateDecisionTime() || 1))}`}
                         className={`transition-all duration-1000 ${
                           timeRemaining <= 5 ? 'text-red-500' : 'text-amber-500'
                         }`}
@@ -342,7 +342,7 @@ const Shop: React.FC = () => {
                     </svg>
                     {/* Timer text in center */}
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <span className={`text-sm font-bold ${
+                      <span className={`text-xs font-bold ${
                         timeRemaining <= 5 ? 'text-red-600' : 'text-amber-700'
                       }`}>
                         {timeRemaining}
@@ -350,8 +350,8 @@ const Shop: React.FC = () => {
                     </div>
                   </div>
                   <div className="text-left">
-                    <div className="text-xs font-semibold text-amber-900">Karar Zamanı</div>
-                    <div className="text-[10px] text-amber-700">Hamleni yap</div>
+                    <div className="text-[11px] font-semibold text-amber-900">Karar Zamanı</div>
+                    <div className="text-[9px] text-amber-700">Hamleni yap</div>
                   </div>
                 </div>
               </div>
@@ -370,39 +370,39 @@ const Shop: React.FC = () => {
           )}
           
           {/* Customer Info Card - Compact */}
-          <div className="bg-gradient-to-br from-amber-50/98 via-orange-50/95 to-amber-100/90 backdrop-blur-lg rounded-lg border-2 border-amber-300/40 p-3 shadow-2xl shadow-amber-900/25 relative overflow-hidden flex-shrink-0">
+          <div className="bg-gradient-to-br from-amber-50/98 via-orange-50/95 to-amber-100/90 backdrop-blur-lg rounded-lg border-2 border-amber-300/40 p-2 sm:p-2.5 shadow-2xl shadow-amber-900/25 relative overflow-hidden flex-shrink-0">
             {/* Vintage paper texture overlay */}
             <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(circle_at_50%_50%,#000_1px,transparent_1px)] bg-[length:20px_20px]"></div>
-            <div className="flex items-start gap-3">
+            <div className="flex items-start gap-2 sm:gap-3">
               <div className="relative flex-shrink-0">
                 <img 
                   src={currentCustomer.avatar} 
                   alt={currentCustomer.name}
-                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-gray-100"
+                  className="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover border-2 border-gray-100"
                 />
                 {/* Intent Badge on Avatar */}
-                <div className={`absolute -bottom-1 -right-1 rounded-full p-1 sm:p-1.5 border-2 border-white shadow-lg ${
+                <div className={`absolute -bottom-0.5 -right-0.5 rounded-full p-1 border-2 border-white shadow-lg ${
                   currentCustomer.intent === 'buy' 
                     ? 'bg-blue-500' 
                     : 'bg-orange-500'
                 }`}>
                   {currentCustomer.intent === 'buy' ? (
-                    <DollarSign className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+                    <DollarSign className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" />
                   ) : (
-                    <Star className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+                    <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" />
                   )}
                 </div>
               </div>
               
               <div className="flex-1 min-w-0">
-                <h3 className="text-base sm:text-lg font-semibold text-professional-dark-grey mb-1">
+                <h3 className="text-sm sm:text-base font-semibold text-professional-dark-grey mb-1">
                   {currentCustomer.name}
                 </h3>
                 
-                <div className="flex flex-wrap gap-1.5 mb-2">
+                <div className="flex flex-wrap gap-1 mb-1.5">
                   <Badge 
                     variant="outline" 
-                    className={`font-medium px-2 py-0.5 text-xs ${currentCustomer.intent === 'buy'
+                    className={`font-medium px-1.5 py-0 text-[10px] ${currentCustomer.intent === 'buy'
                       ? 'border-blue-500 text-blue-700 bg-blue-100' 
                       : 'border-orange-500 text-orange-700 bg-orange-100'
                     }`}
@@ -410,12 +410,12 @@ const Shop: React.FC = () => {
                     {currentCustomer.intent === 'buy' ? '💰 ' + t('shop.buyer') : '🏷️ ' + t('shop.seller')}
                   </Badge>
                   
-                  <Badge variant="secondary" className="text-[10px] bg-gray-100 text-professional-grey border-gray-200 px-2 py-0.5">
+                  <Badge variant="secondary" className="text-[9px] bg-gray-100 text-professional-grey border-gray-200 px-1.5 py-0">
                     {currentCustomer.type}
                   </Badge>
                 </div>
                 
-                <p className="text-xs sm:text-sm font-medium text-professional-dark-grey leading-relaxed">
+                <p className="text-[11px] sm:text-xs font-medium text-professional-dark-grey leading-tight">
                   {currentCustomer.intent === 'buy'
                     ? '🛒 ' + t('shop.wantsToPurchase') 
                     : '💼 ' + t('shop.wantsToSell')
@@ -426,11 +426,11 @@ const Shop: React.FC = () => {
           </div>
 
           {/* Product Info Card - Compact */}
-          <div className="bg-gradient-to-br from-orange-50/98 via-amber-50/95 to-yellow-50/90 backdrop-blur-lg rounded-lg border-2 border-amber-300/40 p-3 shadow-2xl shadow-amber-900/25 relative overflow-hidden flex-shrink-0">
+          <div className="bg-gradient-to-br from-orange-50/98 via-amber-50/95 to-yellow-50/90 backdrop-blur-lg rounded-lg border-2 border-amber-300/40 p-2 sm:p-2.5 shadow-2xl shadow-amber-900/25 relative overflow-hidden flex-shrink-0">
             {/* Vintage paper texture overlay */}
             <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(circle_at_50%_50%,#000_1px,transparent_1px)] bg-[length:20px_20px]"></div>
-            <div className="flex gap-3 mb-2 relative z-10">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white/80 rounded-lg overflow-hidden border-2 border-amber-200/60 shadow-inner flex-shrink-0">
+            <div className="flex gap-2 sm:gap-3 mb-1.5 relative z-10">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-white/80 rounded-lg overflow-hidden border-2 border-amber-200/60 shadow-inner flex-shrink-0">
                 {typeof dealItem.image === 'string' && dealItem.image.startsWith('/') ? (
                   <img 
                     src={dealItem.image} 
@@ -447,31 +447,31 @@ const Shop: React.FC = () => {
               </div>
               
               <div className="flex-1 min-w-0">
-                <h4 className="text-base sm:text-lg font-semibold text-professional-dark-grey mb-0.5">
+                <h4 className="text-sm sm:text-base font-semibold text-professional-dark-grey mb-0.5">
                   {dealItem.name}
                 </h4>
-                <p className="text-xs sm:text-sm text-professional-grey mb-2">
+                <p className="text-[11px] sm:text-xs text-professional-grey mb-1">
                   {t(`items.categories.${dealItem.category}`)}
                 </p>
                 
-                <div className="flex gap-1.5 flex-wrap">
-                  <Badge variant="outline" className="text-[10px] bg-gray-50 border-gray-200 text-professional-grey px-1.5 py-0">
+                <div className="flex gap-1 flex-wrap">
+                  <Badge variant="outline" className="text-[9px] bg-gray-50 border-gray-200 text-professional-grey px-1 py-0">
                     % {dealItem.condition} {t('shop.condition')}
                   </Badge>
-                  <Badge variant="outline" className="text-[10px] bg-gray-50 border-gray-200 text-professional-grey px-1.5 py-0">
+                  <Badge variant="outline" className="text-[9px] bg-gray-50 border-gray-200 text-professional-grey px-1 py-0">
                     {t(`items.rarities.${dealItem.rarity}`)}
                   </Badge>
                 </div>
               </div>
             </div>
             
-            <div className="space-y-1 pt-2 border-t border-gray-100 text-xs sm:text-sm">
+            <div className="space-y-0.5 pt-1.5 border-t border-gray-100 text-xs sm:text-sm">
               {/* Market Price - Always shown as reference */}
               <div className="flex justify-between items-center">
-                <span className="text-xs font-medium text-professional-dark-grey">
+                <span className="text-[10px] sm:text-xs font-medium text-professional-dark-grey">
                   {t('shop.estimatedMarketValue')}
                 </span>
-                <span className="text-sm sm:text-base font-bold text-professional-blue">
+                <span className="text-xs sm:text-sm font-bold text-professional-blue">
                   ${calculateItemValue(dealItem)}
                 </span>
               </div>
@@ -479,10 +479,10 @@ const Shop: React.FC = () => {
               {/* Customer is SELLER (wants to sell to player) */}
               {currentCustomer.intent === 'sell' && (
                 <div className="flex justify-between items-center">
-                  <span className="text-xs font-medium text-professional-dark-grey">
+                  <span className="text-[10px] sm:text-xs font-medium text-professional-dark-grey">
                     {t('shop.sellerAskingPrice')}
                   </span>
-                  <span className="text-sm sm:text-base font-bold text-professional-red">
+                  <span className="text-xs sm:text-sm font-bold text-professional-red">
                     ${currentOffer}
                   </span>
                 </div>
@@ -493,36 +493,36 @@ const Shop: React.FC = () => {
                 <>
                   {dealItem.purchasePrice && (
                     <div className="flex justify-between items-center">
-                      <span className="text-xs font-medium text-professional-dark-grey">
+                      <span className="text-[10px] sm:text-xs font-medium text-professional-dark-grey">
                         {t('shop.yourPurchasePrice')}
                       </span>
-                      <span className="text-xs sm:text-sm font-medium text-gray-600">
+                      <span className="text-[10px] sm:text-xs font-medium text-gray-600">
                         ${dealItem.purchasePrice}
                       </span>
                     </div>
                   )}
                   
                   <div className="flex justify-between items-center">
-                    <span className="text-xs font-medium text-professional-dark-grey">
+                    <span className="text-[10px] sm:text-xs font-medium text-professional-dark-grey">
                       {t('shop.buyerOfferPrice')}
                     </span>
-                    <span className="text-sm sm:text-base font-bold text-professional-red">
+                    <span className="text-xs sm:text-sm font-bold text-professional-red">
                       ${currentOffer}
                     </span>
                   </div>
                   
                   {/* Profit/Loss calculation for buyer scenario */}
                   {dealItem.purchasePrice && (
-                    <div className="flex justify-between items-center pt-1 border-t border-gray-100">
-                      <div className="flex items-center gap-1">
-                        <span className="text-xs font-medium text-professional-dark-grey">
+                    <div className="flex justify-between items-center pt-0.5 border-t border-gray-100">
+                      <div className="flex items-center gap-0.5">
+                        <span className="text-[10px] sm:text-xs font-medium text-professional-dark-grey">
                           {t('shop.profitLoss')}
                         </span>
                         {(currentOffer - dealItem.purchasePrice) < 0 && (
-                          <span className="text-red-500 text-xs">⚠️</span>
+                          <span className="text-red-500 text-[10px]">⚠️</span>
                         )}
                       </div>
-                      <span className={`text-sm sm:text-base font-bold ${
+                      <span className={`text-xs sm:text-sm font-bold ${
                         (currentOffer - dealItem.purchasePrice) >= 0 
                           ? 'text-emerald-600' 
                           : 'text-red-600'
@@ -537,27 +537,27 @@ const Shop: React.FC = () => {
             </div>
           </div>
           
-          {/* Bottom Action Bar - No scroll needed */}
-          <div className="flex-shrink-0 pb-safe">
-            <div className="grid grid-cols-3 gap-2">
+          {/* Bottom Action Bar - Always visible */}
+          <div className="flex-shrink-0 pb-1">
+            <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
               <Button
                 variant="outline"
                 onClick={handleReject}
-                className="min-h-[44px] sm:min-h-[48px] text-sm sm:text-base border-professional-red text-professional-red hover:bg-red-50 hover:border-red-400 font-medium"
+                className="h-10 sm:h-11 text-xs sm:text-sm border-professional-red text-professional-red hover:bg-red-50 hover:border-red-400 font-medium px-2"
               >
                 {t('common.decline')}
               </Button>
               
               <Button
                 onClick={openOfferModal}
-                className="min-h-[44px] sm:min-h-[48px] text-sm sm:text-base bg-professional-navy hover:bg-professional-blue text-white font-medium"
+                className="h-10 sm:h-11 text-xs sm:text-sm bg-professional-navy hover:bg-professional-blue text-white font-medium px-2"
               >
                 {t('common.counter')}
               </Button>
               
               <Button
                 onClick={handleAccept}
-                className="min-h-[44px] sm:min-h-[48px] text-sm sm:text-base bg-professional-emerald hover:bg-emerald-600 text-white font-medium"
+                className="h-10 sm:h-11 text-xs sm:text-sm bg-professional-emerald hover:bg-emerald-600 text-white font-medium px-2"
               >
                 {t('common.accept')}
               </Button>
