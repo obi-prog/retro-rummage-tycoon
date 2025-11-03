@@ -20,7 +20,7 @@ const defaultSettings: SoundSettings = {
 const soundEffects = {
   coin: '/audio/sound-effects/coin.mp3',
   sell: '/audio/sound-effects/sell.wav',
-  buy: '/audio/sound-effects/buy.wav',
+  buy: '/audio/sound-effects/buy.mp3',
   click: '/audio/sound-effects/click.wav',
   notification: '/audio/sound-effects/notification.wav',
   error: '/audio/sound-effects/error.wav',
