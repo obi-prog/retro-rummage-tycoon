@@ -298,43 +298,42 @@ const Shop: React.FC = () => {
   const dealItem = currentCustomer.carriedItem;
 
   return (
-    <div className="relative flex flex-col flex-1 bg-cover bg-center bg-no-repeat bg-fixed overflow-hidden"
+    <div className="relative flex flex-col h-full bg-cover bg-center bg-no-repeat bg-fixed overflow-hidden"
          style={{ 
            backgroundImage: `url(${shopInteriorBg})`,
-           paddingBottom: 'max(12px, calc(env(safe-area-inset-bottom) + 10px))'
          }}>
       {/* Background overlay for warmth and contrast */}
       <div className="absolute inset-0 bg-gradient-to-b from-amber-50/75 to-orange-50/80 backdrop-blur-[1px] shop-vignette"></div>
       
-      {/* Scrollable Content Area */}
-      <div className="relative flex-1 overflow-y-auto px-4 pt-2 pb-2 max-w-md mx-auto w-full z-10">
-        <div className="grid gap-3 shop-content-gap">
+      {/* Main Content - No scroll, fit to viewport */}
+      <div className="relative flex flex-col h-full px-2 sm:px-4 py-2 max-w-md mx-auto w-full z-10">
+        <div className="flex flex-col gap-2 h-full">
           {/* Decision Timer - Only shown when timer is active */}
           {timerActive && timeRemaining !== null && (
-            <div className="flex justify-center mb-2">
-              <div className="bg-gradient-to-r from-amber-100/95 to-orange-100/95 backdrop-blur-md rounded-full px-6 py-3 border-2 border-amber-300/60 shadow-lg">
-                <div className="flex items-center gap-3">
-                  <div className="relative w-12 h-12">
+            <div className="flex justify-center flex-shrink-0">
+              <div className="bg-gradient-to-r from-amber-100/95 to-orange-100/95 backdrop-blur-md rounded-full px-4 py-2 border-2 border-amber-300/60 shadow-lg">
+                <div className="flex items-center gap-2">
+                  <div className="relative w-8 h-8">
                     {/* Circular progress ring */}
-                    <svg className="transform -rotate-90 w-12 h-12">
+                    <svg className="transform -rotate-90 w-8 h-8">
                       <circle
-                        cx="24"
-                        cy="24"
-                        r="20"
+                        cx="16"
+                        cy="16"
+                        r="14"
                         stroke="currentColor"
-                        strokeWidth="3"
+                        strokeWidth="2"
                         fill="transparent"
                         className="text-gray-200"
                       />
                       <circle
-                        cx="24"
-                        cy="24"
-                        r="20"
+                        cx="16"
+                        cy="16"
+                        r="14"
                         stroke="currentColor"
-                        strokeWidth="3"
+                        strokeWidth="2"
                         fill="transparent"
-                        strokeDasharray={`${2 * Math.PI * 20}`}
-                        strokeDashoffset={`${2 * Math.PI * 20 * (1 - timeRemaining / (calculateDecisionTime() || 1))}`}
+                        strokeDasharray={`${2 * Math.PI * 14}`}
+                        strokeDashoffset={`${2 * Math.PI * 14 * (1 - timeRemaining / (calculateDecisionTime() || 1))}`}
                         className={`transition-all duration-1000 ${
                           timeRemaining <= 5 ? 'text-red-500' : 'text-amber-500'
                         }`}
@@ -343,7 +342,7 @@ const Shop: React.FC = () => {
                     </svg>
                     {/* Timer text in center */}
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <span className={`text-lg font-bold ${
+                      <span className={`text-sm font-bold ${
                         timeRemaining <= 5 ? 'text-red-600' : 'text-amber-700'
                       }`}>
                         {timeRemaining}
@@ -351,131 +350,128 @@ const Shop: React.FC = () => {
                     </div>
                   </div>
                   <div className="text-left">
-                    <div className="text-sm font-semibold text-amber-900">Decision Time</div>
-                    <div className="text-xs text-amber-700">Make your move</div>
+                    <div className="text-xs font-semibold text-amber-900">Karar Zamanı</div>
+                    <div className="text-[10px] text-amber-700">Hamleni yap</div>
                   </div>
                 </div>
               </div>
             </div>
           )}
           
-          {/* Customer Info Card */}
-          <div className="bg-gradient-to-br from-amber-50/98 via-orange-50/95 to-amber-100/90 backdrop-blur-lg rounded-lg border-2 border-amber-300/40 p-5 shop-card-padding shadow-2xl shadow-amber-900/25 relative overflow-hidden">
-          {/* Vintage paper texture overlay */}
-          <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(circle_at_50%_50%,#000_1px,transparent_1px)] bg-[length:20px_20px]"></div>
-          <div className="flex items-start gap-4">
-            <div className="relative">
-              <img 
-                src={currentCustomer.avatar} 
-                alt={currentCustomer.name}
-                className="w-20 h-20 rounded-full object-cover border-2 border-gray-100"
+          {/* Speech Bubble - Above customer card */}
+          {speechVisible && (
+            <div className="flex justify-center flex-shrink-0">
+              <SpeechBubble 
+                message={speechText}
+                isVisible={speechVisible}
+                className="max-w-[90%]"
               />
-              {/* Intent Badge on Avatar */}
-              <div className={`absolute -bottom-1 -right-1 rounded-full p-1.5 border-2 border-white shadow-lg ${
-                currentCustomer.intent === 'buy' 
-                  ? 'bg-blue-500' 
-                  : 'bg-orange-500'
-              }`}>
-                {currentCustomer.intent === 'buy' ? (
-                  <DollarSign className="w-4 h-4 text-white" />
+            </div>
+          )}
+          
+          {/* Customer Info Card - Compact */}
+          <div className="bg-gradient-to-br from-amber-50/98 via-orange-50/95 to-amber-100/90 backdrop-blur-lg rounded-lg border-2 border-amber-300/40 p-3 shadow-2xl shadow-amber-900/25 relative overflow-hidden flex-shrink-0">
+            {/* Vintage paper texture overlay */}
+            <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(circle_at_50%_50%,#000_1px,transparent_1px)] bg-[length:20px_20px]"></div>
+            <div className="flex items-start gap-3">
+              <div className="relative flex-shrink-0">
+                <img 
+                  src={currentCustomer.avatar} 
+                  alt={currentCustomer.name}
+                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-gray-100"
+                />
+                {/* Intent Badge on Avatar */}
+                <div className={`absolute -bottom-1 -right-1 rounded-full p-1 sm:p-1.5 border-2 border-white shadow-lg ${
+                  currentCustomer.intent === 'buy' 
+                    ? 'bg-blue-500' 
+                    : 'bg-orange-500'
+                }`}>
+                  {currentCustomer.intent === 'buy' ? (
+                    <DollarSign className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+                  ) : (
+                    <Star className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+                  )}
+                </div>
+              </div>
+              
+              <div className="flex-1 min-w-0">
+                <h3 className="text-base sm:text-lg font-semibold text-professional-dark-grey mb-1">
+                  {currentCustomer.name}
+                </h3>
+                
+                <div className="flex flex-wrap gap-1.5 mb-2">
+                  <Badge 
+                    variant="outline" 
+                    className={`font-medium px-2 py-0.5 text-xs ${currentCustomer.intent === 'buy'
+                      ? 'border-blue-500 text-blue-700 bg-blue-100' 
+                      : 'border-orange-500 text-orange-700 bg-orange-100'
+                    }`}
+                  >
+                    {currentCustomer.intent === 'buy' ? '💰 ' + t('shop.buyer') : '🏷️ ' + t('shop.seller')}
+                  </Badge>
+                  
+                  <Badge variant="secondary" className="text-[10px] bg-gray-100 text-professional-grey border-gray-200 px-2 py-0.5">
+                    {currentCustomer.type}
+                  </Badge>
+                </div>
+                
+                <p className="text-xs sm:text-sm font-medium text-professional-dark-grey leading-relaxed">
+                  {currentCustomer.intent === 'buy'
+                    ? '🛒 ' + t('shop.wantsToPurchase') 
+                    : '💼 ' + t('shop.wantsToSell')
+                  }
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Product Info Card - Compact */}
+          <div className="bg-gradient-to-br from-orange-50/98 via-amber-50/95 to-yellow-50/90 backdrop-blur-lg rounded-lg border-2 border-amber-300/40 p-3 shadow-2xl shadow-amber-900/25 relative overflow-hidden flex-1 min-h-0">
+            {/* Vintage paper texture overlay */}
+            <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(circle_at_50%_50%,#000_1px,transparent_1px)] bg-[length:20px_20px]"></div>
+            <div className="flex gap-3 mb-2 relative z-10">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white/80 rounded-lg overflow-hidden border-2 border-amber-200/60 shadow-inner flex-shrink-0">
+                {typeof dealItem.image === 'string' && dealItem.image.startsWith('/') ? (
+                  <img 
+                    src={dealItem.image} 
+                    alt={dealItem.name}
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
-                  <Star className="w-4 h-4 text-white" />
+                  <img 
+                    src={dealItem.image} 
+                    alt={dealItem.name}
+                    className="w-full h-full object-cover"
+                  />
                 )}
               </div>
               
-              {/* Speech Bubble near customer */}
-              {speechVisible && (
-                <SpeechBubble 
-                  message={speechText}
-                  isVisible={speechVisible}
-                  className="absolute left-20 sm:left-24 top-0 z-20"
-                />
-              )}
-            </div>
-            
-            <div className="flex-1 min-w-0">
-              <h3 className="text-lg font-semibold text-professional-dark-grey mb-2">
-                {currentCustomer.name}
-              </h3>
-              
-              <div className="flex flex-wrap gap-2 mb-3">
-                <Badge 
-                  variant="outline" 
-                  className={`font-medium px-3 py-1 text-sm ${currentCustomer.intent === 'buy'
-                    ? 'border-blue-500 text-blue-700 bg-blue-100' 
-                    : 'border-orange-500 text-orange-700 bg-orange-100'
-                  }`}
-                >
-                  {currentCustomer.intent === 'buy' ? '💰 ' + t('shop.buyer') : '🏷️ ' + t('shop.seller')}
-                </Badge>
+              <div className="flex-1 min-w-0">
+                <h4 className="text-base sm:text-lg font-semibold text-professional-dark-grey mb-0.5">
+                  {dealItem.name}
+                </h4>
+                <p className="text-xs sm:text-sm text-professional-grey mb-2">
+                  {t(`items.categories.${dealItem.category}`)}
+                </p>
                 
-                <Badge variant="secondary" className="text-xs bg-gray-100 text-professional-grey border-gray-200">
-                  {currentCustomer.type}
-                </Badge>
+                <div className="flex gap-1.5 flex-wrap">
+                  <Badge variant="outline" className="text-[10px] bg-gray-50 border-gray-200 text-professional-grey px-1.5 py-0">
+                    % {dealItem.condition} {t('shop.condition')}
+                  </Badge>
+                  <Badge variant="outline" className="text-[10px] bg-gray-50 border-gray-200 text-professional-grey px-1.5 py-0">
+                    {t(`items.rarities.${dealItem.rarity}`)}
+                  </Badge>
+                </div>
               </div>
-              
-              <p className="text-sm font-medium text-professional-dark-grey leading-relaxed">
-                {currentCustomer.intent === 'buy'
-                  ? '🛒 ' + t('shop.wantsToPurchase') 
-                  : '💼 ' + t('shop.wantsToSell')
-                }
-              </p>
-            </div>
-          </div>
-          </div>
-
-          {/* Product Info Card */}
-          <div className="bg-gradient-to-br from-orange-50/98 via-amber-50/95 to-yellow-50/90 backdrop-blur-lg rounded-lg border-2 border-amber-300/40 p-5 shop-card-padding shadow-2xl shadow-amber-900/25 relative overflow-hidden">
-          {/* Vintage paper texture overlay */}
-          <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(circle_at_50%_50%,#000_1px,transparent_1px)] bg-[length:20px_20px]"></div>
-          <div className="flex gap-4 mb-4 relative z-10">
-            <div className="w-24 h-24 bg-white/80 rounded-lg overflow-hidden border-2 border-amber-200/60 shadow-inner">
-              {typeof dealItem.image === 'string' && dealItem.image.startsWith('/') ? (
-                <img 
-                  src={dealItem.image} 
-                  alt={dealItem.name}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <img 
-                  src={dealItem.image} 
-                  alt={dealItem.name}
-                  className="w-full h-full object-cover"
-                />
-              )}
             </div>
             
-            <div className="flex-1">
-              <h4 className="text-lg font-semibold text-professional-dark-grey mb-1">
-                {dealItem.name}
-              </h4>
-              <p className="text-sm text-professional-grey mb-3">
-                {t(`items.categories.${dealItem.category}`)}
-              </p>
-              
-              <div className="flex gap-2">
-                <Badge variant="outline" className="text-xs bg-gray-50 border-gray-200 text-professional-grey">
-                  {dealItem.condition}% {t('shop.condition')}
-                </Badge>
-                <Badge variant="outline" className="text-xs bg-gray-50 border-gray-200 text-professional-grey">
-                  {t(`items.rarities.${dealItem.rarity}`)}
-                </Badge>
-              </div>
-            </div>
-          </div>
-          
-          <div className="space-y-3 pt-3 border-t border-gray-100">
-            {/* Market Price - Always shown as reference */}
-            <div className="flex justify-between items-center">
-                <div className="flex flex-col">
-                  <span className="text-sm font-medium text-professional-dark-grey">
-                    {t('shop.estimatedMarketValue')}
-                  </span>
-                  <span className="text-xs text-professional-grey">
-                    {t('shop.referenceInfo')}
-                  </span>
-                </div>
-                <span className="text-lg font-bold text-professional-blue">
+            <div className="space-y-1.5 pt-2 border-t border-gray-100 text-xs sm:text-sm">
+              {/* Market Price - Always shown as reference */}
+              <div className="flex justify-between items-center">
+                <span className="text-xs font-medium text-professional-dark-grey">
+                  {t('shop.estimatedMarketValue')}
+                </span>
+                <span className="text-sm sm:text-base font-bold text-professional-blue">
                   ${calculateItemValue(dealItem)}
                 </span>
               </div>
@@ -483,108 +479,90 @@ const Shop: React.FC = () => {
               {/* Customer is SELLER (wants to sell to player) */}
               {currentCustomer.intent === 'sell' && (
                 <div className="flex justify-between items-center">
-                  <div className="flex flex-col">
-                    <span className="text-sm font-medium text-professional-dark-grey">
-                      {t('shop.sellerAskingPrice')}
-                    </span>
-                    <span className="text-xs text-professional-grey">
-                      {t('shop.customerRequestedAmount')}
-                    </span>
-                  </div>
-                <span className="text-lg font-bold text-professional-red">
-                  ${currentOffer}
-                </span>
-              </div>
-            )}
-            
-            {/* Customer is BUYER (wants to buy from player) */}
-            {currentCustomer.intent === 'buy' && (
-              <>
-                {dealItem.purchasePrice && (
-                  <div className="flex justify-between items-center">
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium text-professional-dark-grey">
-                      {t('shop.yourPurchasePrice')}
-                    </span>
-                    <span className="text-xs text-professional-grey">
-                      {t('shop.yourCostForItem')}
-                    </span>
-                  </div>
-                  <span className="text-sm font-medium text-gray-600">
-                    ${dealItem.purchasePrice}
+                  <span className="text-xs font-medium text-professional-dark-grey">
+                    {t('shop.sellerAskingPrice')}
                   </span>
-                </div>
-                )}
-                
-                <div className="flex justify-between items-center">
-                  <div className="flex flex-col">
-                    <span className="text-sm font-medium text-professional-dark-grey">
-                      {t('shop.buyerOfferPrice')}
-                    </span>
-                    <span className="text-xs text-professional-grey">
-                      {t('shop.customerWillingToPay')}
-                    </span>
-                  </div>
-                  <span className="text-lg font-bold text-professional-red">
+                  <span className="text-sm sm:text-base font-bold text-professional-red">
                     ${currentOffer}
                   </span>
                 </div>
-                
-                {/* Profit/Loss calculation for buyer scenario */}
-                {dealItem.purchasePrice && (
-                  <div className="flex justify-between items-center pt-2 border-t border-gray-100">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-professional-dark-grey">
-                        {t('shop.profitLoss')}
+              )}
+              
+              {/* Customer is BUYER (wants to buy from player) */}
+              {currentCustomer.intent === 'buy' && (
+                <>
+                  {dealItem.purchasePrice && (
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-medium text-professional-dark-grey">
+                        {t('shop.yourPurchasePrice')}
                       </span>
-                      {(currentOffer - dealItem.purchasePrice) < 0 && (
-                        <span className="text-red-500 text-sm">⚠️</span>
-                      )}
+                      <span className="text-xs sm:text-sm font-medium text-gray-600">
+                        ${dealItem.purchasePrice}
+                      </span>
                     </div>
-                    <span className={`text-lg font-bold ${
-                      (currentOffer - dealItem.purchasePrice) >= 0 
-                        ? 'text-emerald-600' 
-                        : 'text-red-600'
-                    }`}>
-                      ${(currentOffer - dealItem.purchasePrice) >= 0 ? '+' : ''}
-                      {currentOffer - dealItem.purchasePrice}
+                  )}
+                  
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-medium text-professional-dark-grey">
+                      {t('shop.buyerOfferPrice')}
+                    </span>
+                    <span className="text-sm sm:text-base font-bold text-professional-red">
+                      ${currentOffer}
                     </span>
                   </div>
-                )}
-              </>
-            )}
+                  
+                  {/* Profit/Loss calculation for buyer scenario */}
+                  {dealItem.purchasePrice && (
+                    <div className="flex justify-between items-center pt-1.5 border-t border-gray-100">
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs font-medium text-professional-dark-grey">
+                          {t('shop.profitLoss')}
+                        </span>
+                        {(currentOffer - dealItem.purchasePrice) < 0 && (
+                          <span className="text-red-500 text-xs">⚠️</span>
+                        )}
+                      </div>
+                      <span className={`text-sm sm:text-base font-bold ${
+                        (currentOffer - dealItem.purchasePrice) >= 0 
+                          ? 'text-emerald-600' 
+                          : 'text-red-600'
+                      }`}>
+                        ${(currentOffer - dealItem.purchasePrice) >= 0 ? '+' : ''}
+                        {currentOffer - dealItem.purchasePrice}
+                      </span>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
           </div>
+          
+          {/* Bottom Action Bar - No scroll needed */}
+          <div className="flex-shrink-0 pb-safe">
+            <div className="grid grid-cols-3 gap-2">
+              <Button
+                variant="outline"
+                onClick={handleReject}
+                className="min-h-[44px] sm:min-h-[48px] text-sm sm:text-base border-professional-red text-professional-red hover:bg-red-50 hover:border-red-400 font-medium"
+              >
+                {t('common.decline')}
+              </Button>
+              
+              <Button
+                onClick={openOfferModal}
+                className="min-h-[44px] sm:min-h-[48px] text-sm sm:text-base bg-professional-navy hover:bg-professional-blue text-white font-medium"
+              >
+                {t('common.counter')}
+              </Button>
+              
+              <Button
+                onClick={handleAccept}
+                className="min-h-[44px] sm:min-h-[48px] text-sm sm:text-base bg-professional-emerald hover:bg-emerald-600 text-white font-medium"
+              >
+                {t('common.accept')}
+              </Button>
+            </div>
           </div>
-        </div>
-      </div>
-
-      {/* Bottom Action Bar - Sticky */}
-      <div className="relative flex-shrink-0 px-4 pb-2 max-w-md mx-auto w-full z-10"
-           style={{ 
-             marginBottom: 'env(safe-area-inset-bottom)'
-           }}>
-        <div className="grid grid-cols-3 gap-2.5">
-          <Button
-            variant="outline"
-            onClick={handleReject}
-            className="min-h-[48px] text-base shop-button-text border-professional-red text-professional-red hover:bg-red-50 hover:border-red-400 font-medium"
-          >
-            {t('common.decline')}
-          </Button>
-          
-          <Button
-            onClick={openOfferModal}
-            className="min-h-[48px] text-base shop-button-text bg-professional-navy hover:bg-professional-blue text-white font-medium"
-          >
-            {t('common.counter')}
-          </Button>
-          
-          <Button
-            onClick={handleAccept}
-            className="min-h-[48px] text-base shop-button-text bg-professional-emerald hover:bg-emerald-600 text-white font-medium"
-          >
-            {t('common.accept')}
-          </Button>
         </div>
       </div>
 
